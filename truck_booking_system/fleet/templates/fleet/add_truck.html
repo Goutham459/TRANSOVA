@@ -1,0 +1,60 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}
+Add Truck | TRANSOVA
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-header bg-primary text-white" style="background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; border-radius: 16px 16px 0 0 !important;">
+                    <h4 class="mb-0">Add New Truck</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white">Truck Number</label>
+                            <input type="text" class="form-control minimal-select" name="truck_number" placeholder="e.g., TRK-001" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Truck Type</label>
+                            <select class="form-select minimal-select" name="truck_type" required>
+                                <option value="">Select Truck Type</option>
+                                {% for type_code, type_name in truck_types %}
+                                <option value="{{ type_code }}">{{ type_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Capacity (tons)</label>
+                            <input type="number" step="0.1" class="form-control minimal-select" name="capacity" placeholder="e.g., 10" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Price per KM</label>
+                            <input type="number" step="0.01" class="form-control minimal-select" name="price_per_km" placeholder="e.g., 2.50" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Truck Image</label>
+                            <input type="file" class="form-control minimal-select" name="image" accept="image/*">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn kontrek-btn">Add Truck</button>
+                            <a href="{% url 'company_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

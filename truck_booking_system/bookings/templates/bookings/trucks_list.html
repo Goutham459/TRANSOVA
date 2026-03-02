@@ -1,0 +1,132 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<section class="trucks-hero bg-dark" style="padding: 6rem 0; background: rgba(255,255,255,0.04);">
+    <div class="container">
+
+        <!-- Header + Filter Toggle -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+            <h2 class="text-white mb-2 mb-md-0">Available Trucks</h2>
+            <button id="filter-toggle" class="btn kontrek-btn-outline d-md-none">
+                <i class="bi bi-funnel-fill"></i> Filter
+            </button>
+        </div>
+
+        <!-- Filter Panel -->
+        <form id="filter-panel" class="filter-panel d-none d-md-flex flex-wrap gap-3 mb-4 align-items-center">
+            <div class="flex-grow-1">
+                <select id="type-filter" name="truck_type" class="form-select minimal-select">
+                    <option value="">All Types</option>
+                    {% for type in truck_types %}
+                        <option value="{{ type.id }}" {% if selected_type|stringformat:"s" == type.id|stringformat:"s" %}selected{% endif %}>
+                            {{ type.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex-grow-1">
+                <select id="availability-filter" name="availability" class="form-select minimal-select">
+                    <option value="">All</option>
+                    <option value="available" {% if selected_availability == "available" %}selected{% endif %}>Available</option>
+                    <option value="booked" {% if selected_availability == "booked" %}selected{% endif %}>Booked</option>
+                </select>
+            </div>
+
+            <div class="flex-grow-1">
+                <select id="load-filter" name="load" class="form-select minimal-select">
+                    <option value="">All Loads</option>
+                    {% for load in load_types %}
+                        <option value="{{ load.id }}" {% if selected_load|stringformat:"s" == load.id|stringformat:"s" %}selected{% endif %}>
+                            {{ load.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex-shrink-0">
+                <button id="apply-filter" class="btn kontrek-btn w-100 w-md-auto">Apply</button>
+            </div>
+        </form>
+
+        <!-- Trucks Grid -->
+        <div class="row g-4">
+            {% for truck in trucks %}
+            <div class="col-12 col-sm-6 col-lg-4 d-flex">
+                <div class="card truck-card flex-fill h-100 shadow-sm"
+                     data-truck-type="{{ truck.truck_type }}"
+                     data-availability="{% if truck.is_available %}available{% else %}booked{% endif %}"
+                     data-load="{{ truck.load_type }}">
+                    <img src="{% if truck.image %}{{ truck.image.url }}{% else %}{% static 'images/default_truck.png' %}{% endif %}" 
+                         class="card-img-top" alt="{{ truck.truck_number }}">
+                    <div class="card-body text-white">
+                        <h5 class="card-title">{{ truck.truck_number }}</h5>
+                        <p class="card-text">{{ truck.truck_type }} | Capacity: {{ truck.capacity }} tons</p>
+                        <p class="card-text">
+                            Availability: 
+                            {% if truck.is_available %}
+                                <span class="badge bg-success">Available</span>
+                            {% else %}
+                                <span class="badge bg-danger">Booked</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 text-center">
+                        {% if truck.is_available %}
+                            <a href="{% url 'customer_booking' %}?truck={{ truck.id }}" class="btn kontrek-btn w-100">Book Now</a>
+                        {% else %}
+                            <button class="btn kontrek-btn-outline w-100" disabled>Booked</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-white">No trucks available right now.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+<!-- JS for filter toggle and client-side filtering -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const filterToggle = document.getElementById("filter-toggle");
+    const filterPanel = document.getElementById("filter-panel");
+    const applyFilterBtn = document.getElementById("apply-filter");
+
+    // Toggle filter panel on mobile
+    if(filterToggle && filterPanel){
+        filterToggle.addEventListener("click", () => {
+            filterPanel.classList.toggle("d-none");
+            filterPanel.classList.toggle("d-flex"); // ensures layout
+        });
+    }
+
+    // Client-side filter
+    if(applyFilterBtn){
+        applyFilterBtn.addEventListener("click", () => {
+            const typeValue = document.getElementById("type-filter").value;
+            const availValue = document.getElementById("availability-filter").value;
+            const loadValue = document.getElementById("load-filter").value;
+
+            document.querySelectorAll(".truck-card").forEach(card => {
+                const cardType = card.dataset.truckType;
+                const cardAvail = card.dataset.availability;
+                const cardLoad = card.dataset.load;
+
+                let show = true;
+                if(typeValue && cardType != typeValue) show = false;
+                if(availValue && cardAvail != availValue) show = false;
+                if(loadValue && cardLoad != loadValue) show = false;
+
+                card.parentElement.style.display = show ? "flex" : "none";
+            });
+        });
+    }
+});
+</script>
+
+{% endblock %}

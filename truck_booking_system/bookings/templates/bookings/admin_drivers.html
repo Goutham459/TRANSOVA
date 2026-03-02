@@ -1,0 +1,52 @@
+{% extends "bookings/admin_base.html" %}
+
+{% block title %}Manage Drivers - Transova Admin{% endblock %}
+{% block page_title %}Manage Drivers{% endblock %}
+
+{% block admin_content %}
+<!-- Drivers Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="bi bi-person-badge me-2"></i>All Drivers</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Driver Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Company</th>
+                            <th>License Number</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in drivers %}
+                        <tr>
+                            <td>#{{ driver.id }}</td>
+                            <td>{{ driver.user.get_full_name|default:driver.user.username }}</td>
+                            <td>{{ driver.user.email }}</td>
+                            <td>{{ driver.phone|default:"N/A" }}</td>
+                            <td>{{ driver.company.company_name|default:"N/A" }}</td>
+                            <td>{{ driver.license_number|default:"N/A" }}</td>
+                            <td>{{ driver.created_at|date:"M d, Y"|default:"N/A" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
+                                No drivers found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

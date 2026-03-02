@@ -1,0 +1,56 @@
+{% extends "bookings/admin_base.html" %}
+
+{% block title %}Manage Load Types - Transova Admin{% endblock %}
+{% block page_title %}Manage Load Types{% endblock %}
+
+{% block admin_content %}
+<!-- Load Types Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-box-seam me-2"></i>All Load Types</h5>
+                <a href="{% url 'admin_load_type_add' %}" class="btn btn-admin btn-admin-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Add Load Type
+                </a>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price Multiplier</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for load_type in load_types %}
+                        <tr>
+                            <td>#{{ load_type.id }}</td>
+                            <td>{{ load_type.name }}</td>
+                            <td>{{ load_type.price_multiplier }}x</td>
+                            <td>
+                                <a href="{% url 'admin_load_type_edit' load_type.id %}" class="btn btn-sm btn-admin-outline">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'admin_load_type_delete' load_type.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Are you sure you want to delete this load type?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
+                                No load types found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

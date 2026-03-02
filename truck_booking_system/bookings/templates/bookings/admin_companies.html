@@ -1,0 +1,70 @@
+{% extends "bookings/admin_base.html" %}
+
+{% block title %}Manage Companies - Transova Admin{% endblock %}
+{% block page_title %}Manage Companies{% endblock %}
+
+{% block admin_content %}
+<!-- Companies Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="bi bi-building me-2"></i>All Companies</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Company Name</th>
+                            <th>Owner</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in companies %}
+                        <tr>
+                            <td>#{{ company.id }}</td>
+                            <td>{{ company.company_name }}</td>
+                            <td>{{ company.user.username }}</td>
+                            <td>{{ company.user.email }}</td>
+                            <td>{{ company.phone|default:"N/A" }}</td>
+                            <td>
+                                {% if company.is_approved %}
+                                <span class="badge badge-success-custom">Approved</span>
+                                {% else %}
+                                <span class="badge badge-warning-custom">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ company.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if company.is_approved %}
+                                <a href="{% url 'admin_company_disapprove' company.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Disapprove this company?')">
+                                    <i class="bi bi-x-circle"></i> Disapprove
+                                </a>
+                                {% else %}
+                                <a href="{% url 'admin_company_approve' company.id %}" class="btn btn-sm btn-admin-primary">
+                                    <i class="bi bi-check-circle"></i> Approve
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
+                                No companies found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

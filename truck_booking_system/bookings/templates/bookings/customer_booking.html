@@ -1,0 +1,205 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}
+Book Your Truck | TRANSOVA
+{% endblock %}
+
+{% block content %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                
+                <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                    <div class="card-header bg-primary text-white" style="background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; border-radius: 16px 16px 0 0 !important;">
+                       
+                    </div>
+
+                    <div class="card-body">
+                        <form id="bookingForm">
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label class="form-label text-white">Customer Name</label>
+                                <input type="text" class="form-control minimal-select" name="customer_name" placeholder="Enter your name" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white">Contact Number</label>
+                                <input type="text" class="form-control minimal-select" name="contact_number" placeholder="Enter contact number" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white">Pickup Location</label>
+                                <input id="pickup" class="form-control minimal-select" name="pickup_location" placeholder="Enter Pickup Location" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white">Drop Location</label>
+                                <input id="drop" class="form-control minimal-select" name="drop_location" placeholder="Enter Drop Location" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white">Booking Date</label>
+                                <input type="date" class="form-control minimal-select" name="booking_date" required>
+                            </div>
+
+                            <!-- Hidden inputs for lat/lng -->
+                            <input type="hidden" name="pickup_lat" id="pickup_lat">
+                            <input type="hidden" name="pickup_lng" id="pickup_lng">
+                            <input type="hidden" name="drop_lat" id="drop_lat">
+                            <input type="hidden" name="drop_lng" id="drop_lng">
+
+                            <div id="map" style="height: 400px;" class="mb-3"></div>
+
+                            <!-- Price details -->
+                            <div class="mb-3 text-white">
+                                <strong>Total Distance:</strong> <span id="totalKm">0</span> km<br>
+                                <strong>Price per km:</strong> <span id="pricePerKm">2</span> AED<br>
+                                <strong>Total Price:</strong> <span id="totalPrice">0</span> AED<br>
+                                <strong>Commission (5%):</strong> <span id="commission">0</span> AED<br>
+                                <strong>Grand Total:</strong> <span id="grandTotal">0</span> AED
+                            </div>
+
+                            <button type="submit" class="btn kontrek-btn w-100">Proceed to Payment</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let map = L.map('map').setView([25.276987, 55.296249], 10); // Dubai default
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let pickupMarker, dropMarker, routeLine;
+
+// Nominatim search
+async function searchLocation(query){
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&accept-language=en`);
+    return res.json();
+}
+
+async function setPickup(value){
+    const results = await searchLocation(value);
+    if(results.length > 0){
+        const place = results[0];
+        document.getElementById('pickup_lat').value = place.lat;
+        document.getElementById('pickup_lng').value = place.lon;
+
+        if(pickupMarker) map.removeLayer(pickupMarker);
+        pickupMarker = L.marker([place.lat, place.lon]).addTo(map)
+            .bindPopup("Pickup: " + place.display_name)
+            .openPopup();
+
+        drawRoute();
+        updatePrice();
+    }
+}
+
+async function setDrop(value){
+    const results = await searchLocation(value);
+    if(results.length > 0){
+        const place = results[0];
+        document.getElementById('drop_lat').value = place.lat;
+        document.getElementById('drop_lng').value = place.lon;
+
+        if(dropMarker) map.removeLayer(dropMarker);
+        dropMarker = L.marker([place.lat, place.lon]).addTo(map)
+            .bindPopup("Drop: " + place.display_name)
+            .openPopup();
+
+        drawRoute();
+        updatePrice();
+    }
+}
+
+document.getElementById('pickup').addEventListener('input', function(){
+    if(this.value.length > 2) setPickup(this.value);
+});
+document.getElementById('drop').addEventListener('input', function(){
+    if(this.value.length > 2) setDrop(this.value);
+});
+
+// Draw route line
+function drawRoute(){
+    const pickupLat = parseFloat(document.getElementById('pickup_lat').value);
+    const pickupLng = parseFloat(document.getElementById('pickup_lng').value);
+    const dropLat = parseFloat(document.getElementById('drop_lat').value);
+    const dropLng = parseFloat(document.getElementById('drop_lng').value);
+
+    if(pickupLat && dropLat){
+        if(routeLine) map.removeLayer(routeLine);
+        routeLine = L.polyline([
+            [pickupLat, pickupLng],
+            [dropLat, dropLng]
+        ], {color: 'blue', weight: 4, opacity:0.6}).addTo(map);
+        map.fitBounds(routeLine.getBounds());
+    }
+}
+
+// Haversine distance
+function calculateDistance(lat1, lon1, lat2, lon2){
+    const R = 6371;
+    const dLat = (lat2-lat1) * Math.PI/180;
+    const dLon = (lon2-lon1) * Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+// Update price details
+function updatePrice(){
+    const pickupLat = parseFloat(document.getElementById('pickup_lat').value);
+    const pickupLng = parseFloat(document.getElementById('pickup_lng').value);
+    const dropLat = parseFloat(document.getElementById('drop_lat').value);
+    const dropLng = parseFloat(document.getElementById('drop_lng').value);
+
+    if(pickupLat && dropLat){
+        let distance = calculateDistance(pickupLat, pickupLng, dropLat, dropLng);
+        let pricePerKm = 2; // AED per km
+        let totalPrice = distance * pricePerKm;
+        let commission = totalPrice * 0.05;
+        let grandTotal = totalPrice + commission;
+
+        document.getElementById('totalKm').innerText = distance.toFixed(2);
+        document.getElementById('pricePerKm').innerText = pricePerKm;
+        document.getElementById('totalPrice').innerText = totalPrice.toFixed(2);
+        document.getElementById('commission').innerText = commission.toFixed(2);
+        document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
+    }
+}
+
+// AJAX submit
+document.getElementById('bookingForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    let formData = new FormData(this);
+
+    fetch("{% url 'customer_booking' %}", {
+        method: "POST",
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            window.location.href = `/payment/?amount=${data.amount}&currency=${data.currency}&booking_id=${data.booking_id}`;
+        } else {
+            alert("Booking failed. Try again.");
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "bookings/admin_base.html" %}
+
+{% block title %}My Dashboard - Transova{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+
+{% block admin_content %}
+<!-- Welcome Message -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-body">
+                <h4 class="mb-2">Welcome back, <span style="color: #06b6d4;">{{ user.username }}</span>!</h4>
+                <p class="text-muted mb-0">Manage your bookings and track your deliveries</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'customer_booking' %}" class="btn btn-admin btn-admin-primary me-2">
+                    <i class="bi bi-plus-circle me-1"></i> Book a Truck
+                </a>
+                <a href="{% url 'trucks_list' %}" class="btn btn-admin btn-admin-outline me-2">
+                    <i class="bi bi-truck me-1"></i> View Available Trucks
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-admin btn-admin-outline">
+                    <i class="bi bi-house me-1"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Bookings -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-check me-2"></i>My Bookings</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Pickup</th>
+                            <th>Drop</th>
+                            <th>Date</th>
+                            <th>Distance (km)</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>#{{ booking.id }}</td>
+                            <td>{{ booking.pickup_location }}</td>
+                            <td>{{ booking.drop_location }}</td>
+                            <td>{{ booking.booking_date }}</td>
+                            <td>{{ booking.distance_km }}</td>
+                            <td>${{ booking.price }}</td>
+                            <td>
+                                {% if booking.truck %}
+                                    <span class="badge badge-success-custom">Confirmed</span>
+                                {% else %}
+                                    <span class="badge badge-warning-custom">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
+                                <p class="mb-2">No bookings yet</p>
+                                <a href="{% url 'customer_booking' %}" class="btn btn-admin btn-admin-primary">
+                                    <i class="bi bi-plus-circle me-1"></i> Book your first truck
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

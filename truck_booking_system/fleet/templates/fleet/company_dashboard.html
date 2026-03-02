@@ -1,0 +1,113 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}
+Company Dashboard | TRANSOVA
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-white mb-4">Welcome, {{ company.company_name }}</h2>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white">Total Trucks</h5>
+                    <h2 class="text-primary">{{ trucks.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white">Available Trucks</h5>
+                    <h2 class="text-success">{{ trucks.available_count|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white">Total Drivers</h5>
+                    <h2 class="text-warning">{{ drivers.count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trucks Section -->
+    <div class="row">
+        <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-white">My Trucks</h3>
+            <a href="{% url 'add_truck' %}" class="btn kontrek-btn">Add New Truck</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for truck in trucks %}
+        <div class="col-md-4">
+            <div class="card shadow h-100" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                {% if truck.image %}
+                <img src="{{ truck.image.url }}" class="card-img-top" alt="{{ truck.truck_number }}" style="height: 200px; object-fit: cover; border-radius: 16px 16px 0 0;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title text-white">{{ truck.truck_number }}</h5>
+                    <p class="card-text text-white">
+                        Type: {{ truck.get_truck_type_display }}<br>
+                        Capacity: {{ truck.capacity }} tons<br>
+                        Price/km: {{ truck.price_per_km }} AED
+                    </p>
+                    <p class="card-text">
+                        {% if truck.is_available %}
+                        <span class="badge bg-success">Available</span>
+                        {% else %}
+                        <span class="badge bg-danger">Booked</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+                    <a href="{% url 'edit_truck' truck.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{% url 'delete_truck' truck.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-white">No trucks added yet. <a href="{% url 'add_truck' %}">Add your first truck</a></p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Drivers Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="text-white mb-3">My Drivers</h3>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for driver in drivers %}
+        <div class="col-md-4">
+            <div class="card shadow h-100" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-body">
+                    <h5 class="card-title text-white">{{ driver.user.get_full_name|default:driver.user.username }}</h5>
+                    <p class="card-text text-white">
+                        Email: {{ driver.user.email }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-white">No drivers assigned yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

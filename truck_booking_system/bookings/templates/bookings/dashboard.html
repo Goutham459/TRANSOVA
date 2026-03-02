@@ -1,0 +1,70 @@
+{% extends "bookings/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Total Bookings -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card text-white bg-success shadow">
+            <div class="card-body">
+                <h5>Total Bookings</h5>
+                <h2>{{ total_bookings }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card text-white bg-primary shadow">
+            <div class="card-body">
+                <h5>Total Revenue</h5>
+                <h2>{{ total_revenue }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Bookings Table -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Recent Bookings</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Pickup</th>
+                            <th>Drop</th>
+                            <th>Date</th>
+                            <th>Truck</th>
+                            <th>Load Type</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                        <tr>
+                            <td>{{ booking.customer_name }}</td>
+                            <td>{{ booking.pickup_location }}</td>
+                            <td>{{ booking.drop_location }}</td>
+                            <td>{{ booking.booking_date }}</td>
+                            <td>{{ booking.truck.truck_number }} ({{ booking.truck.truck_type }})</td>
+                            <td>{{ booking.load_type.name }}</td>
+                            <td>{{ booking.price }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No recent bookings</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

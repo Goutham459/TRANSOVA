@@ -1,0 +1,70 @@
+{% extends "bookings/admin_base.html" %}
+
+{% block title %}Manage Trucks - Transova Admin{% endblock %}
+{% block page_title %}Manage Trucks{% endblock %}
+
+{% block admin_content %}
+<!-- Trucks Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-truck me-2"></i>All Trucks</h5>
+                <a href="{% url 'admin_truck_add' %}" class="btn btn-admin btn-admin-outline">
+                    <i class="bi bi-plus-circle me-1"></i> Add New Truck
+                </a>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Truck Number</th>
+                            <th>Type</th>
+                            <th>Capacity</th>
+                            <th>Price/KM</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for truck in trucks %}
+                        <tr>
+                            <td>#{{ truck.id }}</td>
+                            <td>{{ truck.truck_number }}</td>
+                            <td>{{ truck.truck_type }}</td>
+                            <td>{{ truck.capacity }} kg</td>
+                            <td>${{ truck.price_per_km }}</td>
+                            <td>{{ truck.company.company_name|default:"N/A" }}</td>
+                            <td>
+                                {% if truck.is_available %}
+                                <span class="badge badge-success-custom">Available</span>
+                                {% else %}
+                                <span class="badge badge-warning-custom">Booked</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_truck_edit' truck.id %}" class="btn btn-sm btn-admin-outline">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'admin_truck_delete' truck.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Are you sure you want to delete this truck?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
+                                No trucks found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

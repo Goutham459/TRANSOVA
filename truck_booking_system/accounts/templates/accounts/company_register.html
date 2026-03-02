@@ -1,0 +1,61 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}
+Company Registration | TRANSOVA
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-header bg-primary text-white" style="background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; border-radius: 16px 16px 0 0 !important;">
+                    <h4 class="mb-0">Company Registration</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white">Email</label>
+                            <input type="email" class="form-control minimal-select" name="email" placeholder="company@email.com" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Password</label>
+                            <input type="password" class="form-control minimal-select" name="password" placeholder="Enter password" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Company Name</label>
+                            <input type="text" class="form-control minimal-select" name="company_name" placeholder="Your Company Name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Trade License Number</label>
+                            <input type="text" class="form-control minimal-select" name="trade_license" placeholder="e.g., DM-123456" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Phone Number</label>
+                            <input type="text" class="form-control minimal-select" name="phone" placeholder="+971XXXXXXXXX" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn kontrek-btn">Register Company</button>
+                            <a href="{% url 'login' %}" class="btn btn-outline-secondary">Already have an account? Login</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

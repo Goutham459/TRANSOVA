@@ -1,0 +1,105 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}
+Payment | TRANSOVA
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-header bg-primary text-white" style="background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; border-radius: 16px 16px 0 0 !important;">
+                    <h4 class="mb-0">Complete Payment</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Booking Summary -->
+                    <div class="alert alert-info mb-4">
+                        <h5 class="mb-3">Booking Summary</h5>
+                        <p class="mb-1"><strong>Booking ID:</strong> {{ booking_id }}</p>
+                        <p class="mb-0"><strong>Amount to Pay:</strong> {{ currency }} {{ amount }}</p>
+                    </div>
+
+                    <!-- Payment Method Selection -->
+                    <h5 class="text-white mb-3">Select Payment Method</h5>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="form-check custom-payment-option p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" id="card" value="card" checked>
+                                <label class="form-check-label text-white" for="card">
+                                    <i class="bi bi-credit-card"></i> Credit/Debit Card
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check custom-payment-option p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" id="wallet" value="wallet">
+                                <label class="form-check-label text-white" for="wallet">
+                                    <i class="bi bi-wallet2"></i> Digital Wallet
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Details (shown when card is selected) -->
+                    <div id="card-details">
+                        <div class="mb-3">
+                            <label class="form-label text-white">Card Number</label>
+                            <input type="text" class="form-control minimal-select" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-white">Expiry Date</label>
+                                <input type="text" class="form-control minimal-select" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-white">CVV</label>
+                                <input type="text" class="form-control minimal-select" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-white">Cardholder Name</label>
+                            <input type="text" class="form-control minimal-select" placeholder="John Doe">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="button" class="btn kontrek-btn" onclick="processPayment()">
+                            Pay {{ currency }} {{ amount }}
+                        </button>
+                        <a href="{% url 'payment_cancel' %}?booking_id={{ booking_id }}" class="btn btn-outline-danger">
+                            Cancel Payment
+                        </a>
+                    </div>
+
+                    <!-- Security Note -->
+                    <p class="text-center text-white-50 mt-3 small">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                        </svg>
+                        Your payment is secure and encrypted
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function processPayment() {
+    // Simulate payment processing
+    const bookingId = "{{ booking_id }}";
+    const amount = "{{ amount }}";
+    const currency = "{{ currency }}";
+    
+    // In a real application, this would integrate with a payment gateway
+    alert("Payment successful! Redirecting to confirmation...");
+    
+    // Redirect to success page
+    window.location.href = "{% url 'payment_success' %}?booking_id=" + bookingId;
+}
+</script>
+{% endblock %}

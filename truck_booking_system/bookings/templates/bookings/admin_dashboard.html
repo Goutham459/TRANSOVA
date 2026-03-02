@@ -1,0 +1,181 @@
+{% extends "bookings/admin_base.html" %}
+
+{% block title %}Admin Dashboard - Transova{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="stat-value">{{ total_bookings }}</div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.2); color: #4f46e5;">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="stat-value">${{ total_revenue }}</div>
+            <div class="stat-label">Total Revenue</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="stat-value">{{ pending_companies }}</div>
+            <div class="stat-label">Pending Companies</div>
+        </div>
+    </div>
+</div>
+
+<!-- More Stats -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
+                <i class="bi bi-truck"></i>
+            </div>
+            <div class="stat-value">{{ total_trucks }}</div>
+            <div class="stat-label">Total Trucks</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-value">{{ available_trucks }}</div>
+            <div class="stat-label">Available Trucks</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.2); color: #4f46e5;">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <div class="stat-value">{{ total_drivers }}</div>
+            <div class="stat-label">Total Drivers</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
+                <i class="bi bi-credit-card"></i>
+            </div>
+            <div class="stat-value">{{ active_subscriptions }}</div>
+            <div class="stat-label">Active Subscriptions</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'admin_users' %}" class="btn btn-admin btn-admin-outline me-2">
+                    <i class="bi bi-people me-1"></i> Manage Users
+                </a>
+                <a href="{% url 'booking_list' %}" class="btn btn-admin btn-admin-outline me-2">
+                    <i class="bi bi-list-check me-1"></i> Manage Bookings
+                </a>
+                <a href="{% url 'admin_trucks' %}" class="btn btn-admin btn-admin-outline me-2">
+                    <i class="bi bi-truck me-1"></i> Manage Trucks
+                </a>
+                <a href="{% url 'admin_companies' %}" class="btn btn-admin btn-admin-outline me-2">
+                    <i class="bi bi-building me-1"></i> Manage Companies
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-admin btn-admin-outline">
+                    <i class="bi bi-house me-1"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Bookings Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history me-2"></i>Recent Bookings</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Customer</th>
+                            <th>Pickup</th>
+                            <th>Drop</th>
+                            <th>Date</th>
+                            <th>Truck</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                        <tr>
+                            <td>#{{ booking.id }}</td>
+                            <td>{{ booking.customer_name }}</td>
+                            <td>{{ booking.pickup_location }}</td>
+                            <td>{{ booking.drop_location }}</td>
+                            <td>{{ booking.booking_date }}</td>
+                            <td>
+                                {% if booking.truck %}
+                                    <span class="badge badge-info-custom">{{ booking.truck.truck_number }}</span>
+                                {% else %}
+                                    <span class="badge badge-warning-custom">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td>${{ booking.price }}</td>
+                            <td>
+                                <a href="{% url 'edit_booking' booking.id %}" class="btn btn-sm btn-admin-outline">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'delete_booking' booking.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Are you sure?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
+                                No bookings yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
