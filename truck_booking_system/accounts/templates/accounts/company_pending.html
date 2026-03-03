@@ -25,10 +25,37 @@ Pending Approval | TRANSOVA
                         You will be notified once your registration is approved.<br>
                         This usually takes 24-48 hours.
                     </p>
-                    <a href="{% url 'logout' %}" class="btn kontrek-btn-outline">Logout</a>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button onclick="checkStatus()" class="btn kontrek-btn">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Check Status
+                        </button>
+                        <a href="{% url 'logout' %}" class="btn kontrek-btn-outline">Logout</a>
+                    </div>
+                    <p class="text-muted small mt-3">
+                        <i class="bi bi-info-circle"></i> This page will automatically check for approval every 30 seconds.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Auto-refresh every 30 seconds
+let checkInterval = setInterval(checkStatus, 30000);
+
+function checkStatus() {
+    fetch('/bookings/api/company/status/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.is_approved) {
+                clearInterval(checkInterval);
+                alert('Congratulations! Your company has been approved. You will be redirected to the dashboard.');
+                window.location.href = '/fleet/dashboard/';
+            }
+        })
+        .catch(error => console.error('Error checking status:', error));
+}
+</script>
 {% endblock %}
+

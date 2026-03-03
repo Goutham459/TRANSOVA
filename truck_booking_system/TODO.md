@@ -1,26 +1,19 @@
-# TODO - Truck Booking System Updates
+# TODO - Company Registration & Driver Management
 
-## Phase 1: Add Driver Management for Company ✅
-- [x] Add add_driver view in fleet/views.py
-- [x] Add URL for driver management in fleet/urls.py  
-- [x] Update company_dashboard.html to include Add Driver functionality
-- [x] Create add_driver.html template
+## Phase 1: Login Page Updates - COMPLETED ✅
+- [x] 1.1 Add "Register as Company" link on login page
+- [x] 1.2 Add "Register as Driver" info message (告知 driver需要通过公司注册)
 
-## Phase 2: Remove Booking Options from Admin ✅
-- [x] Remove "Bookings" link from admin_base.html sidebar
-- [x] Keep only management features
+## Phase 2: Company Registration Flow - COMPLETED ✅
+- [x] 2.1 Update company_register view to send notification email to admin
+- [x] 2.2 Update company_pending.html to poll for approval status (already implemented in fleet template)
 
-## Phase 3: Remove Booking Options from Driver Dashboard ✅
-- [x] Update driver_dashboard.html to remove booking-related options
+## Phase 3: Admin Approval Flow - COMPLETED ✅
+- [x] 3.1 Ensure admin approval sends email to company (Already implemented in bookings/views.py)
 
-## Phase 4: Mobile Responsive UI Updates ✅
-- [x] Update customer_dashboard.html with responsive grid
-- [x] Update driver_dashboard.html with responsive grid
-- [x] Update admin_base.html for better mobile support
-- [x] Update company_dashboard.html with responsive grid
+## Phase 4: Driver Registration (Already Implemented)
+- [x] 4.1 Verify only approved companies can add drivers (Already done in add_driver)
 
-## Completed Changes:
-1. Company can now add drivers from their dashboard
-2. Admin no longer has "Bookings" link in sidebar (only management features)
-3. Driver dashboard only shows driver-specific information (no booking options)
-4. All dashboards are now mobile responsive with auto-alignment
+## Phase 5: Driver Login (Already Working)
+- [x] 5.1 Verify drivers can login with company-provided credentials (Already works)
+

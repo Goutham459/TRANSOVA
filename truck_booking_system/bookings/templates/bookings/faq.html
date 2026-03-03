@@ -1,0 +1,381 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}FAQ - Transova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .faq-section {
+        padding: 40px 0;
+    }
+    
+    .faq-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .faq-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+    }
+    
+    .faq-header p {
+        color: #94a3b8;
+        font-size: 1.1rem;
+    }
+    
+    .faq-category {
+        margin-bottom: 40px;
+    }
+    
+    .faq-category h3 {
+        color: #06b6d4;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(6, 182, 212, 0.2);
+    }
+    
+    .faq-item {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(6, 182, 212, 0.1);
+        border-radius: 12px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .faq-item:hover {
+        border-color: rgba(6, 182, 212, 0.3);
+        box-shadow: 0 5px 20px rgba(6, 182, 212, 0.1);
+    }
+    
+    .faq-question {
+        padding: 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #fff;
+        font-weight: 600;
+    }
+    
+    .faq-question:hover {
+        color: #06b6d4;
+    }
+    
+    .faq-icon {
+        transition: transform 0.3s ease;
+        font-size: 1.2rem;
+        color: #06b6d4;
+    }
+    
+    .faq-item.active .faq-icon {
+        transform: rotate(180deg);
+    }
+    
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+        color: #94a3b8;
+        line-height: 1.7;
+    }
+    
+    .faq-item.active .faq-answer {
+        max-height: 300px;
+        padding: 0 20px 20px;
+    }
+    
+    .contact-card {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        margin-top: 50px;
+    }
+    
+    .contact-card h4 {
+        color: #fff;
+        margin-bottom: 15px;
+    }
+    
+    .contact-card p {
+        color: #94a3b8;
+        margin-bottom: 20px;
+    }
+    
+    .search-box {
+        max-width: 500px;
+        margin: 0 auto 40px;
+        position: relative;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: 15px 50px 15px 20px;
+        border-radius: 30px;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        background: rgba(30, 41, 59, 0.8);
+        color: #fff;
+        font-size: 1rem;
+    }
+    
+    .search-box input:focus {
+        outline: none;
+        border-color: #06b6d4;
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+    }
+    
+    .search-box button {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        bottom: 5px;
+        border-radius: 25px;
+        background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        border: none;
+        color: white;
+        padding: 0 20px;
+        cursor: pointer;
+    }
+    
+    .no-results {
+        text-align: center;
+        color: #64748b;
+        padding: 40px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="faq-section">
+    <div class="container">
+        <div class="faq-header animate-1">
+            <h1>Frequently Asked Questions</h1>
+            <p>Find answers to common questions about our truck booking services</p>
+        </div>
+        
+        <!-- Search Box -->
+        <div class="search-box animate-2">
+            <input type="text" id="faqSearch" placeholder="Search for answers...">
+            <button type="button"><i class="bi bi-search"></i></button>
+        </div>
+        
+        <!-- FAQ Categories -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                
+                <!-- Booking FAQ -->
+                <div class="faq-category animate-3">
+                    <h3><i class="bi bi-calendar-check me-2"></i>Booking</h3>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How do I book a truck?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Booking a truck is simple! Just follow these steps:<br>
+                            1. Register an account or login<br>
+                            2. Go to "Book a Truck" from your dashboard<br>
+                            3. Enter your pickup and drop locations<br>
+                            4. Select your preferred truck type<br>
+                            5. Choose your booking date<br>
+                            6. Complete the payment
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Can I modify or cancel my booking?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Yes, you can modify or cancel your booking from your dashboard. 
+                            Please note that cancellation charges may apply depending on how close 
+                            the booking date is. Contact support for assistance.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>What information do I need to provide?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            You'll need to provide:<br>
+                            - Pickup and drop locations<br>
+                            - Preferred booking date<br>
+                            - Load type and weight<br>
+                            - Contact information<br>
+                            - Any special requirements
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment FAQ -->
+                <div class="faq-category animate-4">
+                    <h3><i class="bi bi-credit-card me-2"></i>Payment</h3>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>What payment methods are accepted?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            We accept all major credit/debit cards, digital wallets, and 
+                            bank transfers. All payments are secured with encryption.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Is there a deposit required?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Yes, a small deposit is required to confirm your booking. 
+                            The remaining balance can be paid before or at the time of delivery.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How is the price calculated?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Prices are calculated based on distance, truck type, load type, 
+                            and current fuel rates. You'll see the complete price breakdown 
+                            before confirming your booking.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delivery FAQ -->
+                <div class="faq-category animate-5">
+                    <h3><i class="bi bi-truck me-2"></i>Delivery</h3>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Can I track my delivery in real-time?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Yes! All bookings include real-time tracking. You can monitor 
+                            your truck's location from pickup to delivery through your dashboard.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>What if my delivery is delayed?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            We strive to deliver on time. In case of delays due to traffic 
+                            or unforeseen circumstances, you'll be notified immediately. 
+                            Contact support for urgent issues.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Are the drivers verified?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Yes, all our drivers undergo strict verification including 
+                            background checks, license validation, and professional training 
+                            before joining our platform.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account FAQ -->
+                <div class="faq-category">
+                    <h3><i class="bi bi-person-gear me-2"></i>Account</h3>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How do I reset my password?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Click on "Forgot Password" on the login page and enter your 
+                            email. You'll receive a link to reset your password.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How do I update my profile information?</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Go to your Dashboard and click on "Profile" to update your 
+                            personal information, contact details, and preferences.
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Contact Card -->
+        <div class="contact-card animate-5">
+            <h4><i class="bi bi-headset me-2"></i>Still have questions?</h4>
+            <p>Our support team is available 24/7 to help you with any queries.</p>
+            <a href="mailto:support@transova.com" class="btn kontrek-btn">
+                <i class="bi bi-envelope me-2"></i>Contact Support
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ Accordion
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', function() {
+            // Close other items
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            // Toggle current item
+            item.classList.toggle('active');
+        });
+    });
+    
+    // Search functionality
+    const searchInput = document.getElementById('faqSearch');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+            const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+            
+            if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+

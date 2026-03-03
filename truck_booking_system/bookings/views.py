@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.db.models import Q
 from .models import Booking
 import requests
 
@@ -173,10 +174,130 @@ def driver_dashboard(request):
         messages.error(request, "You are not authorized to view this page.")
         return redirect('login')
     
+    from django.db.models import Sum
+    from django.utils import timezone
+    from datetime import timedelta
+    from fleet.models import Driver, Truck
+    
+    # Get driver profile
+    try:
+        driver = Driver.objects.get(user=request.user)
+    except Driver.DoesNotExist:
+        driver = None
+    
+    # Get assigned bookings (from trucks belonging to driver's company)
+    if driver:
+        # Get bookings from trucks owned by the same company
+        company_trucks = Truck.objects.filter(company=driver.company)
+        
+        # Get today's date
+        today = timezone.now().date()
+        week_ago = today - timedelta(days=7)
+        
+        # Filter by view parameter
+        view_type = request.GET.get('view', 'today')
+        
+        if view_type == 'jobs':
+            # Show all jobs
+            driver_bookings = Booking.objects.filter(truck__in=company_trucks).order_by('-booking_date')[:20]
+        else:
+            # Show today's jobs by default
+            driver_bookings = Booking.objects.filter(
+                truck__in=company_trucks,
+                booking_date=today
+            ).order_by('-booking_date')[:10]
+        
+        # Calculate stats
+        all_company_bookings = Booking.objects.filter(truck__in=company_trucks)
+        today_jobs = all_company_bookings.filter(booking_date=today).count()
+        pending_jobs = all_company_bookings.filter(status='PENDING').count()
+        completed_jobs = all_company_bookings.filter(status='COMPLETED').count()
+        
+        # Weekly earnings (completed jobs this week)
+        weekly_earnings = all_company_bookings.filter(
+            status='COMPLETED',
+            booking_date__gte=week_ago
+        ).aggregate(Sum('price'))['price__sum'] or 0
+    else:
+        driver_bookings = []
+        today_jobs = 0
+        pending_jobs = 0
+        completed_jobs = 0
+        weekly_earnings = 0
+    
     context = {
         'driver': request.user,
+        'driver_profile': driver,
+        'driver_bookings': driver_bookings,
+        'today_jobs': today_jobs,
+        'pending_jobs': pending_jobs,
+        'completed_jobs': completed_jobs,
+        'weekly_earnings': int(weekly_earnings),
     }
     return render(request, "bookings/driver_dashboard.html", context)
+
+
+# ---------------- DRIVER JOB STATUS UPDATE ----------------
+@login_required(login_url='/login/')
+def driver_update_job_status(request, booking_id, new_status):
+    if request.user.role != 'DRIVER':
+        messages.error(request, "You are not authorized to perform this action.")
+        return redirect('login')
+    
+    from fleet.models import Driver, Truck
+    
+    # Get driver profile
+    try:
+        driver = Driver.objects.get(user=request.user)
+    except Driver.DoesNotExist:
+        messages.error(request, "Driver profile not found.")
+        return redirect('driver_dashboard')
+    
+    # Get the booking
+    company_trucks = Truck.objects.filter(company=driver.company)
+    try:
+        booking = Booking.objects.get(id=booking_id, truck__in=company_trucks)
+    except Booking.DoesNotExist:
+        messages.error(request, "Booking not found.")
+        return redirect('driver_dashboard')
+    
+    # Validate status
+    valid_statuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED']
+    if new_status not in valid_statuses:
+        messages.error(request, "Invalid status.")
+        return redirect('driver_dashboard')
+    
+    # Update status
+    booking.status = new_status
+    booking.save()
+    
+    # If completed, release the truck
+    if new_status == 'COMPLETED' and booking.truck:
+        booking.truck.is_available = True
+        booking.truck.save()
+    
+    messages.success(request, f"Job #{booking.id} status updated to {new_status.replace('_', ' ')}.")
+    return redirect('driver_dashboard')
+
+
+# ---------------- DRIVER PROFILE ----------------
+@login_required(login_url='/login/')
+def driver_profile(request):
+    if request.user.role != 'DRIVER':
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    from fleet.models import Driver
+    
+    try:
+        driver = Driver.objects.get(user=request.user)
+    except Driver.DoesNotExist:
+        driver = None
+    
+    context = {
+        'driver_profile': driver,
+    }
+    return render(request, "bookings/driver_profile.html", context)
 
 
 # ---------------- CUSTOMER BOOKING ----------------
@@ -360,9 +481,9 @@ class RoleBasedLoginView(LoginView):
             except Company.DoesNotExist:
                 return "/company-register/"
         
-        # Customer redirect
+        # Customer redirect - go to home page
         if user.role == 'CUSTOMER':
-            return "/bookings/customer-dashboard/"
+            return "/"
         
         # Driver redirect
         if user.role == 'DRIVER':
@@ -898,3 +1019,85 @@ def admin_user_change_role(request, user_id):
     
     # If GET request, redirect to user detail page
     return redirect('admin_user_detail', user_id=user_id)
+
+
+# ---------------- NEW CUSTOMER FEATURES ----------------
+
+def faq(request):
+    """FAQ Page"""
+    return render(request, "bookings/faq.html")
+
+
+def price_calculator(request):
+    """Price Calculator Page"""
+    return render(request, "bookings/price_calculator.html")
+
+
+@login_required(login_url='/login/')
+def profile(request):
+    """Customer Profile Page"""
+    if request.user.role != 'CUSTOMER':
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    return render(request, "bookings/profile.html")
+
+
+@login_required(login_url='/login/')
+def booking_receipt(request, booking_id):
+    """Booking Receipt/Invoice Page"""
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Verify the user owns this booking or is admin
+    if request.user.role == 'CUSTOMER':
+        if booking.customer_name != request.user.get_full_name() and booking.customer_name != request.user.username:
+            if not request.user.is_staff:
+                messages.error(request, "You are not authorized to view this receipt.")
+                return redirect('customer_dashboard')
+    
+    return render(request, "bookings/booking_receipt.html", {"booking": booking})
+
+
+@login_required(login_url='/login/')
+def customer_booking_list(request):
+    """Enhanced Customer Booking List with Search/Filter"""
+    if request.user.role != 'CUSTOMER':
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    bookings = Booking.objects.filter(
+        customer_name=request.user.get_full_name() | Q(customer_name=request.user.username)
+    ).order_by("-booking_date")
+    
+    # Search filter
+    search_query = request.GET.get('search', '')
+    if search_query:
+        bookings = bookings.filter(
+            Q(pickup_location__icontains=search_query) |
+            Q(drop_location__icontains=search_query) |
+            Q(id__icontains=search_query)
+        )
+    
+    # Status filter
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'confirmed':
+        bookings = bookings.filter(truck__isnull=False)
+    elif status_filter == 'pending':
+        bookings = bookings.filter(truck__isnull=True)
+    
+    # Date filter
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+    if from_date:
+        bookings = bookings.filter(booking_date__gte=from_date)
+    if to_date:
+        bookings = bookings.filter(booking_date__lte=to_date)
+    
+    context = {
+        'bookings': bookings,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'from_date': from_date,
+        'to_date': to_date,
+    }
+    return render(request, "bookings/customer_booking_list.html", context)

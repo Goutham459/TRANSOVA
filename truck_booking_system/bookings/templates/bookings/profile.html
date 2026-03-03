@@ -1,0 +1,538 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}My Profile - Transova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        padding: 40px 0;
+    }
+    
+    .profile-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(79, 70, 229, 0.2));
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        animation: rotate 10s linear infinite;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 3rem;
+        color: white;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 10px 40px rgba(6, 182, 212, 0.4);
+    }
+    
+    .profile-name {
+        color: #fff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .profile-role {
+        color: #06b6d4;
+        font-size: 1rem;
+        font-weight: 500;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .profile-body {
+        padding: 30px;
+    }
+    
+    .info-section {
+        margin-bottom: 30px;
+    }
+    
+    .info-section h4 {
+        color: #06b6d4;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: rgba(11, 15, 26, 0.5);
+        border-radius: 12px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .info-item:hover {
+        background: rgba(6, 182, 212, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .info-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #06b6d4;
+        font-size: 1.2rem;
+        margin-right: 15px;
+    }
+    
+    .info-content {
+        flex: 1;
+    }
+    
+    .info-label {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-bottom: 3px;
+    }
+    
+    .info-value {
+        color: #fff;
+        font-weight: 500;
+    }
+    
+    .info-edit {
+        background: none;
+        border: none;
+        color: #06b6d4;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .info-edit:hover {
+        background: rgba(6, 182, 212, 0.2);
+    }
+    
+    .edit-form {
+        display: none;
+        margin-top: 10px;
+    }
+    
+    .edit-form.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .edit-form input {
+        background: rgba(11, 15, 26, 0.8);
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        border-radius: 8px;
+        padding: 10px 15px;
+        color: #fff;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .edit-form input:focus {
+        outline: none;
+        border-color: #06b6d4;
+    }
+    
+    .edit-form .btn-group {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .save-btn {
+        background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    .cancel-btn {
+        background: transparent;
+        border: 1px solid #64748b;
+        color: #64748b;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+    
+    .settings-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .settings-item {
+        padding: 15px;
+        background: rgba(11, 15, 26, 0.5);
+        border-radius: 12px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+    }
+    
+    .settings-item:hover {
+        background: rgba(6, 182, 212, 0.1);
+    }
+    
+    .settings-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .settings-icon {
+        color: #06b6d4;
+        font-size: 1.2rem;
+    }
+    
+    .settings-label {
+        color: #fff;
+    }
+    
+    .settings-desc {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        width: 50px;
+        height: 26px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #374151;
+        transition: 0.4s;
+        border-radius: 26px;
+    }
+    
+    .toggle-slider::before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+    
+    .toggle-switch input:checked + .toggle-slider {
+        background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    }
+    
+    .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(24px);
+    }
+    
+    .danger-zone {
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 30px;
+    }
+    
+    .danger-zone h4 {
+        color: #ef4444;
+        margin-bottom: 15px;
+    }
+    
+    .danger-zone p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .delete-btn {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #ef4444;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .delete-btn:hover {
+        background: #ef4444;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                
+                <!-- Profile Card -->
+                <div class="profile-card animate-2">
+                    <!-- Header -->
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            {{ user.username|upper|slice:":1" }}
+                        </div>
+                        <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                        <p class="profile-role">
+                            <i class="bi bi-person-badge me-2"></i>
+                            {% if user.role %}{{ user.role }}{% else %}Customer{% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- Body -->
+                    <div class="profile-body">
+                        
+                        <!-- Personal Information -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-person-vcard"></i> Personal Information</h4>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Username</div>
+                                    <div class="info-value">{{ user.username }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-envelope"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Email Address</div>
+                                    <div class="info-value">{{ user.email }}</div>
+                                </div>
+                                <button class="info-edit" onclick="toggleEdit('email')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Full Name</div>
+                                    <div class="info-value">{{ user.get_full_name|default:"Not set" }}</div>
+                                </div>
+                                <button class="info-edit" onclick="toggleEdit('name')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-telephone"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Phone Number</div>
+                                    <div class="info-value">{{ user.phone|default:"Not set" }}</div>
+                                </div>
+                                <button class="info-edit" onclick="toggleEdit('phone')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Member Since</div>
+                                    <div class="info-value">{{ user.date_joined|date:"F d, Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notification Settings -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-bell"></i> Notification Settings</h4>
+                            
+                            <ul class="settings-list">
+                                <li class="settings-item">
+                                    <div class="settings-info">
+                                        <i class="bi bi-envelope settings-icon"></i>
+                                        <div>
+                                            <div class="settings-label">Email Notifications</div>
+                                            <div class="settings-desc">Receive booking updates via email</div>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </li>
+                                
+                                <li class="settings-item">
+                                    <div class="settings-info">
+                                        <i class="bi bi-phone settings-icon"></i>
+                                        <div>
+                                            <div class="settings-label">SMS Notifications</div>
+                                            <div class="settings-desc">Receive SMS for important updates</div>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </li>
+                                
+                                <li class="settings-item">
+                                    <div class="settings-info">
+                                        <i class="bi bi-bell settings-icon"></i>
+                                        <div>
+                                            <div class="settings-label">Push Notifications</div>
+                                            <div class="settings-desc">Receive push notifications in browser</div>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Security -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-shield-lock"></i> Security</h4>
+                            
+                            <ul class="settings-list">
+                                <li class="settings-item">
+                                    <div class="settings-info">
+                                        <i class="bi bi-key settings-icon"></i>
+                                        <div>
+                                            <div class="settings-label">Change Password</div>
+                                            <div class="settings-desc">Update your account password</div>
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'forgot_password' %}" class="btn kontrek-btn-outline btn-sm">
+                                        Update
+                                    </a>
+                                </li>
+                                
+                                <li class="settings-item">
+                                    <div class="settings-info">
+                                        <i class="bi bi-device-ssd settings-icon"></i>
+                                        <div>
+                                            <div class="settings-label">Two-Factor Authentication</div>
+                                            <div class="settings-desc">Add extra security to your account</div>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Danger Zone -->
+                        <div class="danger-zone">
+                            <h4><i class="bi bi-exclamation-triangle me-2"></i>Danger Zone</h4>
+                            <p>Once you delete your account, there is no going back. Please be certain.</p>
+                            <button class="delete-btn" onclick="confirmDelete()">
+                                <i class="bi bi-trash me-2"></i>Delete Account
+                            </button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleEdit(field) {
+    showToast('info', 'Coming Soon', 'Profile editing will be available in the next update!');
+}
+
+function confirmDelete() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        showToast('warning', 'Account Deletion', 'Please contact support to delete your account.');
+    }
+}
+
+// Add hover animations
+document.addEventListener('DOMContentLoaded', function() {
+    const infoItems = document.querySelectorAll('.info-item');
+    infoItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-20px)';
+        item.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateX(0)';
+        }, 100 + (index * 100));
+    });
+});
+</script>
+{% endblock %}
+

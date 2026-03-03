@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from .models import Company, Truck, Driver
+from bookings.models import Booking
 
 User = get_user_model()
 
@@ -31,11 +32,39 @@ def company_dashboard(request):
     # Calculate available trucks
     available_trucks = trucks.filter(is_available=True).count()
     
+    # Get company bookings (from trucks assigned to this company)
+    company_bookings = Booking.objects.filter(truck__company=company).order_by('-booking_date')
+    
+    # Calculate revenue stats
+    from django.db.models import Sum, Count, Q
+    from datetime import datetime, timedelta
+    
+    total_revenue = company_bookings.aggregate(Sum('price'))['price__sum'] or 0
+    
+    # This month's revenue
+    today = datetime.now()
+    month_start = today.replace(day=1)
+    this_month_revenue = company_bookings.filter(booking_date__gte=month_start.date()).aggregate(Sum('price'))['price__sum'] or 0
+    
+    # Booking stats
+    total_bookings = company_bookings.count()
+    completed_bookings = company_bookings.filter(truck__isnull=False).count()
+    pending_bookings = company_bookings.filter(truck__isnull=True).count()
+    
+    # Get recent bookings for display (slice after all filters)
+    company_bookings = company_bookings[:10]
+    
     context = {
         'company': company,
         'trucks': trucks,
         'drivers': drivers,
         'available_trucks': available_trucks,
+        'company_bookings': company_bookings,
+        'total_revenue': total_revenue,
+        'this_month_revenue': this_month_revenue,
+        'total_bookings': total_bookings,
+        'completed_bookings': completed_bookings,
+        'pending_bookings': pending_bookings,
     }
     return render(request, 'fleet/company_dashboard.html', context)
 
@@ -163,6 +192,9 @@ def add_driver(request):
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
 
+        # Debug: Print form data
+        print(f"Adding driver: username={username}, email={email}")
+
         # Check if username already exists
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already exists.")
@@ -173,24 +205,31 @@ def add_driver(request):
             messages.error(request, "Email already exists.")
             return redirect('add_driver')
 
-        # Create user with DRIVER role
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            role='DRIVER'
-        )
+        try:
+            # Create user with DRIVER role
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                role='DRIVER'
+            )
+            print(f"User created: {user.id}")
 
-        # Create driver profile for the company
-        Driver.objects.create(
-            user=user,
-            company=company
-        )
+            # Create driver profile for the company
+            driver = Driver.objects.create(
+                user=user,
+                company=company
+            )
+            print(f"Driver profile created: {driver.id}")
 
-        messages.success(request, f"Driver '{username}' added successfully!")
-        return redirect('company_dashboard')
+            messages.success(request, f"Driver '{username}' added successfully!")
+            return redirect('company_dashboard')
+        except Exception as e:
+            print(f"Error creating driver: {e}")
+            messages.error(request, f"Error adding driver: {str(e)}")
+            return redirect('add_driver')
 
     return render(request, 'fleet/add_driver.html')
 

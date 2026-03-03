@@ -5,6 +5,8 @@ from .views import (
     home, add_booking, booking_list, edit_booking, delete_booking, 
     dashboard, customer_booking, payment, payment_success, payment_cancel,
     customer_dashboard, admin_dashboard, driver_dashboard,
+    # Driver views
+    driver_profile, driver_update_job_status,
     # Admin views
     admin_users, admin_user_detail, admin_user_delete,
     admin_trucks, admin_truck_add, admin_truck_edit, admin_truck_delete,
@@ -15,7 +17,9 @@ from .views import (
     admin_stats,
     company_status_check,
     # User management
-    admin_user_toggle_status, admin_user_change_role
+    admin_user_toggle_status, admin_user_change_role,
+    # New customer features
+    faq, price_calculator, profile, booking_receipt, customer_booking_list
 )
 
 urlpatterns = [
@@ -28,6 +32,9 @@ urlpatterns = [
     path("customer-dashboard/", customer_dashboard, name="customer_dashboard"),
     path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
     path("driver-dashboard/", driver_dashboard, name="driver_dashboard"),
+    path("driver-jobs/", driver_dashboard, name="driver_jobs"),
+    path("driver-profile/", driver_profile, name="driver_profile"),
+    path("driver/job/<int:booking_id>/<str:new_status>/", driver_update_job_status, name="driver_update_job_status"),
     path("book/", customer_booking, name="customer_booking"),
     path("payment/", payment, name="payment"),
     path("payment/success/", payment_success, name="payment_success"),
@@ -50,7 +57,7 @@ urlpatterns = [
     path("admin/load-types/<int:load_type_id>/edit/", admin_load_type_edit, name="admin_load_type_edit"),
     path("admin/load-types/<int:load_type_id>/delete/", admin_load_type_delete, name="admin_load_type_delete"),
     path("admin/subscriptions/", admin_subscriptions, name="admin_subscriptions"),
-path("admin/subscriptions/<int:subscription_id>/toggle/", admin_subscription_toggle, name="admin_subscription_toggle"),
+    path("admin/subscriptions/<int:subscription_id>/toggle/", admin_subscription_toggle, name="admin_subscription_toggle"),
     path("admin/stats/", admin_stats, name="admin_stats"),
     
     # User management URLs
@@ -59,6 +66,13 @@ path("admin/subscriptions/<int:subscription_id>/toggle/", admin_subscription_tog
     
     # Company status check API
     path("api/company/status/", company_status_check, name="company_status_check"),
+    
+    # New Customer Feature URLs
+    path("faq/", faq, name="faq"),
+    path("price-calculator/", price_calculator, name="price_calculator"),
+    path("profile/", profile, name="profile"),
+    path("bookings/receipt/<int:booking_id>/", booking_receipt, name="booking_receipt"),
+    path("bookings/my-bookings/", customer_booking_list, name="customer_booking_list"),
 ]
 
 if settings.DEBUG:

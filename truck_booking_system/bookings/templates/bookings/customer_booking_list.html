@@ -1,0 +1,315 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}My Bookings - Transova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bookings-section {
+        padding: 40px 0;
+    }
+    
+    .search-filter-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .search-box {
+        position: relative;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        border-radius: 25px;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        background: rgba(11, 15, 26, 0.8);
+        color: #fff;
+    }
+    
+    .search-box input:focus {
+        outline: none;
+        border-color: #06b6d4;
+    }
+    
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+    }
+    
+    .filter-group select {
+        padding: 12px 20px;
+        border-radius: 25px;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        background: rgba(11, 15, 26, 0.8);
+        color: #fff;
+    }
+    
+    .booking-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(6, 182, 212, 0.15);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .booking-card:hover {
+        border-color: rgba(6, 182, 212, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(6, 182, 212, 0.15);
+    }
+    
+    .booking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+    }
+    
+    .booking-id {
+        color: #06b6d4;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .status-badge {
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.confirmed {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+    
+    .status-badge.pending {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+    }
+    
+    .booking-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .detail-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(6, 182, 212, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #06b6d4;
+    }
+    
+    .detail-label {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+    
+    .detail-value {
+        color: #fff;
+        font-weight: 500;
+    }
+    
+    .booking-actions {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(6, 182, 212, 0.1);
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #64748b;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bookings-section">
+    <div class="container">
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="animate-1" style="color: #fff;">My Bookings</h2>
+                <p class="animate-2" style="color: #94a3b8;">View and manage all your bookings</p>
+            </div>
+        </div>
+        
+        <!-- Search & Filter -->
+        <div class="search-filter-card animate-3">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="search" placeholder="Search by ID or location..." value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="from_date" class="form-control" value="{{ from_date }}" placeholder="From Date">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="to_date" class="form-control" value="{{ to_date }}" placeholder="To Date">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn kontrek-btn w-100">
+                        <i class="bi bi-funnel"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Booking List -->
+        <div class="row">
+            {% for booking in bookings %}
+            <div class="col-12">
+                <div class="booking-card animate-{{ forloop.counter|add:3 }}">
+                    <div class="booking-header">
+                        <span class="booking-id">#{{ booking.id }}</span>
+                        {% if booking.truck %}
+                        <span class="status-badge confirmed">
+                            <i class="bi bi-check-circle me-1"></i>Confirmed
+                        </span>
+                        {% else %}
+                        <span class="status-badge pending">
+                            <i class="bi bi-clock me-1"></i>Pending
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="booking-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="bi bi-geo-alt"></i>
+                            </div>
+                            <div>
+                                <div class="detail-label">Pickup</div>
+                                <div class="detail-value">{{ booking.pickup_location }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="bi bi-geo"></i>
+                            </div>
+                            <div>
+                                <div class="detail-label">Drop</div>
+                                <div class="detail-value">{{ booking.drop_location }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="bi bi-calendar"></i>
+                            </div>
+                            <div>
+                                <div class="detail-label">Date</div>
+                                <div class="detail-value">{{ booking.booking_date }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="bi bi-truck"></i>
+                            </div>
+                            <div>
+                                <div class="detail-label">Truck</div>
+                                <div class="detail-value">
+                                    {% if booking.truck %}
+                                        {{ booking.truck.truck_number }}
+                                    {% else %}
+                                        Not Assigned
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon" style="background: rgba(79, 70, 229, 0.1); color: #4f46e5;">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <div>
+                                <div class="detail-label">Price</div>
+                                <div class="detail-value" style="color: #4f46e5; font-weight: 700;">
+                                    {{ booking.currency }} {{ booking.price }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-actions">
+                        <a href="{% url 'booking_receipt' booking.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-receipt me-1"></i>View Receipt
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h3 style="color: #fff;">No bookings found</h3>
+                    <p style="color: #64748b;">Try adjusting your search or filter criteria</p>
+                    <a href="{% url 'customer_booking' %}" class="btn kontrek-btn">
+                        <i class="bi bi-plus-circle me-2"></i>Create Your First Booking
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate booking cards on scroll
+    const cards = document.querySelectorAll('.booking-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.4s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 + (index * 100));
+    });
+});
+</script>
+{% endblock %}
+

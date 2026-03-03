@@ -1,0 +1,366 @@
+{% extends "bookings/base.html" %}
+{% load static %}
+
+{% block title %}Booking Receipt - Transova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .receipt-container {
+        padding: 40px 0;
+        min-height: 60vh;
+    }
+    
+    .receipt-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .receipt-header {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(79, 70, 229, 0.2));
+        padding: 30px;
+        text-align: center;
+        border-bottom: 2px solid rgba(6, 182, 212, 0.2);
+    }
+    
+    .receipt-header h1 {
+        color: #fff;
+        font-size: 2rem;
+        margin-bottom: 5px;
+    }
+    
+    .receipt-header .company-name {
+        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+    
+    .receipt-id {
+        display: inline-block;
+        background: rgba(6, 182, 212, 0.2);
+        padding: 8px 20px;
+        border-radius: 20px;
+        color: #06b6d4;
+        font-weight: 600;
+        margin-top: 15px;
+    }
+    
+    .receipt-status {
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+    
+    .receipt-status.confirmed {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    .receipt-status.pending {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    
+    .receipt-body {
+        padding: 30px;
+    }
+    
+    .receipt-section {
+        margin-bottom: 30px;
+    }
+    
+    .receipt-section h4 {
+        color: #06b6d4;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .receipt-row:last-child {
+        border-bottom: none;
+    }
+    
+    .receipt-label {
+        color: #94a3b8;
+    }
+    
+    .receipt-value {
+        color: #fff;
+        font-weight: 500;
+        text-align: right;
+    }
+    
+    .price-summary {
+        background: rgba(6, 182, 212, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+    
+    .price-row.total {
+        border-top: 2px solid rgba(6, 182, 212, 0.3);
+        margin-top: 10px;
+        padding-top: 15px;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    
+    .price-row.total .price-value {
+        color: #06b6d4;
+    }
+    
+    .receipt-footer {
+        background: rgba(11, 15, 26, 0.5);
+        padding: 20px 30px;
+        text-align: center;
+        border-top: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    
+    .receipt-footer p {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .print-btn {
+        background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .print-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+    }
+    
+    .download-btn {
+        background: transparent;
+        border: 1px solid #06b6d4;
+        color: #06b6d4;
+        padding: 12px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .download-btn:hover {
+        background: rgba(6, 182, 212, 0.1);
+    }
+    
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .receipt-card, .receipt-card * {
+            visibility: visible;
+        }
+        .receipt-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .action-buttons {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+    <div class="container">
+        
+        <div class="receipt-card animate-2">
+            <!-- Header -->
+            <div class="receipt-header">
+                <div class="company-name">
+                    <i class="bi bi-truck"></i> TRANSOVA
+                </div>
+                <h1>Booking Receipt</h1>
+                <div class="receipt-id">#{{ booking.id }}</div>
+                {% if booking.truck %}
+                <div class="receipt-status confirmed">
+                    <i class="bi bi-check-circle me-2"></i>Confirmed
+                </div>
+                {% else %}
+                <div class="receipt-status pending">
+                    <i class="bi bi-clock me-2"></i>Pending
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Body -->
+            <div class="receipt-body">
+                <!-- Customer Info -->
+                <div class="receipt-section">
+                    <h4><i class="bi bi-person me-2"></i>Customer Details</h4>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Name</span>
+                        <span class="receipt-value">{{ booking.customer_name }}</span>
+                    </div>
+                    {% if booking.user %}
+                    <div class="receipt-row">
+                        <span class="receipt-label">Email</span>
+                        <span class="receipt-value">{{ booking.user.email }}</span>
+                    </div>
+                    {% endif %}
+                    {% if booking.contact_number %}
+                    <div class="receipt-row">
+                        <span class="receipt-label">Contact</span>
+                        <span class="receipt-value">{{ booking.contact_number }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Trip Details -->
+                <div class="receipt-section">
+                    <h4><i class="bi bi-geo-alt me-2"></i>Trip Details</h4>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Pickup Location</span>
+                        <span class="receipt-value">{{ booking.pickup_location }}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Drop Location</span>
+                        <span class="receipt-value">{{ booking.drop_location }}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Distance</span>
+                        <span class="receipt-value">{{ booking.distance_km|floatformat:1 }} km</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Booking Date</span>
+                        <span class="receipt-value">{{ booking.booking_date|date:"F d, Y" }}</span>
+                    </div>
+                </div>
+                
+                <!-- Truck Info -->
+                <div class="receipt-section">
+                    <h4><i class="bi bi-truck me-2"></i>Truck Details</h4>
+                    {% if booking.truck %}
+                    <div class="receipt-row">
+                        <span class="receipt-label">Truck Number</span>
+                        <span class="receipt-value">{{ booking.truck.truck_number }}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Truck Type</span>
+                        <span class="receipt-value">{{ booking.truck.get_truck_type_display }}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Capacity</span>
+                        <span class="receipt-value">{{ booking.truck.capacity }} tons</span>
+                    </div>
+                    {% else %}
+                    <div class="receipt-row">
+                        <span class="receipt-label">Status</span>
+                        <span class="receipt-value text-warning">Truck assignment pending</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Price Summary -->
+                <div class="receipt-section">
+                    <h4><i class="bi bi-credit-card me-2"></i>Payment Summary</h4>
+                    <div class="price-summary">
+                        <div class="price-row">
+                            <span>Base Price ({{ booking.distance_km|floatformat:1 }} km × AED 2/km)</span>
+                            <span>AED {{ booking.price|default:"0.00" }}</span>
+                        </div>
+                        {% if booking.load_type %}
+                        <div class="price-row">
+                            <span>Load Type ({{ booking.load_type.name }})</span>
+                            <span>×{{ booking.load_type.price_multiplier }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="price-row">
+                            <span>Service Fee (5%)</span>
+                            <span>AED {{ booking.price|add:0|floatformat:2 }}</span>
+                        </div>
+                        <div class="price-row total">
+                            <span>Total Amount</span>
+                            <span class="price-value">AED {{ booking.price|default:"0.00" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="receipt-footer">
+                <p>Thank you for choosing Transova!</p>
+                <p>For any queries, contact us at support@transova.com</p>
+                <div class="action-buttons">
+                    <button class="print-btn" onclick="window.print()">
+                        <i class="bi bi-printer me-2"></i>Print Receipt
+                    </button>
+                    <button class="download-btn" onclick="downloadReceipt()">
+                        <i class="bi bi-download me-2"></i>Download PDF
+                    </button>
+                    <a href="{% url 'customer_dashboard' %}" class="btn kontrek-btn-outline">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+function downloadReceipt() {
+    // Create a simple PDF-like print
+    window.print();
+}
+
+// Add animation to elements
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('.receipt-row');
+    rows.forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(-20px)';
+        row.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+            row.style.opacity = '1';
+            row.style.transform = 'translateX(0)';
+        }, 100 + (index * 50));
+    });
+});
+</script>
+{% endblock %}
+

@@ -55,9 +55,25 @@
 
             <div class="text-center mt-2">
                 <small>
-                    Don’t have an account?
+                    Don't have an account?
                     <a href="{% url 'register' %}" class="text-info">Register</a>
                 </small>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="text-center">
+                <small class="text-white-50">
+                    Are you a Transport Company?
+                </small>
+                <br>
+                <a href="{% url 'company_register' %}" class="btn btn-sm kontrek-btn-outline mt-2">
+                    Register Your Company
+                </a>
+            </div>
+
+            <div class="alert alert-info mt-3 small">
+                <strong>For Drivers:</strong> Please login using the username and password provided by your transport company.
             </div>
         </form>
     </div>

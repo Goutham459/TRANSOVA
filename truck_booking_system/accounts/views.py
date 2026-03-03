@@ -29,13 +29,33 @@ def company_register(request):
         )
 
         # Create company profile
-        Company.objects.create(
+        company = Company.objects.create(
             user=user,
             company_name=company_name,
             trade_license=trade_license,
             phone=phone,
             is_approved=False  # Requires admin approval
         )
+
+        # Send notification to admin
+        from django.conf import settings
+        admin_email = settings.EMAIL_HOST_USER if hasattr(settings, 'EMAIL_HOST_USER') else 'admin@transova.com'
+        
+        try:
+            send_mail(
+                f"New Company Registration: {company_name}",
+                f"A new company has registered on Transova and is waiting for approval.\n\n"
+                f"Company Name: {company_name}\n"
+                f"Email: {email}\n"
+                f"Phone: {phone}\n"
+                f"Trade License: {trade_license}\n\n"
+                f"Please login to admin panel to approve or reject this company.",
+                "noreply@transova.com",
+                [admin_email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Admin notification email failed: {e}")
 
         messages.success(request, "Company registration submitted! Please wait for admin approval.")
         return redirect('company_pending')
