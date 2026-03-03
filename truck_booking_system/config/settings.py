@@ -1,8 +1,9 @@
+
 """
 Django Settings for Transova Truck Booking System.
 ===================================================
 This configuration file contains all settings for the application.
-For production, ensure to set environment variables or use a .env file.
+For production, ensure to set environment variables or a .env file.
 """
 
 import os
@@ -23,7 +24,7 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Allowed hosts - Comma-separated list of domain names
 # In production: ALLOWED_HOSTS = ['transova.com', 'www.transova.com']
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
 INSTALLED_APPS = [
     # Django
