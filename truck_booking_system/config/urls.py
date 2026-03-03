@@ -27,10 +27,10 @@ urlpatterns = [
     path("fleet/", include("fleet.urls")),
     path("pricing/", include("pricing.urls")),
 
-    # Auth
-    path("accounts/", include("allauth.urls")),
+    # Auth - Custom login before allauth
     path("login/", RoleBasedLoginView.as_view(), name="login"),
     path("logout/", logout_view, name="logout"),
+    path("accounts/", include("allauth.urls")),
     path("register/", register, name="register"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),

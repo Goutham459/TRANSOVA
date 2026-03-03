@@ -2,19 +2,20 @@ import math
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum
 from django.contrib.auth.views import LoginView
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from .models import Booking
 from fleet.models import Truck, Company
 from pricing.models import LoadType
 import random
 from django.core.mail import send_mail
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Booking
 import requests
+
+User = get_user_model()
 
 
 # ---------------- HOME ----------------
@@ -126,13 +127,25 @@ def customer_dashboard(request):
         messages.error(request, "You are not authorized to view this page.")
         return redirect('login')
     
+    # Get all bookings as QuerySet (without slicing first)
     user_bookings = Booking.objects.filter(
         customer_name=request.user.get_full_name() or request.user.username
-    ).order_by("-booking_date")[:10]
+    ).order_by("-booking_date")
+    
+    # Calculate booking stats using the full QuerySet
+    confirmed_bookings = user_bookings.filter(truck__isnull=False).count()
+    pending_bookings = user_bookings.filter(truck__isnull=True).count()
+    total_spent = user_bookings.aggregate(Sum("price"))["price__sum"] or 0
+    
+    # Apply slicing only for display
+    recent_bookings = user_bookings[:10]
     
     context = {
-        'bookings': user_bookings,
+        'bookings': recent_bookings,
         'total_bookings': user_bookings.count(),
+        'confirmed_bookings': confirmed_bookings,
+        'pending_bookings': pending_bookings,
+        'total_spent': total_spent,
     }
     return render(request, "bookings/customer_dashboard.html", context)
 
@@ -309,8 +322,25 @@ def trucks_list(request):
 
 
 # ---------------- AUTH ----------------
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+
+
+class EmailAuthenticationForm(AuthenticationForm):
+    """Custom authentication form that uses email instead of username"""
+    username = forms.EmailField(
+        label='Email',
+        widget=forms.EmailInput(attrs={'class': 'form-control minimal-select', 'placeholder': 'Email'})
+    )
+    password = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(attrs={'class': 'form-control minimal-select', 'placeholder': 'Password'})
+    )
+
+
 class RoleBasedLoginView(LoginView):
     template_name = "accounts/login.html"
+    form_class = EmailAuthenticationForm
 
     def get_success_url(self):
         user = self.request.user
@@ -419,7 +449,19 @@ def payment_success(request):
         except Booking.DoesNotExist:
             pass
     
-    return render(request, "bookings/payment_success.html")
+    # Determine redirect based on user role
+    redirect_url = '/'
+    if request.user.is_authenticated:
+        if request.user.role == 'CUSTOMER':
+            redirect_url = '/bookings/customer-dashboard/'
+        elif request.user.role == 'DRIVER':
+            redirect_url = '/bookings/driver-dashboard/'
+        elif request.user.role == 'COMPANY':
+            redirect_url = '/fleet/dashboard/'
+        elif request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN':
+            redirect_url = '/bookings/admin-dashboard/'
+    
+    return render(request, "bookings/payment_success.html", {'redirect_url': redirect_url})
 
 
 def payment_cancel(request):
@@ -803,3 +845,56 @@ def admin_stats(request):
         "total_load_types": LoadType.objects.count(),
         "active_subscriptions": Subscription.objects.filter(is_active=True).count(),
     })
+
+
+@login_required(login_url='/login/')
+def admin_user_toggle_status(request, user_id):
+    """Toggle user active status (activate/deactivate)"""
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    from accounts.models import User
+    user = get_object_or_404(User, id=user_id)
+    
+    # Prevent admin from deactivating themselves
+    if user.id == request.user.id:
+        messages.error(request, "You cannot deactivate your own account.")
+        return redirect('admin_users')
+    
+    user.is_active = not user.is_active
+    user.save()
+    
+    status = "activated" if user.is_active else "deactivated"
+    messages.success(request, f"User '{user.username}' {status} successfully.")
+    return redirect('admin_users')
+
+
+@login_required(login_url='/login/')
+def admin_user_change_role(request, user_id):
+    """Change user role"""
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    from accounts.models import User
+    
+    if request.method == 'POST':
+        user = get_object_or_404(User, id=user_id)
+        new_role = request.POST.get('role')
+        
+        # Validate role
+        valid_roles = [choice[0] for choice in User.ROLE_CHOICES]
+        if new_role not in valid_roles:
+            messages.error(request, "Invalid role selected.")
+            return redirect('admin_user_detail', user_id=user_id)
+        
+        old_role = user.get_role_display()
+        user.role = new_role
+        user.save()
+        
+        messages.success(request, f"User '{user.username}' role changed from {old_role} to {user.get_role_display()}.")
+        return redirect('admin_user_detail', user_id=user_id)
+    
+    # If GET request, redirect to user detail page
+    return redirect('admin_user_detail', user_id=user_id)

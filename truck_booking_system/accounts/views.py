@@ -2,7 +2,6 @@ import random
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import User
 from fleet.models import Company

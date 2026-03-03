@@ -34,7 +34,11 @@ Payment Successful | TRANSOVA
                     </p>
                     
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="{% url 'dashboard' %}" class="btn kontrek-btn">Go to Dashboard</a>
+                        {% if redirect_url %}
+                        <a href="{{ redirect_url }}" class="btn kontrek-btn">Go to Dashboard</a>
+                        {% else %}
+                        <a href="{% url 'home' %}" class="btn kontrek-btn">Go to Home</a>
+                        {% endif %}
                         <a href="{% url 'home' %}" class="btn kontrek-btn-outline">Back to Home</a>
                     </div>
                 </div>

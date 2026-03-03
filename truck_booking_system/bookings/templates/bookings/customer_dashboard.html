@@ -1,93 +1,335 @@
-{% extends "bookings/admin_base.html" %}
+{% extends "bookings/base.html" %}
+{% load static %}
 
 {% block title %}My Dashboard - Transova{% endblock %}
-{% block page_title %}My Dashboard{% endblock %}
 
-{% block admin_content %}
-<!-- Welcome Message -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="admin-card">
-            <div class="card-body">
-                <h4 class="mb-2">Welcome back, <span style="color: #06b6d4;">{{ user.username }}</span>!</h4>
-                <p class="text-muted mb-0">Manage your bookings and track your deliveries</p>
+{% block extra_css %}
+<style>
+    .customer-dashboard {
+        padding-top: 80px;
+        padding-bottom: 40px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    
+    .welcome-card {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(79, 70, 229, 0.2));
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(6, 182, 212, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #f1f5f9;
+    }
+    
+    .stat-label {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .action-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(6, 182, 212, 0.1);
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .action-card:hover {
+        background: rgba(6, 182, 212, 0.1);
+        border-color: #06b6d4;
+        transform: translateY(-3px);
+    }
+    
+    .action-card i {
+        font-size: 2.5rem;
+        color: #06b6d4;
+        margin-bottom: 15px;
+    }
+    
+    .action-card h5 {
+        color: #f1f5f9;
+        margin-bottom: 5px;
+    }
+    
+    .action-card p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .booking-table {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(6, 182, 212, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .booking-table thead {
+        background: rgba(11, 15, 26, 0.5);
+    }
+    
+    .booking-table thead th {
+        color: #f1f5f9;
+        font-weight: 600;
+        padding: 15px;
+        border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+    }
+    
+    .booking-table tbody td {
+        color: #cbd5e1;
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+    }
+    
+    .badge-confirmed {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+    
+    .badge-pending {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+    
+    .profile-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(6, 182, 212, 0.1);
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0 auto 15px;
+    }
+    
+    .profile-info p {
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }
+    
+    .profile-info strong {
+        color: #f1f5f9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="customer-dashboard">
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-card">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-2">Welcome back, <span style="color: #06b6d4;">{{ user.get_full_name|default:user.username }}</span>!</h2>
+                    <p class="mb-0" style="color: #94a3b8;">Manage your bookings, track deliveries, and make payments</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'customer_booking' %}" class="btn btn-lg" style="background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;">
+                        <i class="bi bi-plus-circle me-2"></i> New Booking
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Quick Actions -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="admin-card">
-            <div class="card-header">
-                <h5><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="stat-value">{{ total_bookings|default:0 }}</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
             </div>
-            <div class="card-body">
-                <a href="{% url 'customer_booking' %}" class="btn btn-admin btn-admin-primary me-2">
-                    <i class="bi bi-plus-circle me-1"></i> Book a Truck
+            
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="stat-value">{{ confirmed_bookings|default:0 }}</div>
+                    <div class="stat-label">Confirmed</div>
+                </div>
+            </div>
+            
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div class="stat-value">{{ pending_bookings|default:0 }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(79, 70, 229, 0.2); color: #4f46e5;">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div class="stat-value">${{ total_spent|default:"0" }}</div>
+                    <div class="stat-label">Total Spent</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <h4 class="mb-3" style="color: #f1f5f9;">Quick Actions</h4>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'customer_booking' %}" class="action-card">
+                    <i class="bi bi-truck"></i>
+                    <h5>Book a Truck</h5>
+                    <p>Schedule a new pickup</p>
                 </a>
-                <a href="{% url 'trucks_list' %}" class="btn btn-admin btn-admin-outline me-2">
-                    <i class="bi bi-truck me-1"></i> View Available Trucks
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'trucks_list' %}" class="action-card">
+                    <i class="bi bi-car-front"></i>
+                    <h5>View Trucks</h5>
+                    <p>Browse available trucks</p>
                 </a>
-                <a href="{% url 'home' %}" class="btn btn-admin btn-admin-outline">
-                    <i class="bi bi-house me-1"></i> Back to Home
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'home' %}" class="action-card">
+                    <i class="bi bi-house"></i>
+                    <h5>Home</h5>
+                    <p>Back to homepage</p>
                 </a>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- My Bookings -->
-<div class="row">
-    <div class="col-md-12">
-        <div class="admin-card">
-            <div class="card-header">
-                <h5><i class="bi bi-calendar-check me-2"></i>My Bookings</h5>
+        <!-- Main Content: Bookings & Profile -->
+        <div class="row">
+            <!-- My Bookings -->
+            <div class="col-lg-8 mb-4">
+                <div class="booking-table">
+                    <div class="p-3" style="background: rgba(11, 15, 26, 0.5); border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                        <h5 class="mb-0" style="color: #f1f5f9;"><i class="bi bi-calendar-check me-2"></i>My Bookings</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Pickup</th>
+                                    <th>Drop</th>
+                                    <th>Date</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                <tr>
+                                    <td>#{{ booking.id }}</td>
+                                    <td>{{ booking.pickup_location|truncatechars:15 }}</td>
+                                    <td>{{ booking.drop_location|truncatechars:15 }}</td>
+                                    <td>{{ booking.booking_date }}</td>
+                                    <td>${{ booking.price }}</td>
+                                    <td>
+                                        {% if booking.truck %}
+                                            <span class="badge-confirmed">Confirmed</span>
+                                        {% else %}
+                                            <span class="badge-pending">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
+                                        <p class="mb-2" style="color: #94a3b8;">No bookings yet</p>
+                                        <a href="{% url 'customer_booking' %}" class="btn btn-sm" style="background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;">
+                                            <i class="bi bi-plus-circle me-1"></i> Book your first truck
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body table-responsive">
-                <table class="table admin-table">
-                    <thead>
-                        <tr>
-                            <th>Booking ID</th>
-                            <th>Pickup</th>
-                            <th>Drop</th>
-                            <th>Date</th>
-                            <th>Distance (km)</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for booking in bookings %}
-                        <tr>
-                            <td>#{{ booking.id }}</td>
-                            <td>{{ booking.pickup_location }}</td>
-                            <td>{{ booking.drop_location }}</td>
-                            <td>{{ booking.booking_date }}</td>
-                            <td>{{ booking.distance_km }}</td>
-                            <td>${{ booking.price }}</td>
-                            <td>
-                                {% if booking.truck %}
-                                    <span class="badge badge-success-custom">Confirmed</span>
-                                {% else %}
-                                    <span class="badge badge-warning-custom">Pending</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center py-4">
-                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
-                                <p class="mb-2">No bookings yet</p>
-                                <a href="{% url 'customer_booking' %}" class="btn btn-admin btn-admin-primary">
-                                    <i class="bi bi-plus-circle me-1"></i> Book your first truck
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            
+            <!-- Profile Sidebar -->
+            <div class="col-lg-4 mb-4">
+                <div class="profile-card mb-4">
+                    <div class="profile-avatar">
+                        {{ user.username|upper|slice:":1" }}
+                    </div>
+                    <h5 style="color: #f1f5f9;">{{ user.get_full_name|default:user.username }}</h5>
+                    <p style="color: #06b6d4;">Customer</p>
+                    
+                    <div class="profile-info text-start mt-3">
+                        <p><i class="bi bi-person me-2"></i><strong>Username:</strong> {{ user.username }}</p>
+                        <p><i class="bi bi-envelope me-2"></i><strong>Email:</strong> {{ user.email }}</p>
+                        <p><i class="bi bi-calendar me-2"></i><strong>Joined:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                
+                <!-- Support Card -->
+                <div class="profile-card">
+                    <h5 class="mb-3" style="color: #f1f5f9;"><i class="bi bi-headset me-2"></i>Need Help?</h5>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">Contact our support team for any assistance with your bookings.</p>
+                    <a href="mailto:support@transova.com" class="btn w-100" style="border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4;">
+                        <i class="bi bi-envelope me-1"></i> Contact Support
+                    </a>
+                </div>
             </div>
         </div>
     </div>

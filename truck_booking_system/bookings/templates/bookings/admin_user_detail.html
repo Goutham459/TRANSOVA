@@ -32,6 +32,15 @@
                         <span class="badge badge-warning-custom">Inactive</span>
                         {% endif %}
                     </p>
+                    {% if user_obj.is_active %}
+                    <a href="{% url 'admin_user_toggle_status' user_obj.id %}" class="btn btn-admin btn-admin-outline" style="border-color: #ef4444; color: #ef4444;" onclick="return confirm('Are you sure you want to deactivate this user?')">
+                        <i class="bi bi-person-dash me-1"></i> Deactivate
+                    </a>
+                    {% else %}
+                    <a href="{% url 'admin_user_toggle_status' user_obj.id %}" class="btn btn-admin btn-admin-outline" style="border-color: #22c55e; color: #22c55e;" onclick="return confirm('Are you sure you want to activate this user?')">
+                        <i class="bi bi-person-check me-1"></i> Activate
+                    </a>
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label class="form-label text-muted">Joined</label>
@@ -45,6 +54,39 @@
                         <i class="bi bi-trash me-1"></i> Delete
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Change Role Section -->
+    <div class="col-md-6">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="bi bi-person-badge me-2"></i>Change User Role</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'admin_user_change_role' user_obj.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Role</label>
+                        <p class="fs-5">
+                            <span class="badge badge-info-custom">{{ user_obj.get_role_display|default:"N/A" }}</span>
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Select New Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">-- Select Role --</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="COMPANY">Company</option>
+                            <option value="CUSTOMER">Customer</option>
+                            <option value="DRIVER">Driver</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-admin btn-admin-primary">
+                        <i class="bi bi-check-circle me-1"></i> Change Role
+                    </button>
+                </form>
             </div>
         </div>
     </div>

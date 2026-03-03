@@ -43,12 +43,12 @@ SITE_ID = 1
 AUTH_USER_MODEL = "accounts.User"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# Authentication backends
+# Authentication backends - Custom username backend first
 AUTHENTICATION_BACKENDS = [
+    "accounts.backends.UsernameBackend",  # Custom username backend
     "django.contrib.auth.backends.ModelBackend",  # default
     "allauth.account.auth_backends.AuthenticationBackend",  # allauth
 ]
-AUTH_USER_MODEL = "accounts.User"
 
 # URLs
 LOGIN_URL = "/login/"
@@ -141,4 +141,4 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "gouthamkrishnacs1@gmail.com"
-EMAIL_HOST_PASSWORD = "hrhm hgvs djlj dtnk"  # Use app password, NOT your real
+EMAIL_HOST_PASSWORD = "hrhm hgvs djlj dtnk"  # Use app password, NOT your real password

@@ -13,7 +13,9 @@ from .views import (
     admin_load_types, admin_load_type_add, admin_load_type_edit, admin_load_type_delete,
     admin_subscriptions, admin_subscription_toggle,
     admin_stats,
-    company_status_check
+    company_status_check,
+    # User management
+    admin_user_toggle_status, admin_user_change_role
 )
 
 urlpatterns = [
@@ -48,8 +50,12 @@ urlpatterns = [
     path("admin/load-types/<int:load_type_id>/edit/", admin_load_type_edit, name="admin_load_type_edit"),
     path("admin/load-types/<int:load_type_id>/delete/", admin_load_type_delete, name="admin_load_type_delete"),
     path("admin/subscriptions/", admin_subscriptions, name="admin_subscriptions"),
-    path("admin/subscriptions/<int:subscription_id>/toggle/", admin_subscription_toggle, name="admin_subscription_toggle"),
+path("admin/subscriptions/<int:subscription_id>/toggle/", admin_subscription_toggle, name="admin_subscription_toggle"),
     path("admin/stats/", admin_stats, name="admin_stats"),
+    
+    # User management URLs
+    path("admin/users/<int:user_id>/toggle-status/", admin_user_toggle_status, name="admin_user_toggle_status"),
+    path("admin/users/<int:user_id>/change-role/", admin_user_change_role, name="admin_user_change_role"),
     
     # Company status check API
     path("api/company/status/", company_status_check, name="company_status_check"),

@@ -42,10 +42,19 @@
                             </td>
                             <td>{{ user.date_joined|date:"M d, Y" }}</td>
                             <td>
-                                <a href="{% url 'admin_user_detail' user.id %}" class="btn btn-sm btn-admin-outline">
+                                <a href="{% url 'admin_user_detail' user.id %}" class="btn btn-sm btn-admin-outline" title="View Details">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{% url 'admin_user_delete' user.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Are you sure you want to delete this user?')">
+                                {% if user.is_active %}
+                                <a href="{% url 'admin_user_toggle_status' user.id %}" class="btn btn-sm btn-admin-outline" title="Deactivate" onclick="return confirm('Are you sure you want to deactivate this user?')">
+                                    <i class="bi bi-person-dash"></i>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'admin_user_toggle_status' user.id %}" class="btn btn-sm btn-admin-outline" style="color: #22c55e; border-color: #22c55e;" title="Activate" onclick="return confirm('Are you sure you want to activate this user?')">
+                                    <i class="bi bi-person-check"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'admin_user_delete' user.id %}" class="btn btn-sm btn-admin-outline" title="Delete" onclick="return confirm('Are you sure you want to delete this user?')">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
