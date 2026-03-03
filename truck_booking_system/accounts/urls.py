@@ -17,4 +17,8 @@ urlpatterns = [
         auth_views.LogoutView.as_view(next_page='/login/'),
         name="logout"
     ),
+    # Profile URLs
+    path('customer-profile/', views.customer_profile, name='customer_profile'),
+    path('driver-profile/', views.driver_profile_update, name='driver_profile_update'),
+    path('company-profile/', views.company_profile_update, name='company_profile_update'),
 ]

@@ -1,0 +1,378 @@
+{% extends "bookings/company_base.html" %}
+{% load static %}
+
+{% block title %}Booking Details - Transova{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-detail-page {
+        padding-top: 80px;
+        padding-bottom: 40px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    
+    .detail-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(6, 182, 212, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .detail-header {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(79, 70, 229, 0.2));
+        border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .booking-id {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #06b6d4;
+    }
+    
+    .booking-date {
+        color: #94a3b8;
+    }
+    
+    .detail-body {
+        padding: 25px;
+    }
+    
+    .info-section {
+        margin-bottom: 25px;
+    }
+    
+    .section-title {
+        color: #06b6d4;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .info-item {
+        background: rgba(15, 23, 42, 0.5);
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .info-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+    
+    .info-value {
+        color: #f1f5f9;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    
+    .route-display {
+        background: rgba(15, 23, 42, 0.5);
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .route-point {
+        flex: 1;
+    }
+    
+    .route-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    
+    .route-value {
+        color: #f1f5f9;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+    
+    .route-arrow {
+        color: #06b6d4;
+        font-size: 2rem;
+    }
+    
+    .driver-select-card {
+        background: rgba(15, 23, 42, 0.5);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    
+    .driver-option {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 10px;
+        background: rgba(30, 41, 59, 0.8);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid transparent;
+    }
+    
+    .driver-option:hover {
+        border-color: rgba(6, 182, 212, 0.5);
+    }
+    
+    .driver-option.selected {
+        border-color: #06b6d4;
+        background: rgba(6, 182, 212, 0.1);
+    }
+    
+    .driver-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .driver-info {
+        flex: 1;
+    }
+    
+    .driver-name {
+        color: #f1f5f9;
+        font-weight: 500;
+    }
+    
+    .driver-details {
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+    
+    .status-badge {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .status-pending { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .status-assigned { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .status-accepted { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .status-rejected { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .status-in-progress { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+    .status-completed { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    
+    .btn-back {
+        background: rgba(6, 182, 212, 0.2);
+        color: #06b6d4;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-back:hover {
+        background: rgba(6, 182, 212, 0.3);
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(6, 182, 212, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-detail-page">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <!-- Back Button -->
+                <a href="{% url 'company_bookings' %}" class="btn-back d-inline-flex align-items-center mb-4">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Bookings
+                </a>
+                
+                <div class="detail-card">
+                    <!-- Header -->
+                    <div class="detail-header">
+                        <div>
+                            <span class="booking-id">Booking #{{ booking.id }}</span>
+                            <span class="booking-date ms-3">{{ booking.booking_date }}</span>
+                        </div>
+                        <div>
+                            {% if booking.driver_status == 'PENDING' %}
+                                <span class="status-badge status-pending">Pending Assignment</span>
+                            {% elif booking.driver_status == 'ASSIGNED' %}
+                                <span class="status-badge status-assigned">Driver Assigned</span>
+                            {% elif booking.driver_status == 'ACCEPTED' %}
+                                <span class="status-badge status-accepted">Accepted</span>
+                            {% elif booking.driver_status == 'REJECTED' %}
+                                <span class="status-badge status-rejected">Rejected</span>
+                            {% endif %}
+                            
+                            {% if booking.status == 'IN_PROGRESS' %}
+                                <span class="status-badge status-in-progress ms-2">In Progress</span>
+                            {% elif booking.status == 'COMPLETED' %}
+                                <span class="status-badge status-completed ms-2">Completed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Body -->
+                    <div class="detail-body">
+                        <!-- Route Information -->
+                        <div class="info-section">
+                            <h6 class="section-title"><i class="bi bi-signpost-2 me-2"></i>Route Information</h6>
+                            <div class="route-display">
+                                <div class="route-point">
+                                    <div class="route-label">Pickup Location</div>
+                                    <div class="route-value">{{ booking.pickup_location }}</div>
+                                </div>
+                                <div class="route-arrow">
+                                    <i class="bi bi-arrow-right"></i>
+                                </div>
+                                <div class="route-point">
+                                    <div class="route-label">Drop Location</div>
+                                    <div class="route-value">{{ booking.drop_location }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Details -->
+                        <div class="info-section">
+                            <h6 class="section-title"><i class="bi bi-info-circle me-2"></i>Booking Details</h6>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Customer Name</div>
+                                    <div class="info-value">{{ booking.customer_name }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Contact</div>
+                                    <div class="info-value">{{ booking.contact_number }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Truck</div>
+                                    <div class="info-value">{{ booking.truck.truck_number|default:"Not Assigned" }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Truck Type</div>
+                                    <div class="info-value">{{ booking.truck.get_truck_type_display|default:"-" }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Distance</div>
+                                    <div class="info-value">{{ booking.distance_km|floatformat:0 }} km</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Total Price</div>
+                                    <div class="info-value" style="color: #4f46e5; font-weight: 700;">${{ booking.price }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Payment Status</div>
+                                    <div class="info-value">{{ booking.get_payment_status_display }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Load Type</div>
+                                    <div class="info-value">{{ booking.load_type.name|default:"-" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Driver Assignment -->
+                        <div class="info-section">
+                            <h6 class="section-title"><i class="bi bi-person-badge me-2"></i>Driver Assignment</h6>
+                            
+                            {% if booking.driver %}
+                            <div class="info-item mb-3">
+                                <div class="info-label">Assigned Driver</div>
+                                <div class="info-value">
+                                    {{ booking.driver.user.get_full_name|default:booking.driver.user.username }}
+                                    <span class="ms-2">({{ booking.driver.user.email }})</span>
+                                </div>
+                                {% if booking.assigned_at %}
+                                <div class="info-label mt-2">Assigned At</div>
+                                <div class="info-value">{{ booking.assigned_at }}</div>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <!-- Driver Selection Form -->
+                            <form method="POST" action="{% url 'assign_driver_to_booking' booking.id %}">
+                                {% csrf_token %}
+                                <div class="driver-select-card">
+                                    <p class="text-white mb-3">Select a driver to assign to this booking:</p>
+                                    
+                                    {% if drivers %}
+                                        {% for driver in drivers %}
+                                        <label class="driver-option">
+                                            <input type="radio" name="driver_id" value="{{ driver.id }}" required>
+                                            <div class="driver-avatar">
+                                                {{ driver.user.username|upper|slice:":1" }}
+                                            </div>
+                                            <div class="driver-info">
+                                                <div class="driver-name">
+                                                    {{ driver.user.get_full_name|default:driver.user.username }}
+                                                </div>
+                                                <div class="driver-details">
+                                                    {{ driver.license_number|default:"No license" }} | 
+                                                    {{ driver.phone|default:"No phone" }}
+                                                </div>
+                                            </div>
+                                        </label>
+                                        {% endfor %}
+                                        
+                                        <div class="mt-4 text-end">
+                                            <button type="submit" class="btn-submit">
+                                                <i class="bi bi-person-plus me-2"></i> Assign Driver
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="bi bi-people" style="font-size: 2rem; color: #64748b;"></i>
+                                            <p class="text-muted mt-2">No available drivers in your company</p>
+                                            <a href="{% url 'add_driver' %}" class="btn" style="background: #06b6d4; color: white;">
+                                                <i class="bi bi-plus-circle me-1"></i> Add Driver
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

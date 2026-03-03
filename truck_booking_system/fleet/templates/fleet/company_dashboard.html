@@ -1,4 +1,4 @@
-{% extends "bookings/base.html" %}
+{% extends "bookings/company_base.html" %}
 {% load static %}
 
 {% block title %}Company Dashboard - Transova{% endblock %}
@@ -167,8 +167,7 @@
         border: 1px solid rgba(6, 182, 212, 0.1);
         border-radius: 12px;
         padding: 20px;
-        display: flex;
-        align-items: center;
+        margin-bottom: 15px;
         transition: transform 0.3s, box-shadow 0.3s;
     }
     
@@ -204,6 +203,79 @@
         color: #94a3b8;
         font-size: 0.85rem;
         margin: 0;
+    }
+    
+    .driver-stats {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(6, 182, 212, 0.1);
+    }
+    
+    .driver-stat {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .driver-stat-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #06b6d4;
+    }
+    
+    .driver-stat-label {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+    }
+    
+    .driver-truck {
+        font-size: 0.8rem;
+        color: #22c55e;
+        margin-top: 5px;
+    }
+    
+    .driver-truck i {
+        margin-right: 5px;
+    }
+    
+    .driver-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    
+    .btn-edit {
+        background: rgba(6, 182, 212, 0.2);
+        color: #06b6d4;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-edit:hover {
+        background: rgba(6, 182, 212, 0.4);
+        color: #06b6d4;
+    }
+    
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.4);
+        color: #ef4444;
     }
     
     .booking-table {
@@ -383,7 +455,7 @@
                 </a>
             </div>
             <div class="col-md-3">
-                <a href="{% url 'company_dashboard' %}#bookings" class="action-card">
+                <a href="{% url 'company_bookings' %}" class="action-card">
                     <i class="bi bi-list-check"></i>
                     <h6>View Bookings</h6>
                     <p>Manage all bookings</p>
@@ -396,6 +468,96 @@
                     <p>Back to homepage</p>
                 </a>
             </div>
+        </div>
+
+        <!-- Drivers Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="section-title"><i class="bi bi-people"></i>My Drivers</h4>
+            </div>
+            {% for ds in driver_stats %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="driver-card">
+                    <div class="d-flex align-items-center">
+                        <div class="driver-avatar">
+                            {{ ds.driver.user.username|upper|slice:":1" }}
+                        </div>
+                        <div class="driver-info">
+                            <h6>{{ ds.driver.user.get_full_name|default:ds.driver.user.username }}</h6>
+                            <p>{{ ds.driver.user.email }}</p>
+                            {% if ds.driver.assigned_truck %}
+                            <div class="driver-truck">
+                                <i class="bi bi-truck"></i>{{ ds.driver.assigned_truck.truck_number }}
+                            </div>
+                            {% else %}
+                            <div class="driver-truck" style="color: #fbbf24;">
+                                <i class="bi bi-dash-circle"></i>No truck assigned
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Driver Statistics -->
+                    <div class="driver-stats">
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">{{ ds.total_km|floatformat:0 }}</div>
+                            <div class="driver-stat-label">Total KM</div>
+                        </div>
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">{{ ds.jobs_accepted }}</div>
+                            <div class="driver-stat-label">Jobs Accepted</div>
+                        </div>
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">{{ ds.jobs_completed }}</div>
+                            <div class="driver-stat-label">Completed</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="driver-actions">
+                        <a href="{% url 'edit_driver' ds.driver.id %}" class="btn-edit">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <button type="button" class="btn-delete" data-bs-toggle="modal" data-bs-target="#deleteDriverModal{{ ds.driver.id }}">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Delete Confirmation Modal -->
+                <div class="modal fade" id="deleteDriverModal{{ ds.driver.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background: #1e293b; border: 1px solid rgba(6, 182, 212, 0.2);">
+                            <div class="modal-header" style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
+                                <h5 class="modal-title" style="color: #f1f5f9;">Confirm Delete</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p style="color: #cbd5e1;">Are you sure you want to delete driver <strong>{{ ds.driver.user.username }}</strong>?</p>
+                                <p style="color: #94a3b8; font-size: 0.9rem;">This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer" style="border-top: 1px solid rgba(6, 182, 212, 0.2);">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <a href="{% url 'delete_driver' ds.driver.id %}" class="btn-delete">Delete Driver</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="content-card">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-people" style="font-size: 3rem; color: #64748b; margin-bottom: 15px; display: block;"></i>
+                        <h5 style="color: #f1f5f9;">No drivers added yet</h5>
+                        <p style="color: #94a3b8; margin-bottom: 20px;">Add your first driver to start managing your fleet</p>
+                        <a href="{% url 'add_driver' %}" class="btn" style="background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;">
+                            <i class="bi bi-person-plus me-1"></i> Add your first driver
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
 
         <!-- Main Content -->
@@ -479,7 +641,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span style="color: #94a3b8;">Drivers</span>
-                            <span style="color: #06b6d4; font-weight: 600;">{{ drivers.count }}</span>
+                            <span style="color: #06b6d4; font-weight: 600;">{{ driver_stats|length }}</span>
                         </div>
                         
                         <hr style="border-color: rgba(6, 182, 212, 0.2); margin: 20px 0;">
@@ -487,33 +649,6 @@
                         <a href="{% url 'add_truck' %}" class="btn w-100" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3);">
                             <i class="bi bi-plus-circle me-1"></i> Add New Truck
                         </a>
-                    </div>
-                </div>
-
-                <!-- Drivers List -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h5><i class="bi bi-people me-2"></i>My Drivers</h5>
-                    </div>
-                    <div class="card-body" style="padding: 15px;">
-                        {% for driver in drivers %}
-                        <div class="driver-card mb-3">
-                            <div class="driver-avatar">
-                                {{ driver.user.username|upper|slice:":1" }}
-                            </div>
-                            <div class="driver-info">
-                                <h6>{{ driver.user.get_full_name|default:driver.user.username }}</h6>
-                                <p>{{ driver.user.email }}</p>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="text-center py-3">
-                            <p style="color: #64748b;">No drivers added yet</p>
-                            <a href="{% url 'add_driver' %}" class="btn btn-sm" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
-                                <i class="bi bi-person-plus me-1"></i> Add Driver
-                            </a>
-                        </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>

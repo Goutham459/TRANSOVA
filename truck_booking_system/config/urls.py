@@ -35,7 +35,6 @@ urlpatterns = [
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
     path("company-register/", company_register, name="company_register"),
-    path("payment/", payment, name="payment"),
 ]
 
 if settings.DEBUG:

@@ -6,7 +6,7 @@ from .views import (
     dashboard, customer_booking, payment, payment_success, payment_cancel,
     customer_dashboard, admin_dashboard, driver_dashboard,
     # Driver views
-    driver_profile, driver_update_job_status,
+    driver_profile, driver_update_job_status, driver_accept_job, driver_reject_job,
     # Admin views
     admin_users, admin_user_detail, admin_user_delete,
     admin_trucks, admin_truck_add, admin_truck_edit, admin_truck_delete,
@@ -19,7 +19,9 @@ from .views import (
     # User management
     admin_user_toggle_status, admin_user_change_role,
     # New customer features
-    faq, price_calculator, profile, booking_receipt, customer_booking_list
+    faq, price_calculator, profile, booking_receipt, customer_booking_list,
+    # Payment
+    process_payment
 )
 
 urlpatterns = [
@@ -35,6 +37,8 @@ urlpatterns = [
     path("driver-jobs/", driver_dashboard, name="driver_jobs"),
     path("driver-profile/", driver_profile, name="driver_profile"),
     path("driver/job/<int:booking_id>/<str:new_status>/", driver_update_job_status, name="driver_update_job_status"),
+    path("driver/job/<int:booking_id>/accept/", driver_accept_job, name="driver_accept_job"),
+    path("driver/job/<int:booking_id>/reject/", driver_reject_job, name="driver_reject_job"),
     path("book/", customer_booking, name="customer_booking"),
     path("payment/", payment, name="payment"),
     path("payment/success/", payment_success, name="payment_success"),
@@ -73,6 +77,9 @@ urlpatterns = [
     path("profile/", profile, name="profile"),
     path("bookings/receipt/<int:booking_id>/", booking_receipt, name="booking_receipt"),
     path("bookings/my-bookings/", customer_booking_list, name="customer_booking_list"),
+    
+    # Payment processing
+    path("process-payment/", process_payment, name="process_payment"),
 ]
 
 if settings.DEBUG:

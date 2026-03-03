@@ -23,8 +23,14 @@ Payment Successful | TRANSOVA
                     </p>
                     
                     {% if booking_id %}
-                    <div class="alert alert-success mb-4">
-                        <strong>Booking ID:</strong> {{ booking_id }}
+                    <div class="alert alert-success mb-4 text-start">
+                        <h5 class="alert-heading">Payment Details</h5>
+                        <hr>
+                        <p class="mb-1"><strong>Booking ID:</strong> #{{ booking_id }}</p>
+                        {% if transaction_id %}
+                        <p class="mb-1"><strong>Transaction ID:</strong> {{ transaction_id }}</p>
+                        {% endif %}
+                        <p class="mb-0"><strong>Status:</strong> <span class="badge bg-success">Paid</span></p>
                     </div>
                     {% endif %}
                     
@@ -47,3 +53,4 @@ Payment Successful | TRANSOVA
     </div>
 </div>
 {% endblock %}
+

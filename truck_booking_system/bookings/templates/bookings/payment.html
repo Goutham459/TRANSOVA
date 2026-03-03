@@ -17,8 +17,15 @@ Payment | TRANSOVA
                     <!-- Booking Summary -->
                     <div class="alert alert-info mb-4">
                         <h5 class="mb-3">Booking Summary</h5>
+                        {% if booking %}
+                        <p class="mb-1"><strong>Booking ID:</strong> #{{ booking.id }}</p>
+                        <p class="mb-1"><strong>Route:</strong> {{ booking.pickup_location }} → {{ booking.drop_location }}</p>
+                        <p class="mb-1"><strong>Distance:</strong> {{ booking.distance_km|floatformat:2 }} km</p>
+                        <p class="mb-0"><strong>Amount to Pay:</strong> {{ booking.currency }} {{ booking.price }}</p>
+                        {% else %}
                         <p class="mb-1"><strong>Booking ID:</strong> {{ booking_id }}</p>
                         <p class="mb-0"><strong>Amount to Pay:</strong> {{ currency }} {{ amount }}</p>
+                        {% endif %}
                     </div>
 
                     <!-- Payment Method Selection -->
@@ -26,16 +33,16 @@ Payment | TRANSOVA
                     
                     <div class="row g-3 mb-4">
                         <div class="col-6">
-                            <div class="form-check custom-payment-option p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" id="card" value="card" checked>
+                            <div class="form-check custom-payment-option p-3 border rounded" id="card-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="card" value="CARD" checked>
                                 <label class="form-check-label text-white" for="card">
                                     <i class="bi bi-credit-card"></i> Credit/Debit Card
                                 </label>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="form-check custom-payment-option p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" id="wallet" value="wallet">
+                            <div class="form-check custom-payment-option p-3 border rounded" id="wallet-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="wallet" value="WALLET">
                                 <label class="form-check-label text-white" for="wallet">
                                     <i class="bi bi-wallet2"></i> Digital Wallet
                                 </label>
@@ -47,28 +54,45 @@ Payment | TRANSOVA
                     <div id="card-details">
                         <div class="mb-3">
                             <label class="form-label text-white">Card Number</label>
-                            <input type="text" class="form-control minimal-select" placeholder="1234 5678 9012 3456" maxlength="19">
+                            <input type="text" class="form-control minimal-select" id="card_number" placeholder="1234 5678 9012 3456" maxlength="19">
+                            <div class="invalid-feedback" id="card-number-error"></div>
+                            <small class="text-success" id="card-type-display"></small>
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label text-white">Expiry Date</label>
-                                <input type="text" class="form-control minimal-select" placeholder="MM/YY" maxlength="5">
+                                <input type="text" class="form-control minimal-select" id="card_expiry" placeholder="MM/YY" maxlength="5">
+                                <div class="invalid-feedback" id="expiry-error"></div>
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label text-white">CVV</label>
-                                <input type="text" class="form-control minimal-select" placeholder="123" maxlength="3">
+                                <input type="text" class="form-control minimal-select" id="card_cvv" placeholder="123" maxlength="4">
+                                <div class="invalid-feedback" id="cvv-error"></div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-white">Cardholder Name</label>
-                            <input type="text" class="form-control minimal-select" placeholder="John Doe">
+                            <input type="text" class="form-control minimal-select" id="cardholder_name" placeholder="John Doe">
+                            <div class="invalid-feedback" id="name-error"></div>
                         </div>
                     </div>
 
+                    <!-- Wallet Details (shown when wallet is selected) -->
+                    <div id="wallet-details" style="display: none;">
+                        <div class="alert alert-warning">
+                            <p class="mb-2"><strong>Digital Wallet Payment</strong></p>
+                            <p class="mb-0 small">You will be redirected to your digital wallet provider to complete the payment.</p>
+                        </div>
+                    </div>
+
+                    <!-- Error/Success Messages -->
+                    <div id="payment-message" class="alert" style="display: none;"></div>
+
                     <!-- Action Buttons -->
                     <div class="d-grid gap-2 mt-4">
-                        <button type="button" class="btn kontrek-btn" onclick="processPayment()">
-                            Pay {{ currency }} {{ amount }}
+                        <button type="button" class="btn kontrek-btn" id="pay-button" onclick="processPayment()">
+                            <span id="pay-button-text">Pay {% if booking %}{{ booking.currency }} {{ booking.price }}{% else %}{{ currency }} {{ amount }}{% endif %}</span>
+                            <span id="pay-button-loader" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
                         </button>
                         <a href="{% url 'payment_cancel' %}?booking_id={{ booking_id }}" class="btn btn-outline-danger">
                             Cancel Payment
@@ -89,17 +113,177 @@ Payment | TRANSOVA
 </div>
 
 <script>
+// Payment method toggle
+document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        if (this.value === 'CARD') {
+            document.getElementById('card-details').style.display = 'block';
+            document.getElementById('wallet-details').style.display = 'none';
+        } else {
+            document.getElementById('card-details').style.display = 'none';
+            document.getElementById('wallet-details').style.display = 'block';
+        }
+    });
+});
+
+// Card number formatting and card type detection
+document.getElementById('card_number').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    let formatted = '';
+    for (let i = 0; i < value.length && i < 16; i++) {
+        if (i > 0 && i % 4 === 0) formatted += ' ';
+        formatted += value[i];
+    }
+    e.target.value = formatted;
+    
+    // Detect card type
+    const cardTypeDisplay = document.getElementById('card-type-display');
+    if (value.startsWith('4')) {
+        cardTypeDisplay.textContent = 'Visa';
+    } else if (value.startsWith('5')) {
+        cardTypeDisplay.textContent = 'Mastercard';
+    } else if (value.startsWith('3')) {
+        cardTypeDisplay.textContent = 'Amex';
+    } else {
+        cardTypeDisplay.textContent = '';
+    }
+});
+
+// Expiry date formatting
+document.getElementById('card_expiry').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    e.target.value = value;
+});
+
+// CVV validation
+document.getElementById('card_cvv').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '');
+});
+
+function showMessage(message, isError = true) {
+    const msgDiv = document.getElementById('payment-message');
+    msgDiv.textContent = message;
+    msgDiv.className = 'alert ' + (isError ? 'alert-danger' : 'alert-success');
+    msgDiv.style.display = 'block';
+}
+
+function hideMessage() {
+    document.getElementById('payment-message').style.display = 'none';
+}
+
+function validateForm() {
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    
+    if (paymentMethod === 'CARD') {
+        const cardNumber = document.getElementById('card_number').value.replace(/\s/g, '');
+        const cardExpiry = document.getElementById('card_expiry').value;
+        const cardCvv = document.getElementById('card_cvv').value;
+        const cardholderName = document.getElementById('cardholder_name').value;
+        
+        // Validate card number
+        if (!cardNumber || cardNumber.length < 13) {
+            showMessage('Please enter a valid card number (at least 13 digits)');
+            return false;
+        }
+        
+        // Validate expiry
+        if (!cardExpiry || cardExpiry.length < 4) {
+            showMessage('Please enter a valid expiry date (MM/YY)');
+            return false;
+        }
+        
+        // Check if expiry is in the future
+        const [month, year] = cardExpiry.split('/');
+        const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
+        if (expiryDate < new Date()) {
+            showMessage('Your card has expired. Please use a different card.');
+            return false;
+        }
+        
+        // Validate CVV
+        if (!cardCvv || cardCvv.length < 3) {
+            showMessage('Please enter a valid CVV (at least 3 digits)');
+            return false;
+        }
+        
+        // Validate cardholder name
+        if (!cardholderName.trim()) {
+            showMessage('Please enter the cardholder name');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 function processPayment() {
-    // Simulate payment processing
-    const bookingId = "{{ booking_id }}";
-    const amount = "{{ amount }}";
-    const currency = "{{ currency }}";
+    // Hide any previous messages
+    hideMessage();
     
-    // In a real application, this would integrate with a payment gateway
-    alert("Payment successful! Redirecting to confirmation...");
+    // Validate form
+    if (!validateForm()) {
+        return;
+    }
     
-    // Redirect to success page
-    window.location.href = "{% url 'payment_success' %}?booking_id=" + bookingId;
+    // Show loading state
+    const payButton = document.getElementById('pay-button');
+    const payButtonText = document.getElementById('pay-button-text');
+    const payButtonLoader = document.getElementById('pay-button-loader');
+    
+    payButton.disabled = true;
+    payButtonText.textContent = 'Processing...';
+    payButtonLoader.style.display = 'inline-block';
+    
+    // Get form data
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    const cardNumber = document.getElementById('card_number').value;
+    const cardExpiry = document.getElementById('card_expiry').value;
+    const cardCvv = document.getElementById('card_cvv').value;
+    const cardholderName = document.getElementById('cardholder_name').value;
+    
+    // Prepare data
+    const data = {
+        booking_id: '{{ booking_id }}',
+        payment_method: paymentMethod,
+        card_number: cardNumber,
+        card_expiry: cardExpiry,
+        card_cvv: cardCvv,
+        cardholder_name: cardholderName
+    };
+    
+    // Send payment request
+    fetch('{% url "process_payment" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Payment successful - redirect to success page
+            window.location.href = '{% url "payment_success" %}?booking_id={{ booking_id }}&transaction_id=' + data.transaction_id;
+        } else {
+            // Payment failed
+            showMessage(data.error || 'Payment failed. Please try again.');
+            payButton.disabled = false;
+            payButtonText.textContent = 'Pay {% if booking %}{{ booking.currency }} {{ booking.price }}{% else %}{{ currency }} {{ amount }}{% endif %}';
+            payButtonLoader.style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('An error occurred. Please try again.');
+        payButton.disabled = false;
+        payButtonText.textContent = 'Pay {% if booking %}{{ booking.currency }} {{ booking.price }}{% else %}{{ currency }} {{ amount }}{% endif %}';
+        payButtonLoader.style.display = 'none';
+    });
 }
 </script>
 {% endblock %}
+

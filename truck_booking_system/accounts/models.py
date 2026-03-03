@@ -19,7 +19,18 @@ class User(AbstractUser):
         choices=ROLE_CHOICES,
         default=ROLE_CUSTOMER
     )
-
+    
+    # Profile fields
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=[
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ], blank=True)
+    
     def is_company(self):
         return self.role == self.ROLE_COMPANY
 

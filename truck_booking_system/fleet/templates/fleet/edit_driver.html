@@ -1,0 +1,108 @@
+{% extends "bookings/company_base.html" %}
+{% load static %}
+
+{% block title %}
+Edit Driver | TRANSOVA
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
+                <div class="card-header bg-primary text-white" style="background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; border-radius: 16px 16px 0 0 !important;">
+                    <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>Edit Driver</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" action="{% url 'edit_driver' driver.id %}">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white">First Name</label>
+                                <input type="text" class="form-control minimal-select" name="first_name" value="{{ driver.user.first_name|default:'' }}" placeholder="First Name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white">Last Name</label>
+                                <input type="text" class="form-control minimal-select" name="last_name" value="{{ driver.user.last_name|default:'' }}" placeholder="Last Name">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Email</label>
+                            <input type="email" class="form-control minimal-select" name="email" value="{{ driver.user.email|default:'' }}" placeholder="Enter email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Phone</label>
+                            <input type="text" class="form-control minimal-select" name="phone" value="{{ driver.phone|default:'' }}" placeholder="Phone number">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">License Number</label>
+                            <input type="text" class="form-control minimal-select" name="license_number" value="{{ driver.license_number|default:'' }}" placeholder="License number">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white">License Expiry</label>
+                                <input type="date" class="form-control minimal-select" name="license_expiry" value="{{ driver.license_expiry|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white">Date of Birth</label>
+                                <input type="date" class="form-control minimal-select" name="date_of_birth" value="{{ driver.date_of_birth|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Experience (Years)</label>
+                            <input type="number" class="form-control minimal-select" name="experience_years" value="{{ driver.experience_years|default:'0' }}" min="0">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Address</label>
+                            <textarea class="form-control minimal-select" name="address" rows="2" placeholder="Address">{{ driver.address|default:'' }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Assign Truck</label>
+                            <select class="form-control minimal-select" name="assigned_truck">
+                                <option value="">-- No Truck Assigned --</option>
+                                {% for truck in trucks %}
+                                <option value="{{ truck.id }}" {% if driver.assigned_truck.id == truck.id %}selected{% endif %}>
+                                    {{ truck.truck_number }} - {{ truck.get_truck_type_display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" name="is_available" id="is_available" {% if driver.is_available %}checked{% endif %}>
+                            <label class="form-check-label text-white" for="is_available">Driver Available</label>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn kontrek-btn">
+                                <i class="bi bi-save me-2"></i>Save Changes
+                            </button>
+                            <a href="{% url 'company_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

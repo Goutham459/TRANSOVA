@@ -1,4 +1,4 @@
-{% extends "bookings/base.html" %}
+{% extends "bookings/customer_base.html" %}
 {% load static %}
 
 {% block title %}
@@ -186,19 +186,29 @@ function updatePrice(){
 document.getElementById('bookingForm').addEventListener('submit', function(e){
     e.preventDefault();
     let formData = new FormData(this);
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     fetch("{% url 'customer_booking' %}", {
         method: "POST",
-        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+        },
         body: formData
     })
     .then(res => res.json())
     .then(data => {
         if(data.success){
-            window.location.href = `/payment/?amount=${data.amount}&currency=${data.currency}&booking_id=${data.booking_id}`;
+            window.location.href = `{% url 'payment' %}?amount=${data.amount}&currency=${data.currency}&booking_id=${data.booking_id}`;
         } else {
             alert("Booking failed. Try again.");
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred. Please try again.");
     });
 });
 </script>

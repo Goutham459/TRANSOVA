@@ -1,0 +1,276 @@
+{% extends "bookings/company_base.html" %}
+{% load static %}
+
+{% block title %}Company Profile - TRANSOVA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        padding: 40px 0;
+    }
+    
+    .profile-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(79, 70, 229, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(6, 182, 212, 0.2));
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .profile-logo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 3rem;
+        color: white;
+        font-weight: 700;
+        overflow: hidden;
+        border: 4px solid rgba(255,255,255,0.3);
+    }
+    
+    .profile-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .profile-name {
+        color: #fff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .profile-role {
+        color: #818cf8;
+        font-size: 1rem;
+    }
+    
+    .profile-body {
+        padding: 30px;
+    }
+    
+    .info-section {
+        margin-bottom: 30px;
+    }
+    
+    .info-section h4 {
+        color: #818cf8;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+        padding-bottom: 10px;
+    }
+    
+    .form-label {
+        color: #94a3b8;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+        background: rgba(11, 15, 26, 0.8);
+        border: 1px solid rgba(79, 70, 229, 0.3);
+        color: #fff;
+        border-radius: 10px;
+        padding: 12px 15px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: rgba(11, 15, 26, 1);
+        border-color: #818cf8;
+        color: #fff;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .form-select option {
+        background: #0b0f1a;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(79, 70, 229, 0.4);
+    }
+    
+    .current-logo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(79, 70, 229, 0.3);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+    
+    .status-approved {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+    
+    .status-pending {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <!-- Header with Logo -->
+                    <div class="profile-header">
+                        <div class="profile-logo">
+                            {% if company.logo %}
+                                <img src="{{ company.logo.url }}" alt="{{ company.company_name }}">
+                            {% else %}
+                                <i class="bi bi-building"></i>
+                            {% endif %}
+                        </div>
+                        <h1 class="profile-name">{{ company.company_name }}</h1>
+                        <p class="profile-role">
+                            <i class="bi bi-building me-2"></i>Company Account
+                        </p>
+                        {% if company.is_approved %}
+                            <span class="status-badge status-approved">
+                                <i class="bi bi-check-circle me-1"></i>Approved
+                            </span>
+                        {% else %}
+                            <span class="status-badge status-pending">
+                                <i class="bi bi-clock me-1"></i>Pending Approval
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Body -->
+                    <div class="profile-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Company Information -->
+                            <div class="info-section">
+                                <h4><i class="bi bi-building me-2"></i>Company Information</h4>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Company Name</label>
+                                    <input type="text" class="form-control" name="company_name" value="{{ company.company_name|default:'' }}">
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Trade License Number</label>
+                                        <input type="text" class="form-control" name="trade_license" value="{{ company.trade_license|default:'' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="text" class="form-control" name="phone" value="{{ company.phone|default:'' }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Company Address</label>
+                                    <textarea class="form-control" name="address" rows="2">{{ company.address|default:'' }}</textarea>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Website</label>
+                                        <input type="url" class="form-control" name="website" value="{{ company.website|default:'' }}" placeholder="https://example.com">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Contact Person</label>
+                                        <input type="text" class="form-control" name="contact_person" value="{{ company.contact_person|default:'' }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Company Description</label>
+                                    <textarea class="form-control" name="description" rows="3">{{ company.description|default:'' }}</textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Admin Contact -->
+                            <div class="info-section">
+                                <h4><i class="bi bi-person me-2"></i>Admin Contact</h4>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Admin First Name</label>
+                                        <input type="text" class="form-control" name="first_name" value="{{ user.first_name|default:'' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Admin Last Name</label>
+                                        <input type="text" class="form-control" name="last_name" value="{{ user.last_name|default:'' }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Admin Phone</label>
+                                    <input type="text" class="form-control" name="user_phone" value="{{ user.phone|default:'' }}">
+                                </div>
+                            </div>
+                            
+                            <!-- Company Logo -->
+                            <div class="info-section">
+                                <h4><i class="bi bi-image me-2"></i>Company Logo</h4>
+                                
+                                <div class="mb-3">
+                                    {% if company.logo %}
+                                        <div class="mb-3">
+                                            <img src="{{ company.logo.url }}" alt="Current Logo" class="current-logo">
+                                            <span class="ms-2 text-muted">Current logo</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <label class="form-label">Upload New Logo</label>
+                                    <input type="file" class="form-control" name="logo" accept="image/*">
+                                    <small class="text-muted">Supported formats: JPG, PNG, GIF</small>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-save">
+                                    <i class="bi bi-check-circle me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
