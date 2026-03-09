@@ -6,7 +6,8 @@ from .views import (
     dashboard, customer_booking, payment, payment_success, payment_cancel,
     customer_dashboard, admin_dashboard, driver_dashboard,
     # Driver views
-    driver_profile, driver_update_job_status, driver_accept_job, driver_reject_job,
+    driver_profile, driver_jobs, driver_update_job_status, driver_accept_job, driver_reject_job,
+    driver_delivery_proof,
     # Admin views
     admin_users, admin_user_detail, admin_user_delete,
     admin_trucks, admin_truck_add, admin_truck_edit, admin_truck_delete,
@@ -17,11 +18,12 @@ from .views import (
     admin_stats,
     company_status_check,
     # User management
-    admin_user_toggle_status, admin_user_change_role,
+    admin_user_toggle_status, admin_user_change_role, admin_reset_password,
     # New customer features
     faq, price_calculator, profile, booking_receipt, customer_booking_list,
     # Payment
-    process_payment
+    process_payment,
+    download_receipt_pdf
 )
 
 urlpatterns = [
@@ -34,15 +36,17 @@ urlpatterns = [
     path("customer-dashboard/", customer_dashboard, name="customer_dashboard"),
     path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
     path("driver-dashboard/", driver_dashboard, name="driver_dashboard"),
-    path("driver-jobs/", driver_dashboard, name="driver_jobs"),
+    path("driver-jobs/", driver_jobs, name="driver_jobs"),
     path("driver-profile/", driver_profile, name="driver_profile"),
     path("driver/job/<int:booking_id>/<str:new_status>/", driver_update_job_status, name="driver_update_job_status"),
     path("driver/job/<int:booking_id>/accept/", driver_accept_job, name="driver_accept_job"),
     path("driver/job/<int:booking_id>/reject/", driver_reject_job, name="driver_reject_job"),
+    path("driver/job/<int:booking_id>/proof/", driver_delivery_proof, name="driver_delivery_proof"),
     path("book/", customer_booking, name="customer_booking"),
     path("payment/", payment, name="payment"),
     path("payment/success/", payment_success, name="payment_success"),
     path("payment/cancel/", payment_cancel, name="payment_cancel"),
+    
     
     # Custom Admin URLs
     path("admin/users/", admin_users, name="admin_users"),
@@ -67,6 +71,7 @@ urlpatterns = [
     # User management URLs
     path("admin/users/<int:user_id>/toggle-status/", admin_user_toggle_status, name="admin_user_toggle_status"),
     path("admin/users/<int:user_id>/change-role/", admin_user_change_role, name="admin_user_change_role"),
+    path("admin/users/<int:user_id>/reset-password/", admin_reset_password, name="admin_reset_password"),
     
     # Company status check API
     path("api/company/status/", company_status_check, name="company_status_check"),
@@ -76,7 +81,8 @@ urlpatterns = [
     path("price-calculator/", price_calculator, name="price_calculator"),
     path("profile/", profile, name="profile"),
     path("bookings/receipt/<int:booking_id>/", booking_receipt, name="booking_receipt"),
-    path("bookings/my-bookings/", customer_booking_list, name="customer_booking_list"),
+    path("bookings/receipt/<int:booking_id>/download/", download_receipt_pdf, name="download_receipt_pdf"),
+    path("my-bookings/", customer_booking_list, name="customer_booking_list"),
     
     # Payment processing
     path("process-payment/", process_payment, name="process_payment"),

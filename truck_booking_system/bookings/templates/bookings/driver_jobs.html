@@ -1,0 +1,172 @@
+{% extends "bookings/driver_base.html" %}
+
+{% block title %}My Jobs - Driver Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header { background: rgba(24, 24, 31, 0.8); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+.filter-tabs { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.filter-tab { padding: 10px 20px; border-radius: var(--radius-sm); background: rgba(24, 24, 31, 0.8); border: 1px solid var(--border-color); color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: all 0.3s; }
+.filter-tab:hover { background: rgba(139, 92, 246, 0.1); color: var(--text-primary); }
+.filter-tab.active { background: linear-gradient(135deg, var(--accent-primary), #a855f7); color: #fff; }
+.job-card { background: rgba(24, 24, 31, 0.8); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; transition: all 0.3s; }
+.job-card:hover { transform: translateY(-5px); border-color: var(--border-light); box-shadow: var(--shadow-md); }
+.job-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+.job-id { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+.job-id span { color: var(--accent-primary); }
+.status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+.status-badge.pending { background: rgba(245, 158, 11, 0.15); color: var(--accent-warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+.status-badge.assigned { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+.status-badge.accepted, .status-badge.in_progress { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-badge.completed { background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+.job-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.detail-item { display: flex; flex-direction: column; gap: 4px; }
+.detail-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.detail-value { color: var(--text-primary); font-weight: 500; }
+.detail-value i { color: var(--accent-primary); margin-right: 8px; }
+.location-info { background: rgba(139, 92, 246, 0.1); border-radius: var(--radius-sm); padding: 12px; margin-top: 8px; }
+.location-info .coords { font-family: monospace; font-size: 0.85rem; color: var(--accent-success); }
+.no-coords { color: var(--text-muted) !important; font-size: 0.8rem; }
+.job-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+.btn-nav { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 500; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; font-size: 0.9rem; color: #fff; }
+.btn-nav-pickup { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+.btn-nav-pickup:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3); color: #fff; }
+.btn-nav-drop { background: linear-gradient(135deg, var(--accent-success), #06b6d4); }
+.btn-nav-drop:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); color: #fff; }
+.btn-nav-full { background: linear-gradient(135deg, #06b6d4, #a855f7); }
+.btn-nav-full:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3); color: #fff; }
+.btn-action { padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 500; transition: all 0.3s; border: none; cursor: pointer; font-size: 0.9rem; }
+.btn-proof { background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+.btn-proof:hover { background: #a855f7; color: #fff; }
+.location-permission { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2)); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.location-permission i { font-size: 1.5rem; color: var(--accent-primary); }
+.btn-location { background: linear-gradient(135deg, var(--accent-primary), #a855f7); color: #fff; border: none; padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; transition: all 0.3s; }
+.btn-location:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="page-header animate-on-scroll">
+        <h4 class="mb-0"><i class="bi bi-briefcase me-2"></i> My Jobs</h4>
+    </div>
+
+    <div class="location-permission animate-on-scroll delay-100" id="locationPermission">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-geo-alt"></i>
+            <div>
+                <strong>Enable Location for Navigation</strong>
+                <p class="mb-0 text-muted" id="currentLocationStatus">Click the button to enable navigation</p>
+            </div>
+        </div>
+        <button class="btn-location" onclick="requestLocation()">
+            <i class="bi bi-crosshair me-2"></i> Enable My Location
+        </button>
+    </div>
+
+    <div class="filter-tabs">
+        <a href="?view=all" class="filter-tab {% if view_type == 'all' or not view_type %}active{% endif %}">All Jobs</a>
+        <a href="?view=today" class="filter-tab {% if view_type == 'today' %}active{% endif %}">Today's Jobs</a>
+        <a href="?view=active" class="filter-tab {% if view_type == 'active' %}active{% endif %}">Active</a>
+        <a href="?view=completed" class="filter-tab {% if view_type == 'completed' %}active{% endif %}">Completed</a>
+    </div>
+
+    {% if driver_bookings %}
+        {% for booking in driver_bookings %}
+        <div class="job-card animate-on-scroll">
+            <div class="job-card-header">
+                <div class="job-id"><span>#{{ booking.id }}</span> - {{ booking.customer_name }}</div>
+                <div class="status-badge {% if booking.status == 'COMPLETED' %}completed{% elif booking.status == 'IN_PROGRESS' %}in_progress{% elif booking.driver_status == 'ASSIGNED' %}assigned{% elif booking.assigned_by_company %}accepted{% else %}pending{% endif %}">
+                    {% if booking.status == 'COMPLETED' %}<i class="bi bi-check-circle-fill"></i> Completed{% elif booking.status == 'IN_PROGRESS' %}<i class="bi bi-arrow-right-circle-fill"></i> In Progress{% elif booking.assigned_by_company %}<i class="bi bi-building"></i> Company Assigned{% else %}<i class="bi bi-hourglass-split"></i> Pending{% endif %}
+                </div>
+            </div>
+            
+            <div class="job-details">
+                <div class="detail-item">
+                    <span class="detail-label">Pickup</span>
+                    <div class="detail-value"><i class="bi bi-geo-alt-fill"></i> {{ booking.pickup_location }}</div>
+                    {% if booking.pickup_lat and booking.pickup_lng %}
+                    <div class="location-info"><div class="coords"><i class="bi bi-check-circle-fill me-1"></i> {{ booking.pickup_lat }}, {{ booking.pickup_lng }}</div></div>
+                    {% else %}
+                    <div class="location-info"><div class="no-coords"><i class="bi bi-exclamation-triangle me-1"></i> No GPS</div></div>
+                    {% endif %}
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Drop</span>
+                    <div class="detail-value"><i class="bi bi-signpost-2-fill"></i> {{ booking.drop_location }}</div>
+                    {% if booking.drop_lat and booking.drop_lng %}
+                    <div class="location-info"><div class="coords"><i class="bi bi-check-circle-fill me-1"></i> {{ booking.drop_lat }}, {{ booking.drop_lng }}</div></div>
+                    {% endif %}
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Date</span>
+                    <div class="detail-value"><i class="bi bi-calendar3"></i> {{ booking.booking_date }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Distance</span>
+                    <div class="detail-value"><i class="bi bi-signpost"></i> {{ booking.distance_km|floatformat:1 }} km</div>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Price</span>
+                    <div class="detail-value" style="color: var(--accent-success);"><i class="bi bi-currency-dollar"></i> ${{ booking.price|floatformat:2 }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Truck</span>
+                    <div class="detail-value"><i class="bi bi-truck"></i> {{ booking.truck.truck_number|default:"Not assigned" }}</div>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                {% if booking.pickup_lat and booking.pickup_lng %}
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ booking.pickup_lat }},{{ booking.pickup_lng }}" target="_blank" class="btn-nav btn-nav-pickup"><i class="bi bi-geo-alt"></i> Pickup</a>
+                {% else %}
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ booking.pickup_location|urlencode }}" target="_blank" class="btn-nav btn-nav-pickup"><i class="bi bi-geo-alt"></i> Pickup</a>
+                {% endif %}
+                
+                {% if booking.drop_lat and booking.drop_lng %}
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ booking.drop_lat }},{{ booking.drop_lng }}" target="_blank" class="btn-nav btn-nav-drop"><i class="bi bi-signpost-2"></i> Drop</a>
+                {% else %}
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ booking.drop_location|urlencode }}" target="_blank" class="btn-nav btn-nav-drop"><i class="bi bi-signpost-2"></i> Drop</a>
+                {% endif %}
+                
+                {% if booking.driver_status == 'ASSIGNED' or booking.status == 'IN_PROGRESS' %}
+                <a href="{% url 'driver_delivery_proof' booking.id %}" class="btn-action btn-proof"><i class="bi bi-check-circle me-2"></i> Complete</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-briefcase"></i>
+            <h5>No Jobs Found</h5>
+            <p class="text-muted mb-0">You don't have any assigned jobs.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+let driverCurrentLocation = null;
+function requestLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                driverCurrentLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                document.getElementById('currentLocationStatus').innerHTML = '<span class="text-success">Location enabled!</span>';
+            },
+            function(error) {
+                document.getElementById('currentLocationStatus').innerHTML = '<span class="text-danger">Access denied</span>';
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
+}
+</script>
+{% endblock %}
+{% endblock %}
+

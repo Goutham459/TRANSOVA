@@ -4,6 +4,30 @@
 {% block page_title %}Manage Subscriptions{% endblock %}
 
 {% block admin_content %}
+<!-- Breadcrumb -->
+<nav class="admin-breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span class="separator">/</span>
+    <span class="current">Subscriptions</span>
+</nav>
+
+<!-- Page Header -->
+<div class="admin-page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="admin-page-title">
+                <i class="bi bi-credit-card me-2"></i>Manage Subscriptions
+            </h1>
+            <p class="admin-page-subtitle">View and manage company subscriptions.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-admin btn-admin-outline">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- Subscriptions Table -->
 <div class="row">
     <div class="col-md-12">
@@ -17,7 +41,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Company</th>
-                            <th>Amount</th>
+                            <th>Plan</th>
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Status</th>
@@ -27,24 +51,32 @@
                     <tbody>
                         {% for subscription in subscriptions %}
                         <tr>
-                            <td>#{{ subscription.id }}</td>
-                            <td>{{ subscription.company.company_name }}</td>
-                            <td>${{ subscription.amount }}</td>
+                            <td>
+                                <span class="text-primary fw-semibold">#{{ subscription.id }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{{ subscription.company.company_name }}</span>
+                            </td>
+                            <td>{{ subscription.plan_name|default:"Standard" }}</td>
                             <td>{{ subscription.start_date|date:"M d, Y" }}</td>
-                            <td>{{ subscription.end_date|date:"M d, Y" }}</td>
+                            <td>{{ subscription.end_date|date:"M d, Y"|default:"N/A" }}</td>
                             <td>
                                 {% if subscription.is_active %}
-                                <span class="badge badge-success-custom">Active</span>
+                                <span class="badge badge-admin badge-success-custom">
+                                    <i class="bi bi-check-circle me-1"></i>Active
+                                </span>
                                 {% else %}
-                                <span class="badge badge-warning-custom">Inactive</span>
+                                <span class="badge badge-admin badge-danger-custom">
+                                    <i class="bi bi-x-circle me-1"></i>Inactive
+                                </span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'admin_subscription_toggle' subscription.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Toggle this subscription status?')">
+                                <a href="{% url 'admin_subscription_toggle' subscription.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Are you sure you want to toggle this subscription?')">
                                     {% if subscription.is_active %}
-                                    <i class="bi bi-pause-circle"></i> Deactivate
+                                    <i class="bi bi-pause"></i> Deactivate
                                     {% else %}
-                                    <i class="bi bi-play-circle"></i> Activate
+                                    <i class="bi bi-play"></i> Activate
                                     {% endif %}
                                 </a>
                             </td>
@@ -53,7 +85,7 @@
                         <tr>
                             <td colspan="7" class="text-center py-4">
                                 <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
-                                No subscriptions found
+                                <span class="text-muted">No subscriptions found</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -64,3 +96,4 @@
     </div>
 </div>
 {% endblock %}
+

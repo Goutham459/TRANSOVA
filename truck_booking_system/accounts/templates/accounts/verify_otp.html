@@ -19,5 +19,10 @@
         </div>
         <button type="submit" class="btn kontrek-btn w-100">Verify</button>
     </form>
+    
+    <div class="text-center mt-3">
+        <p class="mb-2">Didn't receive the OTP?</p>
+        <a href="{% url 'resend_otp' %}" class="btn btn-outline-secondary btn-sm">Resend OTP</a>
+    </div>
 </div>
 {% endblock %}

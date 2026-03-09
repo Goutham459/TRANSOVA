@@ -1,4 +1,5 @@
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
+from django.views.generic import RedirectView
 from bookings.views import (
     forgot_password,
     home,
@@ -18,6 +19,9 @@ urlpatterns = [
     path("", home, name="home"),
     path("trucks/", trucks_list, name="trucks_list"),
     
+    # Redirect root-level profile to accounts customer profile (with edit capabilities)
+    path("profile/", RedirectView.as_view(url="/accounts/customer-profile/", permanent=False), name="root_profile"),
+    
     # Custom Admin Panel (replaces default Django admin)
     path("admin/", admin_dashboard, name="custom_admin"),
     path("bookings/admin-dashboard/", admin_dashboard, name="admin_dashboard"),
@@ -27,10 +31,9 @@ urlpatterns = [
     path("fleet/", include("fleet.urls")),
     path("pricing/", include("pricing.urls")),
 
-    # Auth - Custom login before allauth
+    # Auth - Custom login
     path("login/", RoleBasedLoginView.as_view(), name="login"),
     path("logout/", logout_view, name="logout"),
-    path("accounts/", include("allauth.urls")),
     path("register/", register, name="register"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
@@ -39,3 +42,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

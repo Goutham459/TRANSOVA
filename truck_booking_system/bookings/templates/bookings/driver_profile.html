@@ -3,31 +3,250 @@
 
 {% block title %}Driver Profile - Transova{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Profile Header - Animated Gradient */
+    .profile-header {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(168, 85, 247, 0.15));
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        border-radius: 20px;
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        animation: slideUp 0.6s ease forwards;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    .profile-header::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+        z-index: 0;
+    }
+    
+    .profile-header > * {
+        position: relative;
+        z-index: 1;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #06b6d4, #a855f7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4), 0 0 60px rgba(168, 85, 247, 0.2);
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        animation: pulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4), 0 0 60px rgba(168, 85, 247, 0.2); }
+        50% { box-shadow: 0 10px 40px rgba(6, 182, 212, 0.6), 0 0 80px rgba(168, 85, 247, 0.3); }
+    }
+    
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+    }
+    
+    .profile-role {
+        color: rgba(6, 182, 212, 0.9);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 600;
+    }
+    
+    /* Info Cards - Glassmorphism */
+    .info-card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+        border: 1px solid rgba(6, 182, 212, 0.15);
+        border-radius: 16px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        animation: slideUp 0.6s ease forwards;
+        opacity: 0;
+    }
+    
+    .info-card:nth-child(1) { animation-delay: 0.2s; }
+    .info-card:nth-child(2) { animation-delay: 0.3s; }
+    
+    .info-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(6, 182, 212, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(6, 182, 212, 0.1);
+    }
+    
+    .info-card .card-header {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1));
+        border-bottom: 1px solid rgba(6, 182, 212, 0.15);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .info-card .card-header h5 {
+        margin: 0;
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    
+    .info-card .card-header i {
+        background: linear-gradient(135deg, #06b6d4, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .info-card .card-body {
+        padding: 0;
+    }
+    
+    /* Info Items */
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-item:hover {
+        background: rgba(6, 182, 212, 0.05);
+    }
+    
+    .info-item .label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-item .value {
+        color: #fff;
+        font-weight: 500;
+        text-align: right;
+    }
+    
+    .info-item .value.success {
+        color: #10b981;
+    }
+    
+    .info-item .value.info {
+        color: #06b6d4;
+    }
+    
+    /* Back Link */
+    .back-link {
+        color: rgba(255, 255, 255, 0.5);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        margin-bottom: 24px;
+    }
+    
+    .back-link:hover {
+        color: #06b6d4;
+        transform: translateX(-5px);
+    }
+    
+    /* Section Title */
+    .section-title {
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(6, 182, 212, 0.3), transparent);
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid px-4">
     <!-- Back Link -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <a href="{% url 'driver_dashboard' %}" class="back-link">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Page Title -->
     <div class="row mb-4">
         <div class="col-12">
-            <a href="{% url 'driver_dashboard' %}" class="text-muted text-decoration-none">
-                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-            </a>
+            <h4 class="section-title">
+                <i class="bi bi-person-badge"></i> Driver Profile
+            </h4>
         </div>
     </div>
 
     <!-- Profile Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(79,70,229,0.2)); border: 1px solid rgba(6,182,212,0.3); border-radius: 12px;">
-                <div class="card-body d-flex align-items-center">
-                    <div class="me-4">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #22c55e, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 600; color: white;">
-                            {{ user.username|upper|slice:":1" }}
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="mb-1">{{ user.get_full_name|default:user.username }}</h2>
-                        <p class="text-muted mb-0">Driver Profile</p>
-                    </div>
+            <div class="profile-header d-flex align-items-center">
+                <div class="profile-avatar me-4">
+                    {{ user.username|upper|slice:":1" }}
+                </div>
+                <div>
+                    <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                    <p class="profile-role">
+                        <i class="bi bi-truck me-2"></i>Driver
+                    </p>
                 </div>
             </div>
         </div>
@@ -36,48 +255,52 @@
     <!-- Info Cards -->
     <div class="row g-4">
         <div class="col-md-6">
-            <div class="card h-100" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(6,182,212,0.2); border-radius: 12px;">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="mb-0"><i class="bi bi-person me-2 text-info"></i>Personal Information</h5>
+            <div class="info-card">
+                <div class="card-header">
+                    <i class="bi bi-person"></i>
+                    <h5>Personal Information</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: rgba(6,182,212,0.2)!important;">
-                        <span class="text-muted">Username</span>
-                        <span class="text-white">{{ user.username }}</span>
+                    <div class="info-item">
+                        <span class="label">Username</span>
+                        <span class="value">{{ user.username }}</span>
                     </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: rgba(6,182,212,0.2)!important;">
-                        <span class="text-muted">Full Name</span>
-                        <span class="text-white">{{ user.get_full_name|default:"Not set" }}</span>
+                    <div class="info-item">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ user.get_full_name|default:"Not set" }}</span>
                     </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: rgba(6,182,212,0.2)!important;">
-                        <span class="text-muted">Email</span>
-                        <span class="text-white">{{ user.email }}</span>
+                    <div class="info-item">
+                        <span class="label">Email</span>
+                        <span class="value">{{ user.email }}</span>
                     </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: rgba(6,182,212,0.2)!important;">
-                        <span class="text-muted">Phone</span>
-                        <span class="text-white">{{ user.phone|default:"Not set" }}</span>
+                    <div class="info-item">
+                        <span class="label">Phone</span>
+                        <span class="value info">{{ user.phone|default:"Not set" }}</span>
                     </div>
-                    <div class="d-flex justify-content-between py-2">
-                        <span class="text-muted">Member Since</span>
-                        <span class="text-white">{{ user.date_joined|date:"M d, Y" }}</span>
+                    <div class="info-item">
+                        <span class="label">Member Since</span>
+                        <span class="value">{{ user.date_joined|date:"M d, Y" }}</span>
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="col-md-6">
-            <div class="card h-100" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(6,182,212,0.2); border-radius: 12px;">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="mb-0"><i class="bi bi-briefcase me-2 text-success"></i>Work Information</h5>
+            <div class="info-card">
+                <div class="card-header">
+                    <i class="bi bi-briefcase"></i>
+                    <h5>Work Information</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: rgba(6,182,212,0.2)!important;">
-                        <span class="text-muted">Status</span>
-                        <span class="text-success">Active</span>
+                    <div class="info-item">
+                        <span class="label">Status</span>
+                        <span class="value success">
+                            <i class="bi bi-check-circle-fill me-1"></i> Active
+                        </span>
                     </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: rgba(6,182,212,0.2)!important;">
-                        <span class="text-muted">Company</span>
-                        <span class="text-white">
+                    <div class="info-item">
+                        <span class="label">Company</span>
+                        <span class="value info">
                             {% if driver_profile %}
                                 {{ driver_profile.company.company_name }}
                             {% else %}
@@ -85,9 +308,9 @@
                             {% endif %}
                         </span>
                     </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: rgba(6,182,212,0.2)!important;">
-                        <span class="text-muted">License Number</span>
-                        <span class="text-white">
+                    <div class="info-item">
+                        <span class="label">License Number</span>
+                        <span class="value">
                             {% if driver_profile %}
                                 {{ driver_profile.license_number|default:"Not set" }}
                             {% else %}
@@ -95,13 +318,23 @@
                             {% endif %}
                         </span>
                     </div>
-                    <div class="d-flex justify-content-between py-2">
-                        <span class="text-muted">Phone</span>
-                        <span class="text-white">
+                    <div class="info-item">
+                        <span class="label">Driver Phone</span>
+                        <span class="value info">
                             {% if driver_profile %}
                                 {{ driver_profile.phone|default:"Not set" }}
                             {% else %}
                                 Not set
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Total Jobs</span>
+                        <span class="value">
+                            {% if driver_profile %}
+                                {{ driver_profile.total_jobs|default:"0" }}
+                            {% else %}
+                                0
                             {% endif %}
                         </span>
                     </div>

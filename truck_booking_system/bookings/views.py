@@ -41,13 +41,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Sum, Q
 from django.db.models.functions import Coalesce
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from datetime import timedelta
 from django import forms
+
+# For PDF generation
+from django.template.loader import render_to_string
+from django.conf import settings
+import io
 
 # ============================================================================
 # APPLICATION IMPORTS
@@ -79,6 +84,10 @@ from django.conf import settings
 
 # Get the custom user model
 User = get_user_model()
+
+# Import new models
+from .models import Bid, ProofOfDelivery
+from fleet.models import Wallet, Transaction
 
 # ============================================================================
 # LOGGER CONFIGURATION
@@ -123,19 +132,34 @@ def home(request):
 
 def booking_list(request):
     """
-    Public booking list view - shows all bookings in the system.
+    Admin booking list view - shows all bookings in the system.
     
     URL: /list/
     Template: bookings/booking_list.html
     
-    Note:
-        This is a public view. In production, consider restricting
-        access or showing only public booking information.
+    Access: Admin users only (is_staff, is_superuser, or role='ADMIN')
     """
-    # Order by most recent booking first
-    bookings = Booking.objects.all().order_by("-booking_date")
+    # Check admin access
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
     
-    return render(request, "bookings/booking_list.html", {"bookings": bookings})
+    # Order by most recent booking first
+    bookings = Booking.objects.all().select_related('truck', 'user', 'load_type').order_by("-booking_date")
+    
+    # Calculate statistics
+    total_bookings = bookings.count()
+    confirmed_count = bookings.filter(truck__isnull=False).count()
+    pending_count = bookings.filter(truck__isnull=True).count()
+    total_revenue = bookings.aggregate(Sum("price"))["price__sum"] or 0
+    
+    return render(request, "bookings/booking_list.html", {
+        "bookings": bookings,
+        "total_bookings": total_bookings,
+        "confirmed_count": confirmed_count,
+        "pending_count": pending_count,
+        "total_revenue": total_revenue
+    })
 
 
 def add_booking(request):
@@ -470,9 +494,16 @@ def customer_booking(request):
         })
 
     # GET request - show the booking form
+    # Check if a truck is selected via query parameter
+    selected_truck = None
+    selected_truck_id = request.GET.get('truck')
+    if selected_truck_id:
+        selected_truck = Truck.objects.filter(id=selected_truck_id).first()
+    
     return render(request, "bookings/customer_booking.html", {
         "trucks": trucks,
-        "load_types": load_types
+        "load_types": load_types,
+        "selected_truck": selected_truck,
     })
 
 
@@ -497,8 +528,9 @@ def customer_booking_list(request):
         messages.error(request, "You are not authorized to view this page.")
         return redirect('login')
     
-    # Get base queryset
+    # Get base queryset - filter by user, customer name, or username
     bookings = Booking.objects.filter(
+        Q(user=request.user) |
         Q(customer_name=request.user.get_full_name()) | 
         Q(customer_name=request.user.username)
     ).order_by("-booking_date")
@@ -540,16 +572,47 @@ def customer_booking_list(request):
 @login_required(login_url='/login/')
 def profile(request):
     """
-    Customer profile view.
+    Customer profile view with booking history.
     
     URL: /profile/
     Template: bookings/profile.html
+    
+    Displays:
+        - User profile information
+        - Recent bookings (last 5)
+        - Quick stats
+    
+    Access: Authenticated customers only
     """
     if request.user.role != 'CUSTOMER':
         messages.error(request, "You are not authorized to view this page.")
         return redirect('login')
     
-    return render(request, "bookings/profile.html")
+    # Get bookings for this customer
+    user_bookings = Booking.objects.filter(
+        Q(customer_name=request.user.get_full_name()) | 
+        Q(customer_name=request.user.username) |
+        Q(user=request.user)
+    ).order_by("-booking_date")
+    
+    # Get recent bookings for display
+    recent_bookings = user_bookings[:5]
+    
+    # Calculate statistics
+    total_bookings = user_bookings.count()
+    confirmed_bookings = user_bookings.filter(truck__isnull=False).count()
+    pending_bookings = user_bookings.filter(truck__isnull=True).count()
+    total_spent = user_bookings.aggregate(Sum("price"))["price__sum"] or 0
+    
+    context = {
+        'user': request.user,
+        'bookings': recent_bookings,
+        'total_bookings': total_bookings,
+        'confirmed_bookings': confirmed_bookings,
+        'pending_bookings': pending_bookings,
+        'total_spent': total_spent,
+    }
+    return render(request, "bookings/profile.html", context)
 
 
 @login_required(login_url='/login/')
@@ -575,6 +638,36 @@ def booking_receipt(request, booking_id):
                 return redirect('customer_dashboard')
     
     return render(request, "bookings/booking_receipt.html", {"booking": booking})
+
+
+@login_required(login_url='/login/')
+def download_receipt_pdf(request, booking_id):
+    """
+    Download booking receipt as PDF.
+    
+    URL: /bookings/receipt/<booking_id>/download/
+    
+    Access Control:
+        - Only the customer who made the booking can download
+        - Admins can download any receipt
+    """
+    # Check if WeasyPrint is available and working
+    weasyprint_available = False
+    if not weasyprint_available:
+        # Always fall back to HTML receipt (no PDF generation)
+        # This is more reliable across different environments
+        booking = get_object_or_404(Booking, id=booking_id)
+        
+        # Verify ownership
+        if request.user.role == 'CUSTOMER':
+            if booking.customer_name != request.user.get_full_name() and \
+               booking.customer_name != request.user.username:
+                if not request.user.is_staff:
+                    messages.error(request, "You are not authorized to download this receipt.")
+                    return redirect('customer_dashboard')
+        
+        messages.info(request, "PDF download is not available. Using browser print instead.")
+        return render(request, "bookings/booking_receipt.html", {"booking": booking})
 
 
 # =============================================================================
@@ -623,16 +716,16 @@ def driver_dashboard(request):
             driver_bookings = Booking.objects.filter(
                 driver=driver,
                 booking_date=today
-            ).order_by('-booking_date')[:10]
+            ).select_related('truck', 'user', 'load_type').order_by('-booking_date')[:10]
         elif view_type == 'jobs':
             driver_bookings = Booking.objects.filter(
                 driver=driver
-            ).order_by('-booking_date')[:20]
+            ).select_related('truck', 'user', 'load_type').order_by('-booking_date')[:20]
         else:
             # Default: Show pending/active jobs
             driver_bookings = Booking.objects.filter(
                 driver=driver
-            ).exclude(status='COMPLETED').order_by('-assigned_at', '-booking_date')[:20]
+            ).exclude(status='COMPLETED').select_related('truck', 'user', 'load_type').order_by('-assigned_at', '-booking_date')[:20]
         
         # Calculate statistics
         all_driver_bookings = Booking.objects.filter(driver=driver)
@@ -645,12 +738,24 @@ def driver_dashboard(request):
             status='COMPLETED',
             booking_date__gte=week_ago
         ).aggregate(Sum('price'))['price__sum'] or 0
+        
+        # Get driver's truck location for navigation
+        driver_truck = None
+        truck_location = None
+        if driver.assigned_truck:
+            driver_truck = driver.assigned_truck
+            if driver_truck.current_latitude and driver_truck.current_longitude:
+                truck_location = {
+                    'lat': driver_truck.current_latitude,
+                    'lng': driver_truck.current_longitude
+                }
     else:
         driver_bookings = []
         today_jobs = 0
         pending_jobs = 0
         completed_jobs = 0
         weekly_earnings = 0
+        truck_location = None
     
     context = {
         'driver': request.user,
@@ -660,6 +765,7 @@ def driver_dashboard(request):
         'pending_jobs': pending_jobs,
         'completed_jobs': completed_jobs,
         'weekly_earnings': int(weekly_earnings),
+        'truck_location': truck_location,
     }
     return render(request, "bookings/dashboard.html", context)
 
@@ -685,6 +791,73 @@ def driver_profile(request):
         'driver_profile': driver,
     }
     return render(request, "bookings/driver_profile.html", context)
+
+
+@login_required(login_url='/login/')
+def driver_jobs(request):
+    """
+    Driver jobs view - shows all assigned jobs with navigation.
+    
+    URL: /driver-jobs/
+    Template: bookings/driver_jobs.html
+    
+    Features:
+        - List of assigned jobs
+        - GPS coordinates for pickup and drop locations
+        - Navigation buttons using Google Maps
+        - Browser Geolocation API for current location
+        - Filter by status (all, today, active, completed)
+    """
+    if request.user.role != 'DRIVER':
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    # Get driver profile
+    try:
+        driver = Driver.objects.get(user=request.user)
+    except Driver.DoesNotExist:
+        driver = None
+        messages.error(request, "Driver profile not found.")
+        return redirect('driver_dashboard')
+    
+    # Get view type from query params
+    view_type = request.GET.get('view', 'all')
+    today = timezone.now().date()
+    
+    # Get base queryset
+    bookings_query = Booking.objects.filter(driver=driver)
+    
+    # Apply filters based on view type
+    if view_type == 'today':
+        driver_bookings = bookings_query.filter(booking_date=today)
+    elif view_type == 'active':
+        driver_bookings = bookings_query.exclude(status='COMPLETED')
+    elif view_type == 'completed':
+        driver_bookings = bookings_query.filter(status='COMPLETED')
+    else:
+        # All jobs - show pending/active first
+        driver_bookings = bookings_query
+    
+    # Select related for efficiency and order
+    driver_bookings = driver_bookings.select_related('truck', 'user', 'load_type', 'driver').order_by('-booking_date', '-created_at')
+    
+    # Get driver's truck location for fallback navigation
+    truck_location = None
+    if driver.assigned_truck:
+        if driver.assigned_truck.current_latitude and driver.assigned_truck.current_longitude:
+            truck_location = {
+                'lat': driver.assigned_truck.current_latitude,
+                'lng': driver.assigned_truck.current_longitude
+            }
+    
+    context = {
+        'driver': request.user,
+        'driver_profile': driver,
+        'driver_bookings': driver_bookings,
+        'truck_location': truck_location,
+        'view_type': view_type,
+    }
+    return render(request, "bookings/driver_jobs.html", context)
 
 
 @login_required(login_url='/login/')
@@ -805,6 +978,11 @@ def driver_reject_job(request, booking_id):
         messages.error(request, "This job cannot be rejected.")
         return redirect('driver_dashboard')
     
+    # Prevent rejection if job was assigned by company
+    if booking.assigned_by_company:
+        messages.error(request, "You cannot reject a job that was assigned by the company. Please contact your manager.")
+        return redirect('driver_dashboard')
+    
     booking.driver_status = 'REJECTED'
     booking.driver = None
     booking.save()
@@ -853,11 +1031,19 @@ def admin_dashboard(request):
         messages.error(request, "You are not authorized to view this page.")
         return redirect('login')
     
+    from fleet.models import Driver
+    from pricing.models import Subscription
+    
     context = {
         'total_bookings': Booking.objects.count(),
         'total_revenue': Booking.objects.aggregate(Sum("price"))["price__sum"] or 0,
+        'total_users': User.objects.count(),
         'recent_bookings': Booking.objects.order_by("-booking_date")[:10],
         'pending_companies': Company.objects.filter(is_approved=False).count(),
+        'total_trucks': Truck.objects.count(),
+        'available_trucks': Truck.objects.filter(is_available=True).count(),
+        'total_drivers': Driver.objects.count(),
+        'active_subscriptions': Subscription.objects.filter(is_active=True).count(),
     }
     return render(request, "bookings/admin_dashboard.html", context)
 
@@ -978,6 +1164,47 @@ def admin_user_change_role(request, user_id):
         user.save()
         
         messages.success(request, f"User '{user.username}' role changed from {old_role} to {user.get_role_display()}.")
+        return redirect('admin_user_detail', user_id=user_id)
+    
+    return redirect('admin_user_detail', user_id=user_id)
+
+
+@login_required(login_url='/login/')
+def admin_reset_password(request, user_id):
+    """
+    Admin: Reset a user's password.
+    
+    URL: /admin/users/<user_id>/reset-password/
+    
+    Allows admin to reset a user's password without knowing the current password.
+    """
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        if not new_password:
+            messages.error(request, "Password is required.")
+            return redirect('admin_user_detail', user_id=user_id)
+        
+        if len(new_password) < 8:
+            messages.error(request, "Password must be at least 8 characters long.")
+            return redirect('admin_user_detail', user_id=user_id)
+        
+        if new_password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect('admin_user_detail', user_id=user_id)
+        
+        # Set the new password
+        user.set_password(new_password)
+        user.save()
+        
+        messages.success(request, f"Password for '{user.username}' has been reset successfully.")
         return redirect('admin_user_detail', user_id=user_id)
     
     return redirect('admin_user_detail', user_id=user_id)
@@ -1676,7 +1903,7 @@ class RoleBasedLoginView(LoginView):
         
         # Customer redirect
         if user.role == 'CUSTOMER':
-            return "/"
+            return "/bookings/customer-dashboard/"
         
         # Driver redirect
         if user.role == 'DRIVER':
@@ -1982,4 +2209,584 @@ def company_pending(request):
         return redirect('company_dashboard')
     
     return render(request, 'accounts/company_pending.html', {'company': company})
+
+
+# =============================================================================
+# SECTION 17: BIDDING SYSTEM VIEWS
+# =============================================================================
+
+@login_required(login_url='/login/')
+def available_jobs(request):
+    """
+    View available jobs for companies to bid on.
+    
+    URL: /jobs/available/
+    Template: bookings/available_jobs.html
+    
+    Shows pending bookings that don't have bids yet.
+    """
+    if request.user.role != 'COMPANY':
+        messages.error(request, "Only companies can view available jobs.")
+        return redirect('login')
+    
+    try:
+        company = Company.objects.get(user=request.user)
+        if not company.is_approved:
+            return redirect('company_pending')
+    except Company.DoesNotExist:
+        messages.error(request, "Company profile not found.")
+        return redirect('login')
+    
+    # Get available jobs (pending bookings without accepted bids)
+    available_bookings = Booking.objects.filter(
+        status='PENDING'
+    ).exclude(
+        bids__company=company
+    ).order_by('-booking_date')
+    
+    context = {
+        'bookings': available_bookings,
+        'company': company,
+    }
+    return render(request, 'bookings/available_jobs.html', context)
+
+
+@login_required(login_url='/login/')
+def submit_bid(request, booking_id):
+    """
+    Submit a bid for a job.
+    
+    URL: /jobs/<booking_id>/bid/
+    Template: bookings/submit_bid.html
+    """
+    if request.user.role != 'COMPANY':
+        return JsonResponse({'error': 'Only companies can submit bids'}, status=403)
+    
+    try:
+        company = Company.objects.get(user=request.user)
+        if not company.is_approved:
+            return JsonResponse({'error': 'Company not approved'}, status=403)
+    except Company.DoesNotExist:
+        return JsonResponse({'error': 'Company not found'}, status=404)
+    
+    booking = get_object_or_404(Booking, id=booking_id, status='PENDING')
+    
+    # Check if already bid
+    if Bid.objects.filter(booking=booking, company=company).exists():
+        messages.error(request, "You have already submitted a bid for this job.")
+        return redirect('available_jobs')
+    
+    if request.method == 'POST':
+        bid_amount = float(request.POST.get('bid_amount'))
+        notes = request.POST.get('notes', '')
+        truck_id = request.POST.get('truck')
+        driver_id = request.POST.get('driver')
+        
+        truck = get_object_or_404(Truck, id=truck_id, company=company)
+        driver = None
+        if driver_id:
+            driver = Driver.objects.filter(id=driver_id, company=company).first()
+        
+        Bid.objects.create(
+            booking=booking,
+            company=company,
+            truck=truck,
+            driver=driver,
+            bid_amount=bid_amount,
+            notes=notes
+        )
+        
+        messages.success(request, "Bid submitted successfully!")
+        return redirect('available_jobs')
+    
+    trucks = Truck.objects.filter(company=company, is_available=True)
+    drivers = Driver.objects.filter(company=company, is_available=True)
+    
+    context = {
+        'booking': booking,
+        'trucks': trucks,
+        'drivers': drivers,
+    }
+    return render(request, 'bookings/submit_bid.html', context)
+
+
+@login_required(login_url='/login/')
+def my_bids(request):
+    """
+    View company's submitted bids.
+    
+    URL: /jobs/my-bids/
+    Template: bookings/my_bids.html
+    """
+    if request.user.role != 'COMPANY':
+        messages.error(request, "Only companies can view bids.")
+        return redirect('login')
+    
+    try:
+        company = Company.objects.get(user=request.user)
+    except Company.DoesNotExist:
+        messages.error(request, "Company profile not found.")
+        return redirect('login')
+    
+    bids = Bid.objects.filter(company=company).order_by('-created_at')
+    
+    context = {
+        'bids': bids,
+        'company': company,
+    }
+    return render(request, 'bookings/my_bids.html', context)
+
+
+@login_required(login_url='/login/')
+def customer_view_bids(request, booking_id):
+    """
+    View and accept bids for a customer's booking.
+    
+    URL: /bookings/<booking_id>/bids/
+    Template: bookings/customer_bids.html
+    """
+    if request.user.role != 'CUSTOMER':
+        messages.error(request, "Only customers can view bids.")
+        return redirect('login')
+    
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Verify ownership
+    if booking.user != request.user:
+        messages.error(request, "You can only view bids for your own bookings.")
+        return redirect('customer_dashboard')
+    
+    bids = Bid.objects.filter(booking=booking, status='PENDING').order_by('bid_amount')
+    
+    context = {
+        'booking': booking,
+        'bids': bids,
+    }
+    return render(request, 'bookings/customer_bids.html', context)
+
+
+@login_required(login_url='/login/')
+def accept_bid(request, bid_id):
+    """
+    Accept a bid and assign the truck/driver.
+    
+    URL: /bids/<bid_id>/accept/
+    """
+    if request.user.role != 'CUSTOMER':
+        return JsonResponse({'error': 'Only customers can accept bids'}, status=403)
+    
+    bid = get_object_or_404(Bid, id=bid_id, status='PENDING')
+    booking = bid.booking
+    
+    # Verify ownership
+    if booking.user != request.user:
+        return JsonResponse({'error': 'Not authorized'}, status=403)
+    
+    # Accept this bid
+    bid.status = 'ACCEPTED'
+    bid.save()
+    
+    # Update booking - Auto-accept for company-assigned jobs
+    # Driver cannot reject company-assigned jobs
+    booking.truck = bid.truck
+    booking.driver = bid.driver
+    booking.status = 'IN_PROGRESS'
+    booking.driver_status = 'ACCEPTED'  # Auto-accept so driver cannot reject
+    booking.assigned_by_company = True  # Mark as company assigned - driver cannot reject
+    booking.assigned_at = timezone.now()  # Set assignment time
+    booking.save()
+    
+    # Mark truck as unavailable
+    bid.truck.is_available = False
+    bid.truck.save()
+    
+    # Reject other bids
+    Bid.objects.filter(booking=booking).exclude(id=bid_id).update(status='REJECTED')
+    
+    messages.success(request, f"Bid accepted! Truck {bid.truck.truck_number} has been assigned.")
+    return redirect('customer_dashboard')
+
+
+# =============================================================================
+# SECTION 18: GPS TRACKING VIEWS
+# =============================================================================
+
+@login_required(login_url='/login/')
+def live_tracking(request):
+    """
+    Live GPS tracking view for trucks.
+    
+    URL: /tracking/live/
+    Template: bookings/live_tracking.html
+    
+    Shows real-time location of all trucks.
+    """
+    if request.user.role not in ['COMPANY', 'ADMIN']:
+        if not request.user.is_staff:
+            messages.error(request, "You are not authorized to view this page.")
+            return redirect('login')
+    
+    trucks = Truck.objects.filter(
+        current_latitude__isnull=False,
+        current_longitude__isnull=False
+    ).select_related('company')
+    
+    context = {
+        'trucks': trucks,
+    }
+    return render(request, 'bookings/live_tracking.html', context)
+
+
+@csrf_exempt
+@login_required(login_url='/login/')
+def update_truck_location(request):
+    """
+    API endpoint to update truck GPS location.
+    
+    URL: /api/truck/<truck_id>/location/
+    Method: POST
+    
+    Request Body:
+        - latitude: Truck latitude
+        - longitude: Truck longitude
+    """
+    if request.method == 'POST':
+        import json
+        try:
+            data = json.loads(request.body)
+        except:
+            data = request.POST
+        
+        truck_id = data.get('truck_id')
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+        
+        if not truck_id or latitude is None or longitude is None:
+            return JsonResponse({'success': False, 'error': 'Missing parameters'}, status=400)
+        
+        try:
+            truck = Truck.objects.get(id=truck_id)
+            
+            # Verify company owns this truck
+            if request.user.role == 'COMPANY':
+                try:
+                    company = Company.objects.get(user=request.user)
+                    if truck.company != company:
+                        return JsonResponse({'success': False, 'error': 'Not authorized'}, status=403)
+                except Company.DoesNotExist:
+                    return JsonResponse({'success': False, 'error': 'Company not found'}, status=403)
+            
+            truck.current_latitude = latitude
+            truck.current_longitude = longitude
+            truck.last_location_update = timezone.now()
+            truck.is_online = True
+            truck.save()
+            
+            return JsonResponse({'success': True})
+        except Truck.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Truck not found'}, status=404)
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=405)
+
+
+@login_required(login_url='/login/')
+def get_truck_locations(request):
+    """
+    API endpoint to get all truck locations (JSON).
+    
+    URL: /api/trucks/locations/
+    """
+    trucks = Truck.objects.filter(
+        current_latitude__isnull=False,
+        current_longitude__isnull=False
+    ).values('id', 'truck_number', 'current_latitude', 'current_longitude', 
+             'last_location_update', 'is_online', 'company__company_name')
+    
+    return JsonResponse({'trucks': list(trucks)})
+
+
+# =============================================================================
+# SECTION 19: WALLET & ESCROW VIEWS
+# =============================================================================
+
+@login_required(login_url='/login/')
+def company_wallet(request):
+    """
+    Company wallet dashboard.
+    
+    URL: /fleet/wallet/
+    Template: fleet/company_wallet.html
+    """
+    if request.user.role != 'COMPANY':
+        messages.error(request, "Only companies can view wallet.")
+        return redirect('login')
+    
+    try:
+        company = Company.objects.get(user=request.user)
+        if not company.is_approved:
+            return redirect('company_pending')
+        
+        wallet, created = Wallet.objects.get_or_create(company=company)
+        transactions = wallet.transactions.all()[:20]
+        
+    except Company.DoesNotExist:
+        messages.error(request, "Company profile not found.")
+        return redirect('login')
+    
+    context = {
+        'wallet': wallet,
+        'transactions': transactions,
+        'company': company,
+    }
+    return render(request, 'fleet/company_wallet.html', context)
+
+
+@login_required(login_url='/login/')
+def request_payout(request):
+    """
+    Request a payout from wallet.
+    
+    URL: /fleet/wallet/payout/
+    """
+    if request.user.role != 'COMPANY':
+        return JsonResponse({'error': 'Only companies can request payouts'}, status=403)
+    
+    try:
+        company = Company.objects.get(user=request.user)
+        wallet = Wallet.objects.get(company=company)
+    except (Company.DoesNotExist, Wallet.DoesNotExist):
+        return JsonResponse({'error': 'Wallet not found'}, status=404)
+    
+    if request.method == 'POST':
+        amount = float(request.POST.get('amount'))
+        
+        if amount > wallet.available_balance:
+            return JsonResponse({'success': False, 'error': 'Insufficient balance'}, status=400)
+        
+        if amount <= 0:
+            return JsonResponse({'success': False, 'error': 'Invalid amount'}, status=400)
+        
+        success = wallet.process_payout(amount, f"Payout requested for {company.company_name}")
+        
+        if success:
+            return JsonResponse({'success': True, 'message': 'Payout request submitted successfully'})
+        else:
+            return JsonResponse({'success': False, 'error': 'Payout failed'}, status=400)
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=405)
+
+
+@login_required(login_url='/login/')
+def admin_wallets(request):
+    """
+    Admin view all company wallets.
+    
+    URL: /admin/wallets/
+    Template: bookings/admin_wallets.html
+    """
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    wallets = Wallet.objects.all().select_related('company')
+    
+    context = {
+        'wallets': wallets,
+    }
+    return render(request, 'bookings/admin_wallets.html', context)
+
+
+# =============================================================================
+# SECTION 20: PROOF OF DELIVERY VIEWS
+# =============================================================================
+
+@login_required(login_url='/login/')
+def driver_delivery_proof(request, booking_id):
+    """
+    Driver uploads proof of delivery.
+    
+    URL: /driver/job/<booking_id>/proof/
+    Template: bookings/driver_delivery_proof.html
+    """
+    if request.user.role != 'DRIVER':
+        messages.error(request, "Only drivers can upload proof of delivery.")
+        return redirect('login')
+    
+    try:
+        driver = Driver.objects.get(user=request.user)
+    except Driver.DoesNotExist:
+        messages.error(request, "Driver profile not found.")
+        return redirect('driver_dashboard')
+    
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Verify driver is assigned to this booking
+    # Check both direct driver assignment and truck-based assignment (for company-assigned jobs)
+    is_assigned = False
+    if booking.driver == driver:
+        is_assigned = True
+    elif booking.truck and hasattr(booking.truck, 'assigned_drivers'):
+        # Check if this driver is assigned to the truck
+        if booking.truck.assigned_drivers.filter(id=driver.id).exists():
+            is_assigned = True
+    
+    if not is_assigned:
+        messages.error(request, "You are not assigned to this job.")
+        return redirect('driver_dashboard')
+    
+    # Check if proof already exists
+    proof, created = ProofOfDelivery.objects.get_or_create(booking=booking)
+    
+    if request.method == 'POST':
+        proof.delivery_photo = request.FILES.get('delivery_photo')
+        proof.signature_image = request.FILES.get('signature_image')
+        proof.received_by = request.POST.get('received_by', '')
+        proof.notes = request.POST.get('notes', '')
+        proof.latitude = request.POST.get('latitude')
+        proof.longitude = request.POST.get('longitude')
+        proof.save()
+        
+        # Update booking status to completed
+        booking.status = 'COMPLETED'
+        booking.save()
+        
+        # Release the truck
+        if booking.truck:
+            booking.truck.is_available = True
+            booking.truck.save()
+        
+        # Process payment - hold in escrow until delivery
+        if booking.truck and booking.truck.company:
+            try:
+                wallet = Wallet.objects.get(company=booking.truck.company)
+                # Hold in escrow
+                wallet.hold_in_escrow(
+                    amount=booking.price,
+                    booking=booking,
+                    description=f"Escrow hold for Booking #{booking.id}"
+                )
+            except Wallet.DoesNotExist:
+                pass
+        
+        messages.success(request, "Proof of delivery submitted successfully!")
+        return redirect('driver_dashboard')
+    
+    # Generate Google Maps navigation URL
+    navigation_url = None
+    if booking.drop_lat and booking.drop_lng:
+        navigation_url = f"https://www.google.com/maps/dir/?api=1&destination={booking.drop_lat},{booking.drop_lng}"
+    
+    context = {
+        'booking': booking,
+        'proof': proof,
+        'navigation_url': navigation_url,
+    }
+    return render(request, 'bookings/driver_delivery_proof.html', context)
+
+
+@login_required(login_url='/login/')
+def view_proof_of_delivery(request, booking_id):
+    """
+    View proof of delivery for a booking.
+    
+    URL: /bookings/<booking_id>/proof/
+    Template: bookings/view_proof.html
+    """
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Verify access
+    if request.user.role == 'CUSTOMER':
+        if booking.user != request.user:
+            messages.error(request, "You are not authorized to view this.")
+            return redirect('customer_dashboard')
+    elif request.user.role == 'COMPANY':
+        try:
+            company = Company.objects.get(user=request.user)
+            if booking.truck and booking.truck.company != company:
+                messages.error(request, "You are not authorized to view this.")
+                return redirect('company_dashboard')
+        except Company.DoesNotExist:
+            pass
+    elif not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this.")
+        return redirect('login')
+    
+    try:
+        proof = ProofOfDelivery.objects.get(booking=booking)
+    except ProofOfDelivery.DoesNotExist:
+        messages.error(request, "Proof of delivery not found.")
+        return redirect('booking_receipt', booking_id=booking_id)
+    
+    context = {
+        'booking': booking,
+        'proof': proof,
+    }
+    return render(request, 'bookings/view_proof.html', context)
+
+
+# =============================================================================
+# SECTION 21: PAYMENT WITH ESCROW
+# =============================================================================
+
+@csrf_exempt
+def process_payment_with_escrow(request):
+    """
+    Process payment and hold in escrow.
+    
+    URL: /process-payment-escrow/
+    Method: POST
+    """
+    if request.method == 'POST':
+        import json
+        try:
+            data = json.loads(request.body)
+        except:
+            data = request.POST
+        
+        booking_id = data.get('booking_id')
+        payment_method = data.get('payment_method', 'CARD')
+        
+        if not booking_id:
+            return JsonResponse({'success': False, 'error': 'Booking ID required'}, status=400)
+        
+        try:
+            booking = Booking.objects.get(id=booking_id)
+        except Booking.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Booking not found'}, status=404)
+        
+        # Create payment
+        transaction_id = str(uuid.uuid4())
+        
+        Payment.objects.create(
+            booking=booking,
+            amount=booking.price,
+            currency=booking.currency,
+            payment_method=payment_method,
+            status='SUCCESS',
+            transaction_id=transaction_id
+        )
+        
+        # Update booking
+        booking.payment_status = 'PAID'
+        booking.save()
+        
+        # Hold in escrow if company assigned
+        if booking.truck and booking.truck.company:
+            try:
+                wallet = Wallet.objects.get(company=booking.truck.company)
+                wallet.hold_in_escrow(
+                    amount=booking.price,
+                    booking=booking,
+                    description=f"Payment received for Booking #{booking.id}"
+                )
+            except Wallet.DoesNotExist:
+                pass
+        
+        return JsonResponse({
+            'success': True,
+            'transaction_id': transaction_id,
+            'message': 'Payment processed and held in escrow'
+        })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=405)
 

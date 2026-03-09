@@ -4,18 +4,40 @@
 {% block page_title %}Manage Trucks{% endblock %}
 
 {% block admin_content %}
+<!-- Breadcrumb -->
+<nav class="admin-breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span class="separator">/</span>
+    <span class="current">Trucks</span>
+</nav>
+
+<!-- Page Header -->
+<div class="admin-page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="admin-page-title">
+                <i class="bi bi-truck me-2"></i>Manage Trucks
+            </h1>
+            <p class="admin-page-subtitle">View and manage all trucks in the system.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'admin_truck_add' %}" class="btn btn-admin btn-admin-primary">
+                <i class="bi bi-plus-circle me-1"></i> Add New Truck
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- Trucks Table -->
 <div class="row">
     <div class="col-md-12">
         <div class="admin-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5><i class="bi bi-truck me-2"></i>All Trucks</h5>
-                <a href="{% url 'admin_truck_add' %}" class="btn btn-admin btn-admin-outline">
-                    <i class="bi bi-plus-circle me-1"></i> Add New Truck
-                </a>
+                <input type="text" class="form-admin" placeholder="Search trucks..." id="truckSearch" style="width: 200px;">
             </div>
             <div class="card-body table-responsive">
-                <table class="table admin-table">
+                <table class="table admin-table" id="trucksTable">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -31,33 +53,43 @@
                     <tbody>
                         {% for truck in trucks %}
                         <tr>
-                            <td>#{{ truck.id }}</td>
-                            <td>{{ truck.truck_number }}</td>
+                            <td>
+                                <span class="text-primary fw-semibold">#{{ truck.id }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{{ truck.truck_number }}</span>
+                            </td>
                             <td>{{ truck.truck_type }}</td>
                             <td>{{ truck.capacity }} kg</td>
                             <td>${{ truck.price_per_km }}</td>
                             <td>{{ truck.company.company_name|default:"N/A" }}</td>
                             <td>
                                 {% if truck.is_available %}
-                                <span class="badge badge-success-custom">Available</span>
+                                <span class="badge badge-admin badge-success-custom">
+                                    <i class="bi bi-check-circle me-1"></i>Available
+                                </span>
                                 {% else %}
-                                <span class="badge badge-warning-custom">Booked</span>
+                                <span class="badge badge-admin badge-warning-custom">
+                                    <i class="bi bi-clock me-1"></i>Booked
+                                </span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'admin_truck_edit' truck.id %}" class="btn btn-sm btn-admin-outline">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="{% url 'admin_truck_delete' truck.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Are you sure you want to delete this truck?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <div class="d-flex gap-1">
+                                    <a href="{% url 'admin_truck_edit' truck.id %}" class="btn btn-sm btn-admin-outline" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'admin_truck_delete' truck.id %}" class="btn btn-sm btn-admin-outline" title="Delete" onclick="return confirm('Are you sure you want to delete this truck?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
                             <td colspan="8" class="text-center py-4">
                                 <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
-                                No trucks found
+                                <span class="text-muted">No trucks found</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -67,4 +99,24 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('truckSearch').addEventListener('keyup', function() {
+    const searchValue = this.value.toLowerCase();
+    const table = document.getElementById('trucksTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const truckNumber = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+        const truckType = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+        
+        if (truckNumber.includes(searchValue) || truckType.includes(searchValue)) {
+            rows[i].style.display = '';
+        } else {
+            rows[i].style.display = 'none';
+        }
+    }
+});
+</script>
 {% endblock %}
+

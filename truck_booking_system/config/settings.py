@@ -24,7 +24,7 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Allowed hosts - Comma-separated list of domain names
 # In production: ALLOWED_HOSTS = ['transova.com', 'www.transova.com']
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     # Django
@@ -35,47 +35,26 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Sites
-    'django.contrib.sites',
-
     # Custom apps (USER APP MUST COME FIRST)
     'accounts',
     'bookings',
     'fleet',
     'pricing',
-
-    # Allauth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
 ]
 
-SOCIALACCOUNT_ADAPTER = "accounts.adapters.GmailOnlyAdapter"
-
-SITE_ID = 1
-AUTH_USER_MODEL = "accounts.User"
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# Authentication backends - Custom username backend first
+# Authentication backends - Custom username backend
 AUTHENTICATION_BACKENDS = [
     "accounts.backends.UsernameBackend",  # Custom username backend
     "django.contrib.auth.backends.ModelBackend",  # default
-    "allauth.account.auth_backends.AuthenticationBackend",  # allauth
 ]
+
+# Custom User Model
+AUTH_USER_MODEL = 'accounts.User'
 
 # URLs
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-
-# Allauth settings
-ACCOUNT_AUTHENTICATION_METHOD = "email"  # login via email
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "optional"  # or "mandatory"
-SOCIALACCOUNT_QUERY_EMAIL = True
-SOCIALACCOUNT_ADAPTER = "accounts.adapters.GmailOnlyAdapter"  # Gmail-only enforcement
 
 # Middleware
 MIDDLEWARE = [
@@ -84,10 +63,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-
-    
-    'allauth.account.middleware.AccountMiddleware',
-
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -108,7 +83,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',  # allauth needs this
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'bookings.context_processors.pending_companies_count',
@@ -124,6 +99,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'init_command': "PRAGMA foreign_keys=ON;",
+        },
     }
 }
 
@@ -150,10 +128,18 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Email setup
+# For development: Use console backend to see emails in terminal
+# For production: Use smtp.EmailBackend with proper credentials
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Gmail SMTP settings (configured for OTP sending)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "gouthamkrishna106@gmail.com"
+EMAIL_HOST_PASSWORD = "iyhj vtcg vmye qktp"
+DEFAULT_FROM_EMAIL = "noreply@transova.com"
 # ============================================================================
 # PRICING CONFIGURATION
 # ============================================================================
@@ -205,8 +191,18 @@ SESSION_RESET_EMAIL_KEY = 'reset_email'  # Key for password reset email
 # ============================================================================
 # CSRF and Session cookie settings
 CSRF_COOKIE_HTTPONLY = True  # Prevent XSS attacks on cookies
+CSRF_COOKIE_SAMESITE = 'Lax'  # Allow cross-site requests for ngrok
 SESSION_COOKIE_HTTPONLY = True  # Prevent session theft via JS
+SESSION_COOKIE_SAMESITE = 'Lax'  # Allow cross-site cookies for ngrok
 SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filter
+
+# CSRF Trusted Origins - Required for ngrok and external access
+# Add your ngrok URLs here or use environment variable
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', 
+    default='https://*.ngrok.io,https://*.ngrok-free.app,https://*.ngrok-free.dev,https://*.tunnel.pyjam.as,http://localhost:8000,http://127.0.0.1:8000').split(',')
+
+# Use X-Forwarded-Host for proper host detection behind proxies/ngrok
+USE_X_FORWARDED_HOST = True
 
 # Password reset OTP validity (in minutes)
 OTP_VALIDITY_MINUTES = 10

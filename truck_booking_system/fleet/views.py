@@ -185,6 +185,49 @@ def company_pending(request):
 # =============================================================================
 
 @login_required
+def list_trucks(request):
+    """
+    List all trucks for the company.
+    
+    URL: /fleet/trucks/
+    Template: fleet/trucks_list.html
+    
+    Access: Company users only
+    
+    Displays all trucks belonging to the company with options to edit/delete.
+    """
+    if request.user.role != 'COMPANY':
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+
+    try:
+        company = Company.objects.get(user=request.user)
+    except Company.DoesNotExist:
+        messages.error(request, "Company profile not found.")
+        return redirect('login')
+
+    if not company.is_approved:
+        return redirect('company_pending')
+
+    # Get all trucks for this company
+    trucks = Truck.objects.filter(company=company).order_by('-created_at')
+    
+    # Calculate statistics
+    total_trucks = trucks.count()
+    available_trucks = trucks.filter(is_available=True).count()
+    unavailable_trucks = total_trucks - available_trucks
+
+    context = {
+        'company': company,
+        'trucks': trucks,
+        'total_trucks': total_trucks,
+        'available_trucks': available_trucks,
+        'unavailable_trucks': unavailable_trucks,
+    }
+    return render(request, 'fleet/trucks_list.html', context)
+
+
+@login_required
 def add_truck(request):
     """
     Add a new truck to the company fleet.
@@ -320,6 +363,49 @@ def delete_truck(request, truck_id):
 # =============================================================================
 # SECTION 3: DRIVER MANAGEMENT
 # =============================================================================
+
+@login_required
+def list_drivers(request):
+    """
+    List all drivers for the company.
+    
+    URL: /fleet/drivers/
+    Template: fleet/drivers_list.html
+    
+    Access: Company users only
+    
+    Displays all drivers belonging to the company with options to edit/delete.
+    """
+    if request.user.role != 'COMPANY':
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+
+    try:
+        company = Company.objects.get(user=request.user)
+    except Company.DoesNotExist:
+        messages.error(request, "Company profile not found.")
+        return redirect('login')
+
+    if not company.is_approved:
+        return redirect('company_pending')
+
+    # Get all drivers for this company with related user and truck info
+    drivers = Driver.objects.filter(company=company).select_related('user', 'assigned_truck').order_by('-created_at')
+    
+    # Calculate statistics
+    total_drivers = drivers.count()
+    available_drivers = drivers.filter(is_available=True).count()
+    unavailable_drivers = total_drivers - available_drivers
+
+    context = {
+        'company': company,
+        'drivers': drivers,
+        'total_drivers': total_drivers,
+        'available_drivers': available_drivers,
+        'unavailable_drivers': unavailable_drivers,
+    }
+    return render(request, 'fleet/drivers_list.html', context)
+
 
 @login_required
 def add_driver(request):
@@ -603,6 +689,7 @@ def company_booking_detail(request, booking_id):
     Features:
         - View complete booking information
         - Assign/reassign driver to booking
+        - View delivery proof (for completed bookings)
     """
     if request.user.role != 'COMPANY':
         messages.error(request, "You are not authorized to view this page.")
@@ -627,10 +714,17 @@ def company_booking_detail(request, booking_id):
     # Get available drivers for this company
     drivers = Driver.objects.filter(company=company, is_available=True)
     
+    # Get delivery proof if booking is completed
+    proof = None
+    if booking.status == 'COMPLETED':
+        from bookings.models import ProofOfDelivery
+        proof = ProofOfDelivery.objects.filter(booking=booking).first()
+    
     context = {
         'company': company,
         'booking': booking,
         'drivers': drivers,
+        'proof': proof,
     }
     return render(request, 'fleet/company_booking_detail.html', context)
 

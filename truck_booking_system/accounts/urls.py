@@ -7,6 +7,7 @@ urlpatterns = [
     path('company-pending/', views.company_pending, name='company_pending'),
     path("register/", views.register, name="register"),
     path("verify-otp/", views.verify_otp, name="verify_otp"),
+    path("resend-otp/", views.resend_otp, name="resend_otp"),
     path(
         "login/",
         auth_views.LoginView.as_view(template_name='accounts/login.html'),

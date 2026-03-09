@@ -1,0 +1,122 @@
+{% extends "bookings/company_base.html" %}
+{% load static %}
+
+{% block title %}
+My Trucks | TRANSOVA
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-white mb-1"><i class="bi bi-truck me-2"></i>My Trucks</h2>
+            <p class="text-muted mb-0">Manage your fleet vehicles</p>
+        </div>
+        <a href="{% url 'add_truck' %}" class="btn kontrek-btn">
+            <i class="bi bi-plus-circle me-2"></i>Add New Truck
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card company-card">
+                <div class="card-body text-center">
+                    <h3 class="text-white mb-0">{{ total_trucks }}</h3>
+                    <p class="text-muted mb-0">Total Trucks</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card company-card">
+                <div class="card-body text-center">
+                    <h3 class="text-success mb-0">{{ available_trucks }}</h3>
+                    <p class="text-muted mb-0">Available</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card company-card">
+                <div class="card-body text-center">
+                    <h3 class="text-warning mb-0">{{ unavailable_trucks }}</h3>
+                    <p class="text-muted mb-0">In Use</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trucks Table -->
+    <div class="card company-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-white"><i class="bi bi-list-ul me-2"></i>Fleet Vehicles</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if trucks %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="border-0">Image</th>
+                            <th class="border-0">Truck Number</th>
+                            <th class="border-0">Type</th>
+                            <th class="border-0">Capacity</th>
+                            <th class="border-0">Price/KM</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for truck in trucks %}
+                        <tr>
+                            <td class="border-0">
+                                {% if truck.image %}
+                                <img src="{{ truck.image.url }}" alt="{{ truck.truck_number }}" 
+                                     class="rounded" style="width: 60px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 40px;">
+                                    <i class="bi bi-truck text-white"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td class="border-0 text-white">{{ truck.truck_number }}</td>
+                            <td class="border-0 text-white">{{ truck.get_truck_type_display }}</td>
+                            <td class="border-0 text-white">{{ truck.capacity }} tons</td>
+                            <td class="border-0 text-white">${{ truck.price_per_km }}</td>
+                            <td class="border-0">
+                                {% if truck.is_available %}
+                                <span class="badge bg-success">Available</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">In Use</span>
+                                {% endif %}
+                            </td>
+                            <td class="border-0 text-end">
+                                <a href="{% url 'edit_truck' truck.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <a href="{% url 'delete_truck' truck.id %}" class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Are you sure you want to delete this truck?');">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-truck display-1 text-muted"></i>
+                <h4 class="text-white mt-3">No Trucks Found</h4>
+                <p class="text-muted">Add your first truck to get started</p>
+                <a href="{% url 'add_truck' %}" class="btn kontrek-btn mt-2">
+                    <i class="bi bi-plus-circle me-2"></i>Add Truck
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

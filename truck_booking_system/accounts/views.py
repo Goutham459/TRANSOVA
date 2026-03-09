@@ -284,6 +284,7 @@ def customer_profile(request):
         - Profile picture
         - Date of birth
         - Gender
+        - Password
     
     Access: Authenticated customers only
     """
@@ -291,6 +292,44 @@ def customer_profile(request):
         return redirect('login')
     
     if request.method == 'POST':
+        # Check if this is a password change request
+        if 'current_password' in request.POST:
+            # Handle password change
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            # Validate current password
+            if not request.user.check_password(current_password):
+                messages.error(request, "Current password is incorrect.")
+                return redirect('customer_profile')
+            
+            # Validate new password length
+            if len(new_password) < 8:
+                messages.error(request, "New password must be at least 8 characters long.")
+                return redirect('customer_profile')
+            
+            # Check password confirmation
+            if new_password != confirm_password:
+                messages.error(request, "New passwords do not match.")
+                return redirect('customer_profile')
+            
+            # Update password
+            try:
+                request.user.set_password(new_password)
+                request.user.save()
+                messages.success(request, "Password updated successfully! Please log in again with your new password.")
+                # Re-authenticate the user after password change
+                from django.contrib.auth import login
+                login(request, request.user)
+            except Exception as e:
+                logger.error(f"Error updating password: {e}")
+                messages.error(request, f"Error updating password: {e}")
+                return redirect('customer_profile')
+            
+            return redirect('customer_profile')
+        
+        # Handle profile update (existing code)
         # Update user profile fields
         user = request.user
         user.first_name = request.POST.get('first_name', '')

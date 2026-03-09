@@ -5,47 +5,342 @@
 Book Your Truck | TRANSOVA
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    .booking-section {
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+    
+    /* Main Card */
+    .booking-card {
+        background: rgba(15, 20, 35, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 245, 255, 0.15);
+        border-radius: 24px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .booking-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00f5ff, #8b5cf6, #ec4899);
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(139, 92, 246, 0.1));
+        padding: 30px;
+        text-align: center;
+        border-bottom: 1px solid rgba(0, 245, 255, 0.1);
+    }
+    
+    .booking-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 8px;
+    }
+    
+    .booking-subtitle {
+        color: #94a3b8;
+        font-size: 0.95rem;
+    }
+    
+    .booking-body {
+        padding: 30px;
+    }
+    
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-label {
+        display: block;
+        color: #94a3b8;
+        font-weight: 500;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .form-control-futuristic {
+        width: 100%;
+        padding: 16px 20px;
+        background: rgba(10, 10, 20, 0.8);
+        border: 1px solid rgba(0, 245, 255, 0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control-futuristic:focus {
+        outline: none;
+        border-color: #00f5ff;
+        box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+        background: rgba(10, 10, 20, 1);
+    }
+    
+    .form-control-futuristic::placeholder {
+        color: #64748b;
+    }
+    
+    /* Map Container */
+    .map-container {
+        height: 400px;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 245, 255, 0.2);
+        margin-bottom: 24px;
+        position: relative;
+    }
+    
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+    
+    /* Price Details */
+    .price-card {
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(139, 92, 246, 0.1));
+        border: 1px solid rgba(0, 245, 255, 0.2);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .price-title {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(0, 245, 255, 0.1);
+    }
+    
+    .price-row:last-child {
+        border-bottom: none;
+    }
+    
+    .price-label {
+        color: #94a3b8;
+        font-size: 0.95rem;
+    }
+    
+    .price-value {
+        color: #fff;
+        font-weight: 600;
+    }
+    
+    .price-value.total {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00f5ff, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .price-value.highlight {
+        color: #00f5ff;
+    }
+    
+    /* Submit Button */
+    .btn-submit {
+        width: 100%;
+        padding: 18px 32px;
+        background: linear-gradient(135deg, #00f5ff, #8b5cf6);
+        border: none;
+        border-radius: 50px;
+        color: #050508;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: all 0.5s;
+    }
+    
+    .btn-submit:hover::before {
+        left: 100%;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 40px rgba(0, 245, 255, 0.4);
+    }
+    
+    /* Animations */
+    .form-group {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.5s ease forwards;
+    }
+    
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.15s; }
+    .form-group:nth-child(3) { animation-delay: 0.2s; }
+    .form-group:nth-child(4) { animation-delay: 0.25s; }
+    .form-group:nth-child(5) { animation-delay: 0.3s; }
+    .form-group:nth-child(6) { animation-delay: 0.35s; }
+    
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Location icons */
+    .input-icon {
+        position: relative;
+    }
+    
+    .input-icon i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #00f5ff;
+        font-size: 1.2rem;
+    }
+    
+    .input-icon input {
+        padding-left: 48px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .booking-section {
+            padding: 20px 0;
+        }
+        
+        .booking-header {
+            padding: 20px;
+        }
+        
+        .booking-title {
+            font-size: 1.4rem;
+        }
+        
+        .booking-body {
+            padding: 20px;
+        }
+        
+        .map-container {
+            height: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-<section class="py-5">
+<section class="booking-section">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-10">
+            <div class="col-lg-10">
                 
-                <div class="card shadow" style="background: rgba(255,255,255,0.04); border-radius: 16px;">
-                    <div class="card-header bg-primary text-white" style="background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; border-radius: 16px 16px 0 0 !important;">
-                       
+                <div class="booking-card">
+                    <!-- Header -->
+                    <div class="booking-header">
+                        <h1 class="booking-title"><i class="bi bi-truck me-2"></i>Book Your Truck</h1>
+                        <p class="booking-subtitle">Enter your pickup and drop locations to get started</p>
                     </div>
 
-                    <div class="card-body">
+                    <!-- Body -->
+                    <div class="booking-body">
                         <form id="bookingForm">
                             {% csrf_token %}
 
-                            <div class="mb-3">
-                                <label class="form-label text-white">Customer Name</label>
-                                <input type="text" class="form-control minimal-select" name="customer_name" placeholder="Enter your name" required>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="bi bi-person me-2"></i>Customer Name
+                                        </label>
+                                        <div class="input-icon">
+                                            <i class="bi bi-person-fill"></i>
+                                            <input type="text" class="form-control-futuristic" name="customer_name" 
+                                                   placeholder="Enter your name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="bi bi-phone me-2"></i>Contact Number
+                                        </label>
+                                        <div class="input-icon">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <input type="text" class="form-control-futuristic" name="contact_number" 
+                                                   placeholder="Enter contact number" required>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-white">Contact Number</label>
-                                <input type="text" class="form-control minimal-select" name="contact_number" placeholder="Enter contact number" required>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="bi bi-geo-alt me-2"></i>Pickup Location
+                                        </label>
+                                        <div class="input-icon">
+                                            <i class="bi bi-geo-fill"></i>
+                                            <input id="pickup" class="form-control-futuristic" name="pickup_location" 
+                                                   placeholder="Enter Pickup Location" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="bi bi-geo me-2"></i>Drop Location
+                                        </label>
+                                        <div class="input-icon">
+                                            <i class="bi bi-geo-fill"></i>
+                                            <input id="drop" class="form-control-futuristic" name="drop_location" 
+                                                   placeholder="Enter Drop Location" required>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-white">Pickup Location</label>
-                                <input id="pickup" class="form-control minimal-select" name="pickup_location" placeholder="Enter Pickup Location" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label text-white">Drop Location</label>
-                                <input id="drop" class="form-control minimal-select" name="drop_location" placeholder="Enter Drop Location" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label text-white">Booking Date</label>
-                                <input type="date" class="form-control minimal-select" name="booking_date" required>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar me-2"></i>Booking Date
+                                </label>
+                                <input type="date" class="form-control-futuristic" name="booking_date" required>
                             </div>
 
                             <!-- Hidden inputs for lat/lng -->
@@ -54,18 +349,51 @@ Book Your Truck | TRANSOVA
                             <input type="hidden" name="drop_lat" id="drop_lat">
                             <input type="hidden" name="drop_lng" id="drop_lng">
 
-                            <div id="map" style="height: 400px;" class="mb-3"></div>
-
-                            <!-- Price details -->
-                            <div class="mb-3 text-white">
-                                <strong>Total Distance:</strong> <span id="totalKm">0</span> km<br>
-                                <strong>Price per km:</strong> <span id="pricePerKm">2</span> AED<br>
-                                <strong>Total Price:</strong> <span id="totalPrice">0</span> AED<br>
-                                <strong>Commission (5%):</strong> <span id="commission">0</span> AED<br>
-                                <strong>Grand Total:</strong> <span id="grandTotal">0</span> AED
+                            <!-- Map -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-map me-2"></i>Route Map
+                                </label>
+                                <div class="map-container">
+                                    <div id="map"></div>
+                                </div>
                             </div>
 
-                            <button type="submit" class="btn kontrek-btn w-100">Proceed to Payment</button>
+                            <!-- Price details -->
+                            <div class="price-card">
+                                <h4 class="price-title">
+                                    <i class="bi bi-receipt"></i>Price Details
+                                </h4>
+                                
+                                <div class="price-row">
+                                    <span class="price-label">Total Distance:</span>
+                                    <span class="price-value" id="totalKm">0 km</span>
+                                </div>
+                                
+                                <div class="price-row">
+                                    <span class="price-label">Price per km:</span>
+                                    <span class="price-value highlight" id="pricePerKm">{% if selected_truck %}AED {{ selected_truck.price_per_km }}{% else %}AED 2.00{% endif %}</span>
+                                </div>
+                                
+                                <div class="price-row">
+                                    <span class="price-label">Base Price:</span>
+                                    <span class="price-value highlight" id="totalPrice">AED 0.00</span>
+                                </div>
+                                
+                                <div class="price-row">
+                                    <span class="price-label">Service Fee:</span>
+                                    <span class="price-value" id="commission">AED 0.00</span>
+                                </div>
+                                
+                                <div class="price-row">
+                                    <span class="price-label"><strong>Grand Total:</strong></span>
+                                    <span class="price-value total" id="grandTotal">AED 0.00</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit">
+                                <i class="bi bi-credit-card me-2"></i>Proceed to Payment
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -86,6 +414,17 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let pickupMarker, dropMarker, routeLine;
 
+// Custom icons
+const pickupIcon = L.divIcon({
+    html: '<div style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #050508; font-weight: bold; box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);"><i class="bi bi-geo-alt-fill"></i></div>',
+    className: 'custom-marker'
+});
+
+const dropIcon = L.divIcon({
+    html: '<div style="background: linear-gradient(135deg, #ec4899, #8b5cf6); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);"><i class="bi bi-geo-fill"></i></div>',
+    className: 'custom-marker'
+});
+
 // Nominatim search
 async function searchLocation(query){
     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&accept-language=en`);
@@ -100,8 +439,8 @@ async function setPickup(value){
         document.getElementById('pickup_lng').value = place.lon;
 
         if(pickupMarker) map.removeLayer(pickupMarker);
-        pickupMarker = L.marker([place.lat, place.lon]).addTo(map)
-            .bindPopup("Pickup: " + place.display_name)
+        pickupMarker = L.marker([place.lat, place.lon], {icon: pickupIcon}).addTo(map)
+            .bindPopup("<strong>Pickup:</strong> " + place.display_name)
             .openPopup();
 
         drawRoute();
@@ -117,8 +456,8 @@ async function setDrop(value){
         document.getElementById('drop_lng').value = place.lon;
 
         if(dropMarker) map.removeLayer(dropMarker);
-        dropMarker = L.marker([place.lat, place.lon]).addTo(map)
-            .bindPopup("Drop: " + place.display_name)
+        dropMarker = L.marker([place.lat, place.lon], {icon: dropIcon}).addTo(map)
+            .bindPopup("<strong>Drop:</strong> " + place.display_name)
             .openPopup();
 
         drawRoute();
@@ -145,8 +484,13 @@ function drawRoute(){
         routeLine = L.polyline([
             [pickupLat, pickupLng],
             [dropLat, dropLng]
-        ], {color: 'blue', weight: 4, opacity:0.6}).addTo(map);
-        map.fitBounds(routeLine.getBounds());
+        ], {
+            color: '#00f5ff',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '10, 10'
+        }).addTo(map);
+        map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
     }
 }
 
@@ -169,16 +513,20 @@ function updatePrice(){
 
     if(pickupLat && dropLat){
         let distance = calculateDistance(pickupLat, pickupLng, dropLat, dropLng);
-        let pricePerKm = 2; // AED per km
+        
+        // Get price per km from the displayed value (either from selected truck or default)
+        let pricePerKmText = document.getElementById('pricePerKm').innerText.replace('AED ', '');
+        let pricePerKm = parseFloat(pricePerKmText) || 2;
+        
         let totalPrice = distance * pricePerKm;
         let commission = totalPrice * 0.05;
         let grandTotal = totalPrice + commission;
 
-        document.getElementById('totalKm').innerText = distance.toFixed(2);
-        document.getElementById('pricePerKm').innerText = pricePerKm;
-        document.getElementById('totalPrice').innerText = totalPrice.toFixed(2);
-        document.getElementById('commission').innerText = commission.toFixed(2);
-        document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
+        document.getElementById('totalKm').innerText = distance.toFixed(2) + ' km';
+        document.getElementById('pricePerKm').innerText = 'AED ' + pricePerKm.toFixed(2);
+        document.getElementById('totalPrice').innerText = 'AED ' + totalPrice.toFixed(2);
+        document.getElementById('commission').innerText = 'AED ' + commission.toFixed(2);
+        document.getElementById('grandTotal').innerText = 'AED ' + grandTotal.toFixed(2);
     }
 }
 
@@ -213,3 +561,4 @@ document.getElementById('bookingForm').addEventListener('submit', function(e){
 });
 </script>
 {% endblock %}
+

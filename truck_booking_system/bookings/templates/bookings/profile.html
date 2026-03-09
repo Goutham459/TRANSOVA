@@ -1,7 +1,7 @@
 {% extends "bookings/customer_base.html" %}
 {% load static %}
 
-{% block title %}My Profile - Transova{% endblock %}
+{% block title %}My Profile - TRANSOVA{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -10,14 +10,14 @@
     }
     
     .profile-card {
-        background: rgba(30, 41, 59, 0.5);
-        border: 1px solid rgba(6, 182, 212, 0.2);
-        border-radius: 20px;
+        background: rgba(15, 20, 35, 0.8);
+        border: 1px solid rgba(0, 245, 255, 0.15);
+        border-radius: 24px;
         overflow: hidden;
     }
     
     .profile-header {
-        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(79, 70, 229, 0.2));
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(139, 92, 246, 0.1));
         padding: 40px;
         text-align: center;
         position: relative;
@@ -31,7 +31,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        background: radial-gradient(circle, rgba(0, 245, 255, 0.1) 0%, transparent 50%);
         animation: rotate 10s linear infinite;
     }
     
@@ -44,7 +44,7 @@
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        background: linear-gradient(135deg, #00f5ff, #8b5cf6);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -52,22 +52,23 @@
         font-size: 3rem;
         color: white;
         font-weight: 700;
+        border: 4px solid rgba(255,255,255,0.2);
+        box-shadow: 0 0 40px rgba(0, 245, 255, 0.4);
         position: relative;
         z-index: 1;
-        box-shadow: 0 10px 40px rgba(6, 182, 212, 0.4);
     }
     
     .profile-name {
-        color: #fff;
         font-size: 1.8rem;
         font-weight: 700;
-        margin-bottom: 5px;
+        color: #fff;
+        margin-bottom: 8px;
         position: relative;
         z-index: 1;
     }
     
     .profile-role {
-        color: #06b6d4;
+        color: #00f5ff;
         font-size: 1rem;
         font-weight: 500;
         position: relative;
@@ -82,242 +83,276 @@
         margin-bottom: 30px;
     }
     
-    .info-section h4 {
-        color: #06b6d4;
+    .info-title {
+        color: #00f5ff;
         font-size: 1.1rem;
+        font-weight: 600;
         margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(0, 245, 255, 0.2);
         display: flex;
         align-items: center;
         gap: 10px;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: rgba(10, 10, 20, 0.8);
+        border: 1px solid rgba(0, 245, 255, 0.15);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00f5ff, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stat-label {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    /* Quick Links */
+    .quick-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .quick-link {
+        background: rgba(10, 10, 20, 0.8);
+        border: 1px solid rgba(0, 245, 255, 0.15);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-link:hover {
+        border-color: rgba(0, 245, 255, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 245, 255, 0.15);
+    }
+    
+    .quick-link-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(139, 92, 246, 0.2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: #00f5ff;
+    }
+    
+    .quick-link-text h5 {
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 3px;
+        font-size: 0.95rem;
+    }
+    
+    .quick-link-text p {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        margin: 0;
+    }
+    
+    /* Bookings Table */
+    .bookings-section {
+        margin-top: 30px;
+    }
+    
+    .section-card {
+        background: rgba(10, 10, 20, 0.8);
+        border: 1px solid rgba(0, 245, 255, 0.15);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .section-header {
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(139, 92, 246, 0.1));
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(0, 245, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .section-title {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .bookings-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .bookings-table th {
+        background: rgba(5, 5, 8, 0.9);
+        color: #00f5ff;
+        font-weight: 600;
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .bookings-table td {
+        padding: 14px 16px;
+        color: #fff;
+        border-bottom: 1px solid rgba(0, 245, 255, 0.05);
+    }
+    
+    .bookings-table tbody tr:hover {
+        background: linear-gradient(90deg, rgba(0, 245, 255, 0.05), transparent);
+    }
+    
+    .route-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .route-arrow {
+        color: #8b5cf6;
+    }
+    
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.confirmed {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+    }
+    
+    .status-badge.pending {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+    }
+    
+    .price-amount {
+        font-weight: 700;
+        color: #00f5ff;
+    }
+    
+    .btn-view {
+        background: transparent;
+        border: 1px solid rgba(0, 245, 255, 0.3);
+        color: #00f5ff;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view:hover {
+        background: rgba(0, 245, 255, 0.1);
+        border-color: #00f5ff;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+    
+    .empty-icon {
+        font-size: 3rem;
+        color: #64748b;
+        margin-bottom: 15px;
+    }
+    
+    .empty-title {
+        color: #fff;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .empty-text {
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+    
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
     }
     
     .info-item {
         display: flex;
         align-items: center;
-        padding: 15px;
-        background: rgba(11, 15, 26, 0.5);
-        border-radius: 12px;
-        margin-bottom: 10px;
-        transition: all 0.3s ease;
-    }
-    
-    .info-item:hover {
-        background: rgba(6, 182, 212, 0.1);
-        transform: translateX(5px);
+        gap: 12px;
     }
     
     .info-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1));
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.15), rgba(139, 92, 246, 0.15));
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #06b6d4;
-        font-size: 1.2rem;
-        margin-right: 15px;
+        color: #00f5ff;
     }
     
-    .info-content {
-        flex: 1;
-    }
-    
-    .info-label {
+    .info-content label {
         color: #64748b;
-        font-size: 0.85rem;
-        margin-bottom: 3px;
-    }
-    
-    .info-value {
-        color: #fff;
-        font-weight: 500;
-    }
-    
-    .info-edit {
-        background: none;
-        border: none;
-        color: #06b6d4;
-        cursor: pointer;
-        padding: 5px 10px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .info-edit:hover {
-        background: rgba(6, 182, 212, 0.2);
-    }
-    
-    .edit-form {
-        display: none;
-        margin-top: 10px;
-    }
-    
-    .edit-form.active {
+        font-size: 0.8rem;
         display: block;
-        animation: fadeIn 0.3s ease;
+        margin-bottom: 2px;
     }
     
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .edit-form input {
-        background: rgba(11, 15, 26, 0.8);
-        border: 1px solid rgba(6, 182, 212, 0.3);
-        border-radius: 8px;
-        padding: 10px 15px;
+    .info-content span {
         color: #fff;
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    
-    .edit-form input:focus {
-        outline: none;
-        border-color: #06b6d4;
-    }
-    
-    .edit-form .btn-group {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .save-btn {
-        background: linear-gradient(135deg, #4f46e5, #06b6d4);
-        border: none;
-        color: white;
-        padding: 8px 20px;
-        border-radius: 20px;
-        cursor: pointer;
         font-weight: 500;
+        font-size: 0.95rem;
     }
     
-    .cancel-btn {
-        background: transparent;
-        border: 1px solid #64748b;
-        color: #64748b;
-        padding: 8px 20px;
-        border-radius: 20px;
-        cursor: pointer;
-    }
-    
-    .settings-list {
-        list-style: none;
-        padding: 0;
-    }
-    
-    .settings-item {
-        padding: 15px;
-        background: rgba(11, 15, 26, 0.5);
-        border-radius: 12px;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        transition: all 0.3s ease;
-    }
-    
-    .settings-item:hover {
-        background: rgba(6, 182, 212, 0.1);
-    }
-    
-    .settings-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    
-    .settings-icon {
-        color: #06b6d4;
-        font-size: 1.2rem;
-    }
-    
-    .settings-label {
-        color: #fff;
-    }
-    
-    .settings-desc {
-        color: #64748b;
-        font-size: 0.85rem;
-    }
-    
-    .toggle-switch {
-        position: relative;
-        width: 50px;
-        height: 26px;
-    }
-    
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: #374151;
-        transition: 0.4s;
-        border-radius: 26px;
-    }
-    
-    .toggle-slider::before {
-        position: absolute;
-        content: "";
-        height: 20px;
-        width: 20px;
-        left: 3px;
-        bottom: 3px;
-        background: white;
-        transition: 0.4s;
-        border-radius: 50%;
-    }
-    
-    .toggle-switch input:checked + .toggle-slider {
-        background: linear-gradient(135deg, #4f46e5, #06b6d4);
-    }
-    
-    .toggle-switch input:checked + .toggle-slider::before {
-        transform: translateX(24px);
-    }
-    
-    .danger-zone {
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 12px;
-        padding: 20px;
-        margin-top: 30px;
-    }
-    
-    .danger-zone h4 {
-        color: #ef4444;
-        margin-bottom: 15px;
-    }
-    
-    .danger-zone p {
-        color: #94a3b8;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-    
-    .delete-btn {
-        background: rgba(239, 68, 68, 0.2);
-        border: 1px solid #ef4444;
-        color: #ef4444;
-        padding: 10px 20px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .delete-btn:hover {
-        background: #ef4444;
-        color: white;
+    @media (max-width: 768px) {
+        .profile-header {
+            padding: 30px 20px;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .bookings-table {
+            display: block;
+            overflow-x: auto;
+        }
     }
 </style>
 {% endblock %}
@@ -325,214 +360,214 @@
 {% block content %}
 <div class="profile-section">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto">
+        
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <!-- Header with Avatar -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    {{ user.username|upper|slice:":1" }}
+                </div>
+                <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                <p class="profile-role">
+                    <i class="bi bi-person-badge me-2"></i>
+                    {% if user.role %}{{ user.get_role_display }}{% else %}Customer{% endif %}
+                </p>
+            </div>
+            
+            <!-- Body -->
+            <div class="profile-body">
                 
-                <!-- Profile Card -->
-                <div class="profile-card animate-2">
-                    <!-- Header -->
-                    <div class="profile-header">
-                        <div class="profile-avatar">
-                            {{ user.username|upper|slice:":1" }}
-                        </div>
-                        <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
-                        <p class="profile-role">
-                            <i class="bi bi-person-badge me-2"></i>
-                            {% if user.role %}{{ user.role }}{% else %}Customer{% endif %}
-                        </p>
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_bookings|default:0 }}</div>
+                        <div class="stat-label">Total Bookings</div>
                     </div>
-                    
-                    <!-- Body -->
-                    <div class="profile-body">
-                        
-                        <!-- Personal Information -->
-                        <div class="info-section">
-                            <h4><i class="bi bi-person-vcard"></i> Personal Information</h4>
-                            
-                            <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="bi bi-person"></i>
-                                </div>
-                                <div class="info-content">
-                                    <div class="info-label">Username</div>
-                                    <div class="info-value">{{ user.username }}</div>
-                                </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ confirmed_bookings|default:0 }}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ pending_bookings|default:0 }}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">AED {{ total_spent|default:0 }}</div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="info-section">
+                    <h4 class="info-title">
+                        <i class="bi bi-lightning-charge"></i>Quick Links
+                    </h4>
+                    <div class="quick-links">
+                        <a href="{% url 'customer_booking' %}" class="quick-link">
+                            <div class="quick-link-icon">
+                                <i class="bi bi-plus-circle"></i>
                             </div>
-                            
-                            <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="bi bi-envelope"></i>
-                                </div>
-                                <div class="info-content">
-                                    <div class="info-label">Email Address</div>
-                                    <div class="info-value">{{ user.email }}</div>
-                                </div>
-                                <button class="info-edit" onclick="toggleEdit('email')">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+                            <div class="quick-link-text">
+                                <h5>New Booking</h5>
+                                <p>Book a new truck</p>
                             </div>
-                            
-                            <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="bi bi-person-badge"></i>
-                                </div>
-                                <div class="info-content">
-                                    <div class="info-label">Full Name</div>
-                                    <div class="info-value">{{ user.get_full_name|default:"Not set" }}</div>
-                                </div>
-                                <button class="info-edit" onclick="toggleEdit('name')">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+                        </a>
+                        <a href="{% url 'customer_booking_list' %}" class="quick-link">
+                            <div class="quick-link-icon">
+                                <i class="bi bi-journal-text"></i>
                             </div>
-                            
-                            <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="bi bi-telephone"></i>
-                                </div>
-                                <div class="info-content">
-                                    <div class="info-label">Phone Number</div>
-                                    <div class="info-value">{{ user.phone|default:"Not set" }}</div>
-                                </div>
-                                <button class="info-edit" onclick="toggleEdit('phone')">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+                            <div class="quick-link-text">
+                                <h5>My Bookings</h5>
+                                <p>View all bookings</p>
                             </div>
-                            
-                            <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="bi bi-calendar-check"></i>
-                                </div>
-                                <div class="info-content">
-                                    <div class="info-label">Member Since</div>
-                                    <div class="info-value">{{ user.date_joined|date:"F d, Y" }}</div>
-                                </div>
+                        </a>
+                        <a href="{% url 'faq' %}" class="quick-link">
+                            <div class="quick-link-icon">
+                                <i class="bi bi-question-circle"></i>
+                            </div>
+                            <div class="quick-link-text">
+                                <h5>FAQ</h5>
+                                <p>Get help & support</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'price_calculator' %}" class="quick-link">
+                            <div class="quick-link-icon">
+                                <i class="bi bi-calculator"></i>
+                            </div>
+                            <div class="quick-link-text">
+                                <h5>Price Calculator</h5>
+                                <p>Estimate costs</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Personal Info -->
+                <div class="info-section">
+                    <h4 class="info-title">
+                        <i class="bi bi-person-vcard"></i>Personal Information
+                    </h4>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>Username</label>
+                                <span>{{ user.username }}</span>
                             </div>
                         </div>
-                        
-                        <!-- Notification Settings -->
-                        <div class="info-section">
-                            <h4><i class="bi bi-bell"></i> Notification Settings</h4>
-                            
-                            <ul class="settings-list">
-                                <li class="settings-item">
-                                    <div class="settings-info">
-                                        <i class="bi bi-envelope settings-icon"></i>
-                                        <div>
-                                            <div class="settings-label">Email Notifications</div>
-                                            <div class="settings-desc">Receive booking updates via email</div>
-                                        </div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </li>
-                                
-                                <li class="settings-item">
-                                    <div class="settings-info">
-                                        <i class="bi bi-phone settings-icon"></i>
-                                        <div>
-                                            <div class="settings-label">SMS Notifications</div>
-                                            <div class="settings-desc">Receive SMS for important updates</div>
-                                        </div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </li>
-                                
-                                <li class="settings-item">
-                                    <div class="settings-info">
-                                        <i class="bi bi-bell settings-icon"></i>
-                                        <div>
-                                            <div class="settings-label">Push Notifications</div>
-                                            <div class="settings-desc">Receive push notifications in browser</div>
-                                        </div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </li>
-                            </ul>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>Email</label>
+                                <span>{{ user.email }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-telephone"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>Phone</label>
+                                <span>{{ user.phone|default:"Not set" }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <div class="info-content">
+                                <label>Member Since</label>
+                                <span>{{ user.date_joined|date:"F d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Bookings -->
+                <div class="bookings-section">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="bi bi-journal-check me-2"></i>Recent Bookings
+                            </h3>
+                            <a href="{% url 'customer_booking_list' %}" class="btn btn-sm" 
+                               style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); border: none; color: #050508; font-weight: 600;">
+                                View All
+                            </a>
                         </div>
                         
-                        <!-- Security -->
-                        <div class="info-section">
-                            <h4><i class="bi bi-shield-lock"></i> Security</h4>
-                            
-                            <ul class="settings-list">
-                                <li class="settings-item">
-                                    <div class="settings-info">
-                                        <i class="bi bi-key settings-icon"></i>
-                                        <div>
-                                            <div class="settings-label">Change Password</div>
-                                            <div class="settings-desc">Update your account password</div>
-                                        </div>
-                                    </div>
-                                    <a href="{% url 'forgot_password' %}" class="btn kontrek-btn-outline btn-sm">
-                                        Update
-                                    </a>
-                                </li>
-                                
-                                <li class="settings-item">
-                                    <div class="settings-info">
-                                        <i class="bi bi-device-ssd settings-icon"></i>
-                                        <div>
-                                            <div class="settings-label">Two-Factor Authentication</div>
-                                            <div class="settings-desc">Add extra security to your account</div>
-                                        </div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </li>
-                            </ul>
+                        {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="bookings-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Route</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                    <tr>
+                                        <td><span style="color: #00f5ff; font-weight: 600;">#{{ booking.id }}</span></td>
+                                        <td>
+                                            <div class="route-info">
+                                                <span>{{ booking.pickup_location|truncatechars:12 }}</span>
+                                                <i class="bi bi-arrow-right route-arrow"></i>
+                                                <span>{{ booking.drop_location|truncatechars:12 }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ booking.booking_date }}</td>
+                                        <td>
+                                            {% if booking.truck %}
+                                            <span class="status-badge confirmed">
+                                                <i class="bi bi-check-circle me-1"></i>Confirmed
+                                            </span>
+                                            {% else %}
+                                            <span class="status-badge pending">
+                                                <i class="bi bi-clock me-1"></i>Pending
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td><span class="price-amount">{{ booking.currency }} {{ booking.price }}</span></td>
+                                        <td>
+                                            <a href="{% url 'booking_receipt' booking.id %}" class="btn-view">
+                                                <i class="bi bi-receipt me-1"></i>Receipt
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        
-                        <!-- Danger Zone -->
-                        <div class="danger-zone">
-                            <h4><i class="bi bi-exclamation-triangle me-2"></i>Danger Zone</h4>
-                            <p>Once you delete your account, there is no going back. Please be certain.</p>
-                            <button class="delete-btn" onclick="confirmDelete()">
-                                <i class="bi bi-trash me-2"></i>Delete Account
-                            </button>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="bi bi-inbox"></i>
+                            </div>
+                            <h3 class="empty-title">No bookings yet</h3>
+                            <p class="empty-text">Start by booking your first truck</p>
+                            <a href="{% url 'customer_booking' %}" class="btn" 
+                               style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); border: none; color: #050508; font-weight: 600; padding: 10px 25px; border-radius: 25px; display: inline-block; margin-top: 15px; text-decoration: none;">
+                                <i class="bi bi-plus-circle me-2"></i>Book Your First Truck
+                            </a>
                         </div>
-                        
+                        {% endif %}
                     </div>
                 </div>
                 
             </div>
         </div>
+        
     </div>
 </div>
-
-<script>
-function toggleEdit(field) {
-    showToast('info', 'Coming Soon', 'Profile editing will be available in the next update!');
-}
-
-function confirmDelete() {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-        showToast('warning', 'Account Deletion', 'Please contact support to delete your account.');
-    }
-}
-
-// Add hover animations
-document.addEventListener('DOMContentLoaded', function() {
-    const infoItems = document.querySelectorAll('.info-item');
-    infoItems.forEach((item, index) => {
-        item.style.opacity = '0';
-        item.style.transform = 'translateX(-20px)';
-        item.style.transition = 'all 0.3s ease';
-        setTimeout(() => {
-            item.style.opacity = '1';
-            item.style.transform = 'translateX(0)';
-        }, 100 + (index * 100));
-    });
-});
-</script>
 {% endblock %}
 

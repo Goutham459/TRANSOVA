@@ -1,248 +1,1543 @@
-/* GLOBAL */
-body {
-    background: #0b0f1a;
-    color: #ffffff;
-    font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
+/**
+ * TRANSOVA - Unified Theme CSS
+ * Clean, Modern, Responsive Design System
+ * All templates inherit from this single stylesheet
+ */
+
+/* ============================================
+   CSS VARIABLES (Design Tokens)
+   ============================================ */
+:root {
+    /* Background Colors */
+    --bg-primary: #09090b;
+    --bg-secondary: #121217;
+    --bg-card: #18181f;
+    --bg-tertiary: #222230;
+    --bg-input: rgba(34, 34, 48, 0.6);
+    
+    /* Accent Colors */
+    --accent-primary: #8b5cf6;
+    --accent-secondary: #a78bfa;
+    --accent-success: #22c55e;
+    --accent-warning: #f59e0b;
+    --accent-danger: #ef4444;
+    --accent-info: #3b82f6;
+    
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #e4e4e7;
+    --text-muted: #a1a1aa;
+    
+    /* Borders & Shadows */
+    --border-color: rgba(139, 92, 246, 0.15);
+    --border-light: rgba(139, 92, 246, 0.3);
+    --shadow-card: 0 4px 20px rgba(139, 92, 246, 0.1);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 20px 50px rgba(139, 92, 246, 0.2);
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 50px;
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
 }
 
-/* NAVBAR */
-.kontrek-navbar {
-    background: rgba(11,15,26,0.85);
-    backdrop-filter: blur(10px);
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Ambient Background Effects */
+body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(192, 132, 252, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 0.5em;
+}
+
+h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 700; }
+h3 { font-size: clamp(1.25rem, 2vw, 1.75rem); }
+
+p { color: var(--text-secondary); margin-bottom: 1em; }
+
+a { color: var(--accent-secondary); text-decoration: none; transition: color var(--transition-fast); }
+a:hover { color: var(--accent-primary); }
+
+.text-gradient {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-muted { color: var(--text-muted) !important; }
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.kontrek-navbar, .navbar-custom, .navbar-futuristic {
+    background: rgba(9, 9, 11, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+    padding: 0 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.navbar {
+    position: relative;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #8b5cf6, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+
+.navbar-brand i {
+    background: linear-gradient(135deg, #8b5cf6, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.4rem;
+}
+
+/* Navbar bottom gradient glow */
+.kontrek-navbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), rgba(192, 132, 252, 0.2), transparent);
+    pointer-events: none;
 }
 
 .nav-link {
-    color: #ffffff !important;
+    color: var(--text-secondary) !important;
+    padding: 10px 18px !important;
+    border-radius: 10px;
     font-weight: 500;
-}
-
-/* BUTTONS */
-.kontrek-btn {
-    background: linear-gradient(135deg, #4f46e5, #06b6d4);
-    border: none;
-    color: #fff;
-    padding: 12px 28px;
-    border-radius: 30px;
-}
-
-.kontrek-btn-outline {
-    border: 1px solid #06b6d4;
-    color: #06b6d4;
-    padding: 10px 26px;
-    border-radius: 30px;
-    background: transparent;
-}
-
-/* HERO */
-.hero-section {
-    min-height: 100vh;
-    background: url("../images/hero-bg.jpg") center/cover no-repeat;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
     position: relative;
     display: flex;
     align-items: center;
+    gap: 6px;
 }
 
-.hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(11,15,26,0.95), rgba(11,15,26,0.7));
+.nav-link i {
+    font-size: 1rem;
+    opacity: 0.8;
+    transition: opacity 0.25s ease;
 }
 
-.hero-content {
-    position: relative;
-    z-index: 2;
+.nav-link:hover {
+    color: var(--text-primary) !important;
+    background: rgba(139, 92, 246, 0.08);
 }
 
-.hero-title {
-    font-size: clamp(2.2rem, 5vw, 4rem);
-    font-weight: 700;
+.nav-link:hover i {
+    opacity: 1;
 }
 
-.hero-title span {
-    background: linear-gradient(135deg, #06b6d4, #4f46e5);
-    background-clip: text;              /* Standard */
-    -webkit-background-clip: text;      /* Safari / Chrome */
-    color: transparent;
-}
-.hero-text {
-    color: #cbd5e1;
-    max-width: 520px;
-    margin-top: 15px;
+.nav-link.active {
+    color: var(--accent-secondary) !important;
+    background: rgba(139, 92, 246, 0.12);
 }
 
-.hero-truck {
-    width: 100%;
-    max-width: 520px;
-    animation: float 4s ease-in-out infinite;
+.nav-link.active i {
+    color: var(--accent-secondary);
 }
 
-/* FEATURES */
-.features-section {
-    padding: 80px 0;
+.dropdown-menu {
+    background: rgba(24, 24, 31, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    margin-top: 12px;
+    min-width: 200px;
+    animation: dropdownFadeIn 0.2s ease;
 }
 
-.feature-card {
-    background: rgba(255,255,255,0.04);
-    border-radius: 16px;
-    padding: 30px;
-    transition: 0.3s;
-    height: 100%;
-}
-
-.feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-}
-
-.feature-card h4 {
-    margin-bottom: 10px;
-}
-
-/* ANIMATIONS */
-@keyframes float {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-    .hero-section {
-        text-align: center;
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* TRUCKS PAGE */
-.truck-card {
-    background: rgba(255,255,255,0.03);
-    border-radius: 16px;
-    overflow: hidden;
-    transition: 0.3s;
+.dropdown-item {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-item i {
+    color: var(--text-muted);
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    transition: color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(139, 92, 246, 0.12);
+    color: var(--accent-secondary);
+}
+
+.dropdown-item:hover i {
+    color: var(--accent-secondary);
+}
+
+.dropdown-divider {
+    border-color: rgba(139, 92, 246, 0.15);
+    margin: 8px 0;
+}
+
+/* Navbar Toggler */
+.navbar-toggler {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: rgba(139, 92, 246, 0.1);
+    transition: all 0.3s ease;
+}
+
+.navbar-toggler:hover {
+    background: rgba(139, 92, 246, 0.2);
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(167, 139, 250, 0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    width: 20px;
+    height: 20px;
+}
+
+/* Navbar Buttons */
+.kontrek-btn-nav, .kontrek-btn-nav-outline {
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.kontrek-btn-nav {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.kontrek-btn-nav:hover {
+    background: linear-gradient(135deg, #9f67ff, #8b5cf6);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.kontrek-btn-nav-outline {
+    background: transparent;
+    border: 1.5px solid rgba(139, 92, 246, 0.5);
+    color: var(--accent-secondary);
+}
+
+.kontrek-btn-nav-outline:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+}
+
+/* User Avatar in Navbar */
+.nav-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(167, 139, 250, 0.2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--accent-secondary);
+    font-size: 0.9rem;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.kontrek-btn, .btn-primary-custom, .btn-futuristic {
+    position: relative;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    border: none;
+    color: #ffffff;
+    padding: 12px 28px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.kontrek-btn::before, .btn-primary-custom::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.kontrek-btn:hover, .btn-primary-custom:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 40px rgba(139, 92, 246, 0.5);
+    color: #ffffff;
+}
+
+.kontrek-btn:hover::before, .btn-primary-custom:hover::before {
+    left: 100%;
+}
+
+.kontrek-btn-outline, .btn-outline-custom {
+    background: transparent;
+    border: 2px solid #8b5cf6;
+    color: var(--accent-secondary);
+    padding: 10px 26px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.kontrek-btn-outline:hover, .btn-outline-custom:hover {
+    background: #8b5cf6;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+/* Legacy Button Support */
+.btn-primary, .btn-noomo, .kontrek-btn { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+.btn-outline { border: 2px solid #8b5cf6; color: var(--accent-secondary); }
+
+/* ============================================
+   FORMS
+   ============================================ */
+.form-control, .form-select {
+    background: var(--bg-input);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+    outline: none;
+    background: rgba(34, 34, 48, 0.8);
+    color: var(--text-primary);
+}
+
+.form-control::placeholder { color: var(--text-muted); }
+
+.form-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.hero-section {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    padding: 120px 0 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    right: 5%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+    border-radius: 50%;
+    filter: blur(60px);
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: 20%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(192, 132, 252, 0.1) 0%, transparent 60%);
+    border-radius: 50%;
+    filter: blur(50px);
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+}
+
+.hero-title .highlight {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-text {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin-bottom: 40px;
+    line-height: 1.8;
+}
+
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* ============================================
+   STATS SECTION
+   ============================================ */
+.stats-section {
+    padding: 60px 0;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stat-item { text-align: center; }
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-top: 8px;
+}
+
+/* ============================================
+   CARDS (Generic) - Glassmorphism Style
+   ============================================ */
+.card-futuristic, .feature-card, .noomo-card {
+    background: rgba(24, 24, 31, 0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Glassmorphism shine effect */
+.card-futuristic::before, .feature-card::before, .noomo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Inner glow effect */
+.card-futuristic::after, .feature-card::after, .noomo-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    pointer-events: none;
+}
+
+.card-futuristic:hover, .feature-card:hover, .noomo-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2), 0 0 30px rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    background: rgba(24, 24, 31, 0.6) !important;
+}
+
+/* Feature Card */
+.feature-card { 
+    padding: 40px 32px; 
+    height: 100%;
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    font-size: 1.75rem;
+    color: var(--accent-primary);
+    transition: all var(--transition-normal);
+}
+
+.feature-card:hover .feature-icon {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #ffffff;
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+}
+
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.feature-text {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   TRUCK CARDS - Glassmorphism Style
+   ============================================ */
+.truck-card {
+    background: rgba(24, 24, 31, 0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    position: relative;
+}
+
+/* Glassmorphism shine effect on truck cards */
+.truck-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Inner glow effect */
+.truck-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    pointer-events: none;
 }
 
 .truck-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2), 0 0 30px rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    background: rgba(24, 24, 31, 0.6) !important;
 }
 
 .truck-card img {
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    transition: transform 0.3s;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
 }
 
 .truck-card:hover img {
     transform: scale(1.05);
 }
 
-/* Filter Panel */
-.filter-panel {
-    background: rgba(11,15,26,0.85);
-    backdrop-filter: blur(12px);
-    border-radius: 12px;
-    padding: 12px;
-    align-items: center;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
+.truck-card-body {
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(180deg, transparent 0%, rgba(24, 24, 31, 0.5) 100%);
 }
 
-.minimal-select {
-    background: #0b0f1a;
-    color: #fff;
-    border: 1px solid #06b6d4;
-    border-radius: 8px;
-    padding: 6px 12px;
-    min-width: 150px;
+.truck-number {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
-/* FILTER PANEL SLIDE ANIMATION */
-.filter-panel {
-    display: flex;
+.truck-info { color: var(--text-secondary); font-size: 0.9rem; }
+
+/* Status Badge */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.status-badge.available {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.15));
+    color: var(--accent-success);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-badge.booked {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.15));
+    color: var(--accent-danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ============================================
+   BOOKING CARDS - Glassmorphism Style
+   ============================================ */
+.booking-card {
+    background: rgba(24, 24, 31, 0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: all var(--transition-normal);
+    position: relative;
     overflow: hidden;
+}
+
+/* Glassmorphism shine effect */
+.booking-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.booking-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.25);
+    background: rgba(24, 24, 31, 0.6) !important;
+}
+
+.booking-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+.booking-id {
+    color: var(--accent-secondary);
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+/* ============================================
+   STAT CARDS - Glassmorphism Style
+   ============================================ */
+.stat-card {
+    background: rgba(24, 24, 31, 0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.25);
+}
+
+/* ============================================
+   FILTER PANEL - Glassmorphism Style
+   ============================================ */
+.filter-panel {
+    background: rgba(15, 15, 25, 0.6) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    overflow: hidden;
+    transition: all 0.4s ease;
     max-height: 0;
     opacity: 0;
-    transform: translateY(-10px);
-    transition: 
-        max-height 0.45s ease,
-        opacity 0.35s ease,
-        transform 0.35s ease;
 }
 
-/* When visible */
-.filter-panel.show {
-    max-height: 300px; /* enough for filters */
+.filter-panel.show, .filter-panel.d-md-flex {
+    max-height: 500px;
+    opacity: 1;
+}
+
+.filter-panel .form-select {
+    background: rgba(10, 10, 20, 0.8);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    color: var(--text-primary);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.btn-filter {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 30px;
+    padding: 10px 24px;
+    transition: all var(--transition-normal);
+}
+
+.btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+    color: #fff;
+}
+
+/* ============================================
+   EMPTY STATE - Glassmorphism Style
+   ============================================ */
+.empty-state-trucks, .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: rgba(24, 24, 31, 0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: var(--radius-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.empty-state-trucks::before, .empty-state::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.empty-state-trucks > *, .empty-state > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+.table-dark thead th {
+    background: rgba(34, 34, 48, 0.8);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 16px;
+    border-top: none;
+}
+
+.table-dark tbody td {
+    border-color: var(--border-color);
+    padding: 16px;
+    vertical-align: middle;
+    color: var(--text-secondary);
+}
+
+.table-dark tbody tr:hover {
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.table-dark { border-color: var(--border-color); }
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge-confirmed {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+    color: var(--accent-success);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.badge-pending {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+    color: var(--accent-warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.badge-cancelled {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+    color: var(--accent-danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+.alert {
+    border-radius: var(--radius-sm);
+    border: none;
+    padding: 16px 20px;
+}
+
+.alert-success {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--accent-success);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--accent-danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.alert-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent-warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.alert-info {
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--accent-secondary);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* ============================================
+   PROFILE PAGE
+   ============================================ */
+.profile-card {
+    background: rgba(24, 24, 31, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.profile-header {
+    background: rgba(34, 34, 48, 0.8);
+    padding: 40px;
+    text-align: center;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #c084fc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 2.5rem;
+    color: white;
+    font-weight: 600;
+}
+
+.profile-name {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.profile-role {
+    color: var(--accent-secondary);
+    font-weight: 500;
+}
+
+.profile-body { padding: 30px; }
+
+/* ============================================
+   FAQ ACCORDION
+   ============================================ */
+.faq-item {
+    background: rgba(24, 24, 31, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.faq-question {
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-primary);
+    font-weight: 600;
+    transition: color var(--transition-fast);
+}
+
+.faq-question:hover { color: var(--accent-secondary); }
+
+.faq-icon {
+    transition: transform var(--transition-normal);
+    color: var(--text-muted);
+}
+
+.faq-item.active .faq-icon { transform: rotate(180deg); }
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-normal);
+    color: var(--text-secondary);
+    padding: 0 20px;
+    line-height: 1.7;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 300px;
+    padding: 0 20px 20px;
+}
+
+/* ============================================
+   PAGE SECTIONS (Generic)
+   ============================================ */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.section-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.features-section {
+    padding: 100px 0;
+    background: var(--bg-primary);
+}
+
+.dashboard-section, .bookings-section, .profile-section, .calculator-section, .proof-page, .booking-detail-page, .company-dashboard, .bookings-page {
+    padding: 30px 0;
+}
+
+/* ============================================
+   MAP CONTAINER
+   ============================================ */
+#map {
+    height: 400px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    font-size: 3.5rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer-custom, .footer-futuristic, .footer-dark {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 40px 0;
+}
+
+.footer-brand {
+    background: linear-gradient(135deg, #8b5cf6, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* ============================================
+   PAGE CONTAINER
+   ============================================ */
+.kontrek-container, .page-container {
+    padding-top: 70px;
+    min-height: 100vh;
+}
+
+/* ============================================
+   PAGINATION
+   ============================================ */
+.pagination { margin-top: 30px; }
+
+.page-link {
+    background: rgba(24, 24, 31, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 10px 16px;
+    margin: 0 4px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-normal);
+}
+
+.page-link:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: var(--accent-primary);
+    color: var(--accent-secondary);
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    border-color: var(--accent-primary);
+    color: #ffffff;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+}
+
+.modal-header { border-bottom: 1px solid var(--border-color); }
+.modal-footer { border-top: 1px solid var(--border-color); }
+
+.btn-close { filter: invert(1); }
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+.spinner-futuristic {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+.bg-dark-custom { background: var(--bg-tertiary) !important; }
+.border-futuristic { border-color: var(--border-color) !important; }
+
+/* ============================================
+   RESPONSIVE (Mobile-First)
+   ============================================ */
+
+/* Container improvements for better alignment */
+.container {
+    max-width: 1200px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* Auth containers - centered with proper sizing */
+.auth-container {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 16px 40px;
+}
+
+.register-container {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 16px 40px;
+}
+
+/* Card sizing adjustments */
+.auth-card, .register-card {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+@media (max-width: 991px) {
+    .hero-section {
+        text-align: center;
+        padding: 100px 0 60px;
+        min-height: auto;
+    }
+    .hero-text { margin: 0 auto 30px; }
+    .hero-title { font-size: 2.2rem; }
+    
+    /* Enhanced Mobile Navbar Menu */
+    .navbar-collapse {
+        background: rgba(9, 9, 11, 0.98);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 20px;
+        border-radius: 16px;
+        margin-top: 16px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+    
+    .navbar-nav {
+        padding: 8px 0;
+    }
+    
+    .nav-link {
+        padding: 14px 18px !important;
+        margin-bottom: 6px;
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+    
+    .nav-link.active {
+        background: rgba(139, 92, 246, 0.15) !important;
+    }
+    
+    /* Mobile Dropdown */
+    .dropdown-menu {
+        background: rgba(18, 18, 23, 0.95);
+        border: 1px solid rgba(139, 92, 246, 0.1);
+        border-radius: 12px;
+        margin-top: 8px;
+        padding: 6px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        width: 100%;
+    }
+    
+    .dropdown-item {
+        padding: 12px 16px;
+        border-radius: 8px;
+    }
+    
+    /* Mobile Buttons - full width */
+    .kontrek-btn, .kontrek-btn-outline,
+    .btn-primary-custom, .btn-outline-custom,
+    .kontrek-btn-nav, .kontrek-btn-nav-outline {
+        width: 100%;
+        text-align: center;
+        margin: 8px 0;
+        justify-content: center;
+    }
+    
+    /* Navbar Toggler Positioning */
+    .navbar-toggler {
+        padding: 8px 10px;
+        margin-left: auto;
+    }
+    
+    /* Auth page adjustments */
+    .auth-container, .register-container {
+        padding-top: 90px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title { font-size: 2rem; }
+    .stat-number { font-size: 2rem; }
+    .section-title { font-size: 2rem; }
+    .feature-card { padding: 30px 24px; }
+    .kontrek-container { padding-top: 60px; }
+}
+
+@media (max-width: 576px) {
+    .hero-title { font-size: 1.8rem; }
+    .container { padding-left: 16px; padding-right: 16px; }
+    .stat-card, .feature-card, .card-futuristic { padding: 16px !important; }
+    .kontrek-container { padding-left: 12px; padding-right: 12px; }
+    .navbar-brand { font-size: 1.3rem; }
+    
+    /* Smaller Cards on Mobile */
+    .card-futuristic, .feature-card, .noomo-card, .booking-card, .stat-card {
+        padding: 16px !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Smaller Feature Card */
+    .feature-card {
+        padding: 16px !important;
+    }
+    
+    .feature-icon {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.2rem !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .feature-title {
+        font-size: 1rem !important;
+    }
+    
+    .feature-text {
+        font-size: 0.85rem !important;
+    }
+    
+    /* Smaller Truck Cards */
+    .truck-card img {
+        height: 120px !important;
+    }
+    
+    .truck-card-body {
+        padding: 12px !important;
+    }
+    
+    .truck-number {
+        font-size: 1rem !important;
+    }
+    
+    .truck-info {
+        font-size: 0.8rem !important;
+    }
+    
+    /* Smaller Stat Cards */
+    .stat-card {
+        padding: 14px !important;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem !important;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem !important;
+    }
+    
+    /* Smaller Buttons */
+    .kontrek-btn, .btn-primary-custom, .btn-futuristic {
+        padding: 10px 20px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .kontrek-btn-outline, .btn-outline-custom {
+        padding: 8px 18px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Smaller Forms */
+    .form-control, .form-select {
+        padding: 10px 14px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Smaller Profile */
+    .profile-header {
+        padding: 24px 16px !important;
+    }
+    
+    .profile-avatar {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 1.8rem !important;
+    }
+    
+    .profile-name {
+        font-size: 1.2rem !important;
+    }
+    
+    .profile-body {
+        padding: 16px !important;
+    }
+    
+    /* Smaller Table */
+    .table-dark thead th,
+    .table-dark tbody td {
+        padding: 10px 8px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    /* Smaller Badges */
+    .badge-confirmed, .badge-pending, .badge-cancelled {
+        padding: 4px 10px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    /* Smaller Filter Panel */
+    .filter-panel {
+        padding: 14px !important;
+    }
+    
+    .btn-filter {
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Smaller Page Sections */
+    .dashboard-section, .bookings-section, .profile-section, .calculator-section {
+        padding: 16px 0 !important;
+    }
+    
+    .section-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .section-subtitle {
+        font-size: 0.9rem !important;
+        margin-bottom: 30px !important;
+    }
+    
+    /* Smaller Empty State */
+    .empty-state-trucks, .empty-state {
+        padding: 40px 16px !important;
+    }
+    
+    .empty-state-icon {
+        font-size: 2.5rem !important;
+    }
+    
+    /* Smaller Auth Cards */
+    .auth-card, .register-card {
+        padding: 20px 16px !important;
+    }
+    
+    /* Smaller Navbar */
+    .nav-link {
+        padding: 10px 14px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Smaller Navbar Buttons */
+    .kontrek-btn-nav, .kontrek-btn-nav-outline {
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Smaller Job Cards */
+    .job-card {
+        padding: 16px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    /* Smaller Action Cards */
+    .action-card {
+        padding: 16px !important;
+    }
+    
+    /* Smaller Driver Cards */
+    .driver-card {
+        padding: 14px !important;
+    }
+    
+    /* Map container */
+    #map {
+        height: 250px !important;
+    }
+    
+    /* FAQ */
+    .faq-question {
+        padding: 14px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Page Header */
+    .page-header {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+    }
+    
+    /* Booking Detail */
+    .booking-section {
+        padding: 16px !important;
+    }
+}
+
+/* ============================================
+   ANIMATIONS (Scroll Reveal)
+   ============================================ */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.animate-on-scroll.is-visible {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Mobile layout */
-@media (max-width: 768px) {
-    .filter-panel {
-        flex-direction: column;
-    }
-}
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+.delay-500 { transition-delay: 0.5s; }
 
-/* Minimal select styling */
-.minimal-select {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #fff;
-}
-
-.minimal-select option {
-    background: #0b0f1a;
-    color: #fff;
-}
-/* Cards */
-.truck-card {
-    background: rgba(255,255,255,0.04);
-    border-radius: 16px;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.truck-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-}
-
-
-/* Gradient Buttons */
-.kontrek-btn {
-    background: linear-gradient(135deg, #4f46e5, #06b6d4);
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    padding: 10px 24px;
-    transition: 0.3s;
-    text-align: center;
-}
-
-.kontrek-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .filter-panel {
-        flex-direction: column;
-        gap: 10px;
-        max-height: 0;
-        overflow: hidden;
-        opacity: 0;
-    }
-    .filter-panel.show {
-        max-height: 500px; /* smooth open */
-        opacity: 1;
-    }
-}
-
-/* Login animation */
-.login-card {
-    animation: fadeUp 0.7s ease forwards;
-}
-
-@keyframes fadeUp {
+/* Fade In Up Animation (for login page) */
+@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(30px);
@@ -252,3 +1547,4 @@ body {
         transform: translateY(0);
     }
 }
+

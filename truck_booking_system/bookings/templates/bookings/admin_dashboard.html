@@ -4,11 +4,28 @@
 {% block page_title %}Admin Dashboard{% endblock %}
 
 {% block admin_content %}
-<!-- Stats Cards -->
+<!-- Page Header -->
+<div class="admin-page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="admin-page-title">
+                <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+            </h1>
+            <p class="admin-page-subtitle">Welcome back! Here's an overview of your system.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'home' %}" class="btn btn-admin btn-admin-outline">
+                <i class="bi bi-house me-1"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards Row 1 -->
 <div class="row mb-4">
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">
+        <div class="stat-card" style="--stat-color: #22c55e;">
+            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">
                 <i class="bi bi-calendar-check"></i>
             </div>
             <div class="stat-value">{{ total_bookings }}</div>
@@ -17,18 +34,18 @@
     </div>
 
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.2); color: #4f46e5;">
+        <div class="stat-card" style="--stat-color: #4f46e5;">
+            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.15); color: #4f46e5;">
                 <i class="bi bi-currency-dollar"></i>
             </div>
-            <div class="stat-value">${{ total_revenue }}</div>
+            <div class="stat-value">${{ total_revenue|floatformat:0 }}</div>
             <div class="stat-label">Total Revenue</div>
         </div>
     </div>
 
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
+        <div class="stat-card" style="--stat-color: #06b6d4;">
+            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
                 <i class="bi bi-people"></i>
             </div>
             <div class="stat-value">{{ total_users }}</div>
@@ -37,8 +54,8 @@
     </div>
 
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">
+        <div class="stat-card" style="--stat-color: #fbbf24;">
+            <div class="stat-icon" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">
                 <i class="bi bi-building"></i>
             </div>
             <div class="stat-value">{{ pending_companies }}</div>
@@ -47,11 +64,11 @@
     </div>
 </div>
 
-<!-- More Stats -->
+<!-- Stats Cards Row 2 -->
 <div class="row mb-4">
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
+        <div class="stat-card" style="--stat-color: #06b6d4;">
+            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
                 <i class="bi bi-truck"></i>
             </div>
             <div class="stat-value">{{ total_trucks }}</div>
@@ -60,8 +77,8 @@
     </div>
 
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">
+        <div class="stat-card" style="--stat-color: #22c55e;">
+            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">
                 <i class="bi bi-check-circle"></i>
             </div>
             <div class="stat-value">{{ available_trucks }}</div>
@@ -70,8 +87,8 @@
     </div>
 
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.2); color: #4f46e5;">
+        <div class="stat-card" style="--stat-color: #4f46e5;">
+            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.15); color: #4f46e5;">
                 <i class="bi bi-person-badge"></i>
             </div>
             <div class="stat-value">{{ total_drivers }}</div>
@@ -80,8 +97,8 @@
     </div>
 
     <div class="col-md-6 col-lg-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;">
+        <div class="stat-card" style="--stat-color: #06b6d4;">
+            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
                 <i class="bi bi-credit-card"></i>
             </div>
             <div class="stat-value">{{ active_subscriptions }}</div>
@@ -98,21 +115,26 @@
                 <h5><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
             </div>
             <div class="card-body">
-                <a href="{% url 'admin_users' %}" class="btn btn-admin btn-admin-outline me-2">
-                    <i class="bi bi-people me-1"></i> Manage Users
-                </a>
-                <a href="{% url 'booking_list' %}" class="btn btn-admin btn-admin-outline me-2">
-                    <i class="bi bi-list-check me-1"></i> Manage Bookings
-                </a>
-                <a href="{% url 'admin_trucks' %}" class="btn btn-admin btn-admin-outline me-2">
-                    <i class="bi bi-truck me-1"></i> Manage Trucks
-                </a>
-                <a href="{% url 'admin_companies' %}" class="btn btn-admin btn-admin-outline me-2">
-                    <i class="bi bi-building me-1"></i> Manage Companies
-                </a>
-                <a href="{% url 'home' %}" class="btn btn-admin btn-admin-outline">
-                    <i class="bi bi-house me-1"></i> Back to Home
-                </a>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'admin_users' %}" class="btn btn-admin btn-admin-outline">
+                        <i class="bi bi-people me-1"></i> Manage Users
+                    </a>
+                    <a href="{% url 'booking_list' %}" class="btn btn-admin btn-admin-outline">
+                        <i class="bi bi-list-check me-1"></i> Manage Bookings
+                    </a>
+                    <a href="{% url 'admin_trucks' %}" class="btn btn-admin btn-admin-outline">
+                        <i class="bi bi-truck me-1"></i> Manage Trucks
+                    </a>
+                    <a href="{% url 'admin_companies' %}" class="btn btn-admin btn-admin-outline">
+                        <i class="bi bi-building me-1"></i> Manage Companies
+                    </a>
+                    <a href="{% url 'admin_drivers' %}" class="btn btn-admin btn-admin-outline">
+                        <i class="bi bi-person-badge me-1"></i> Manage Drivers
+                    </a>
+                    <a href="{% url 'admin_load_types' %}" class="btn btn-admin btn-admin-outline">
+                        <i class="bi bi-boxes me-1"></i> Load Types
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -122,8 +144,11 @@
 <div class="row">
     <div class="col-md-12">
         <div class="admin-card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5><i class="bi bi-clock-history me-2"></i>Recent Bookings</h5>
+                <a href="{% url 'booking_list' %}" class="btn btn-admin btn-admin-outline btn-sm">
+                    <i class="bi bi-arrow-right me-1"></i> View All
+                </a>
             </div>
             <div class="card-body table-responsive">
                 <table class="table admin-table">
@@ -142,11 +167,13 @@
                     <tbody>
                         {% for booking in recent_bookings %}
                         <tr>
-                            <td>#{{ booking.id }}</td>
+                            <td>
+                                <span class="text-primary fw-semibold">#{{ booking.id }}</span>
+                            </td>
                             <td>{{ booking.customer_name }}</td>
-                            <td>{{ booking.pickup_location }}</td>
-                            <td>{{ booking.drop_location }}</td>
-                            <td>{{ booking.booking_date }}</td>
+                            <td>{{ booking.pickup_location|truncatechars:20 }}</td>
+                            <td>{{ booking.drop_location|truncatechars:20 }}</td>
+                            <td>{{ booking.booking_date|date:"M d, Y" }}</td>
                             <td>
                                 {% if booking.truck %}
                                     <span class="badge badge-info-custom">{{ booking.truck.truck_number }}</span>
@@ -154,21 +181,23 @@
                                     <span class="badge badge-warning-custom">Not Assigned</span>
                                 {% endif %}
                             </td>
-                            <td>${{ booking.price }}</td>
+                            <td class="fw-semibold">${{ booking.price }}</td>
                             <td>
-                                <a href="{% url 'edit_booking' booking.id %}" class="btn btn-sm btn-admin-outline">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="{% url 'delete_booking' booking.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Are you sure?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <div class="d-flex gap-1">
+                                    <a href="{% url 'edit_booking' booking.id %}" class="btn btn-sm btn-admin-outline" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'delete_booking' booking.id %}" class="btn btn-sm btn-admin-outline" title="Delete" onclick="return confirm('Are you sure?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
                             <td colspan="8" class="text-center py-4">
                                 <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
-                                No bookings yet
+                                <span class="text-muted">No bookings yet</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -179,3 +208,4 @@
     </div>
 </div>
 {% endblock %}
+

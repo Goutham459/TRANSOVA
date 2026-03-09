@@ -1,0 +1,521 @@
+{% extends "bookings/driver_base.html" %}
+
+{% block title %}Complete Job - Delivery Proof{% endblock %}
+
+{% block extra_css %}
+<style>
+    .proof-page {
+        padding-top: 20px;
+        padding-bottom: 40px;
+        min-height: 100vh;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+        border: 1px solid rgba(6, 182, 212, 0.15);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .page-header h4 {
+        color: #fff;
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .page-header h4 i {
+        background: linear-gradient(135deg, #06b6d4, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .booking-summary {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+        border: 1px solid rgba(6, 182, 212, 0.15);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .booking-id {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #06b6d4;
+    }
+    
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .detail-value {
+        color: #fff;
+        font-weight: 500;
+    }
+    
+    .upload-form {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+        border: 1px solid rgba(6, 182, 212, 0.15);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .form-section {
+        margin-bottom: 24px;
+    }
+    
+    .form-section h6 {
+        color: #06b6d4;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-label {
+        color: #fff;
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .form-control {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        color: #fff;
+        border-radius: 8px;
+        padding: 12px 16px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #06b6d4;
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .upload-area {
+        border: 2px dashed rgba(6, 182, 212, 0.3);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(15, 23, 42, 0.5);
+    }
+    
+    .upload-area:hover {
+        border-color: #06b6d4;
+        background: rgba(6, 182, 212, 0.05);
+    }
+    
+    .upload-area.has-image {
+        padding: 20px;
+    }
+    
+    .upload-area i {
+        font-size: 3rem;
+        color: #06b6d4;
+        margin-bottom: 16px;
+    }
+    
+    .upload-area p {
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+    }
+    
+    .upload-area input[type="file"] {
+        display: none;
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        margin-top: 16px;
+    }
+    
+    .location-info {
+        background: rgba(6, 182, 212, 0.1);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 12px;
+    }
+    
+    .location-info .text-success {
+        color: #10b981 !important;
+    }
+    
+    .location-info .text-warning {
+        color: #f59e0b !important;
+    }
+    
+    .btn-complete {
+        background: linear-gradient(135deg, #10b981, #06b6d4);
+        color: #fff;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-complete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-complete:disabled {
+        background: #4b5563;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .btn-back {
+        background: rgba(6, 182, 212, 0.2);
+        color: #06b6d4;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-back:hover {
+        background: rgba(6, 182, 212, 0.3);
+        color: #06b6d4;
+    }
+    
+    .required-badge {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        margin-left: 4px;
+    }
+    
+    .optional-badge {
+        background: rgba(107, 114, 128, 0.2);
+        color: #9ca3af;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        margin-left: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 proof-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h4>
+            <i class="bi bi-check-circle"></i> Complete Job - Delivery Proof
+        </h4>
+        <a href="{% url 'driver_jobs' %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Back to Jobs
+        </a>
+    </div>
+
+    <!-- Booking Summary -->
+    <div class="booking-summary">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <span class="booking-id">Booking #{{ booking.id }}</span>
+                <span class="badge bg-success ms-2">{{ booking.get_status_display }}</span>
+            </div>
+            <div class="text-end">
+                <div class="text-muted">Booking Date</div>
+                <div class="detail-value">{{ booking.booking_date }}</div>
+            </div>
+        </div>
+        
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">Customer</span>
+                <div class="detail-value">{{ booking.customer_name }}</div>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Contact</span>
+                <div class="detail-value">{{ booking.contact_number }}</div>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Truck</span>
+                <div class="detail-value">{{ booking.truck.truck_number }}</div>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Price</span>
+                <div class="detail-value" style="color: #10b981;">${{ booking.price|floatformat:2 }}</div>
+            </div>
+        </div>
+        
+        <div class="detail-grid mt-3">
+            <div class="detail-item">
+                <span class="detail-label">Pickup Location</span>
+                <div class="detail-value">
+                    <i class="bi bi-geo-alt-fill me-1" style="color: #06b6d4;"></i>
+                    {{ booking.pickup_location }}
+                </div>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Drop Location</span>
+                <div class="detail-value">
+                    <i class="bi bi-signpost-2-fill me-1" style="color: #a855f7;"></i>
+                    {{ booking.drop_location }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation to Drop Location -->
+        {% if booking.drop_lat and booking.drop_lng %}
+        <div class="mt-3">
+            <a href="https://www.google.com/maps/dir/?api=1&destination={{ booking.drop_lat }},{{ booking.drop_lng }}" 
+               target="_blank" 
+               class="btn-back">
+                <i class="bi bi-navigation"></i> Navigate to Drop Location
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Upload Form -->
+    <form method="POST" enctype="multipart/form-data" class="upload-form" id="deliveryProofForm">
+        {% csrf_token %}
+        
+        <!-- Delivery Photo Section -->
+        <div class="form-section">
+            <h6>
+                <i class="bi bi-camera"></i> Delivery Photo
+                <span class="required-badge">Required</span>
+            </h6>
+            <p class="text-muted mb-3">Upload a photo as proof of delivery completion.</p>
+            
+            <label class="upload-area" id="photoUploadArea">
+                <input type="file" name="delivery_photo" id="deliveryPhoto" accept="image/*" required onchange="previewImage(this, 'photoPreview')">
+                <i class="bi bi-cloud-arrow-up" id="photoIcon"></i>
+                <p id="photoText">Click to upload delivery photo</p>
+                <img id="photoPreview" class="preview-image" style="display: none;">
+            </label>
+        </div>
+        
+        <!-- Signature Section -->
+        <div class="form-section">
+            <h6>
+                <i class="bi bi-pen"></i> Signature
+                <span class="optional-badge">Optional</span>
+            </h6>
+            <p class="text-muted mb-3">Upload a signature image if available.</p>
+            
+            <label class="upload-area" id="signatureUploadArea">
+                <input type="file" name="signature_image" id="signatureImage" accept="image/*" onchange="previewImage(this, 'signaturePreview')">
+                <i class="bi bi-pen-fill" id="signatureIcon"></i>
+                <p id="signatureText">Click to upload signature (optional)</p>
+                <img id="signaturePreview" class="preview-image" style="display: none;">
+            </label>
+        </div>
+        
+        <!-- Recipient Information -->
+        <div class="form-section">
+            <h6>
+                <i class="bi bi-person-check"></i> Recipient Information
+            </h6>
+            
+            <div class="mb-3">
+                <label class="form-label">
+                    Received By
+                    <span class="optional-badge">Optional</span>
+                </label>
+                <input type="text" name="received_by" class="form-control" placeholder="Name of person who received the delivery">
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">
+                    Delivery Notes
+                    <span class="optional-badge">Optional</span>
+                </label>
+                <textarea name="notes" class="form-control" placeholder="Any additional notes about the delivery..."></textarea>
+            </div>
+        </div>
+        
+        <!-- Location Capture -->
+        <div class="form-section">
+            <h6>
+                <i class="bi bi-geo-alt"></i> Delivery Location
+                <span class="optional-badge">Auto-captured</span>
+            </h6>
+            
+            <div class="location-info">
+                <div id="locationStatus">
+                    <p class="mb-2">Click the button below to capture your current location:</p>
+                    <button type="button" class="btn btn-outline-custom" onclick="getLocation()">
+                        <i class="bi bi-crosshair me-2"></i> Get Current Location
+                    </button>
+                </div>
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+                
+                <div id="capturedLocation" style="display: none;" class="mt-3">
+                    <div class="text-success">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        <strong>Location captured!</strong>
+                    </div>
+                    <p class="mb-0 mt-1">
+                        <small>Lat: <span id="latDisplay">-</span>, Lng: <span id="lngDisplay">-</span></small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn-complete" id="submitBtn">
+            <i class="bi bi-check-circle me-2"></i> Complete Job & Upload Proof
+        </button>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    // Preview uploaded image
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const uploadArea = input.closest('.upload-area');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                uploadArea.classList.add('has-image');
+                
+                // Update icon and text
+                const iconId = previewId.replace('Preview', 'Icon');
+                const textId = previewId.replace('Preview', 'Text');
+                const icon = document.getElementById(iconId);
+                const text = document.getElementById(textId);
+                
+                if (icon) icon.style.display = 'none';
+                if (text) {
+                    text.textContent = 'Photo selected - click to change';
+                    text.style.color = '#10b981';
+                }
+            };
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Get current location
+    function getLocation() {
+        const statusDiv = document.getElementById('locationStatus');
+        const capturedDiv = document.getElementById('capturedLocation');
+        
+        if (navigator.geolocation) {
+            statusDiv.innerHTML = '<p class="text-warning"><i class="bi bi-hourglass-split me-2"></i>Capturing location...</p>';
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Set hidden input values
+                    document.getElementById('latitude').value = lat;
+                    document.getElementById('longitude').value = lng;
+                    
+                    // Update display
+                    document.getElementById('latDisplay').textContent = lat.toFixed(6);
+                    document.getElementById('lngDisplay').textContent = lng.toFixed(6);
+                    
+                    // Show captured location div
+                    statusDiv.style.display = 'none';
+                    capturedDiv.style.display = 'block';
+                },
+                function(error) {
+                    let errorMsg = 'Failed to get location. ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg += 'Please enable location access.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg += 'Request timed out.';
+                            break;
+                    }
+                    statusDiv.innerHTML = '<p class="text-danger"><i class="bi bi-exclamation-triangle me-2"></i>' + errorMsg + '</p><button type="button" class="btn btn-outline-custom" onclick="getLocation()">Try Again</button>';
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            statusDiv.innerHTML = '<p class="text-danger">Geolocation is not supported by your browser.</p>';
+        }
+    }
+    
+    // Form validation
+    document.getElementById('deliveryProofForm').addEventListener('submit', function(e) {
+        const photoInput = document.getElementById('deliveryPhoto');
+        
+        if (!photoInput.files || !photoInput.files[0]) {
+            e.preventDefault();
+            alert('Please upload a delivery photo to complete the job.');
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Uploading...';
+        
+        return true;
+    });
+</script>
+{% endblock %}
+{% endblock %}
+

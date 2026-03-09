@@ -4,15 +4,40 @@
 {% block page_title %}Manage Companies{% endblock %}
 
 {% block admin_content %}
+<!-- Breadcrumb -->
+<nav class="admin-breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span class="separator">/</span>
+    <span class="current">Companies</span>
+</nav>
+
+<!-- Page Header -->
+<div class="admin-page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="admin-page-title">
+                <i class="bi bi-building me-2"></i>Manage Companies
+            </h1>
+            <p class="admin-page-subtitle">View and manage all registered companies in the system.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-admin btn-admin-outline">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- Companies Table -->
 <div class="row">
     <div class="col-md-12">
         <div class="admin-card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5><i class="bi bi-building me-2"></i>All Companies</h5>
+                <input type="text" class="form-admin" placeholder="Search companies..." id="companySearch" style="width: 200px;">
             </div>
             <div class="card-body table-responsive">
-                <table class="table admin-table">
+                <table class="table admin-table" id="companiesTable">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -28,27 +53,35 @@
                     <tbody>
                         {% for company in companies %}
                         <tr>
-                            <td>#{{ company.id }}</td>
-                            <td>{{ company.company_name }}</td>
+                            <td>
+                                <span class="text-primary fw-semibold">#{{ company.id }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{{ company.company_name }}</span>
+                            </td>
                             <td>{{ company.user.username }}</td>
                             <td>{{ company.user.email }}</td>
                             <td>{{ company.phone|default:"N/A" }}</td>
                             <td>
                                 {% if company.is_approved %}
-                                <span class="badge badge-success-custom">Approved</span>
+                                <span class="badge badge-admin badge-success-custom">
+                                    <i class="bi bi-check-circle me-1"></i>Approved
+                                </span>
                                 {% else %}
-                                <span class="badge badge-warning-custom">Pending</span>
+                                <span class="badge badge-admin badge-warning-custom">
+                                    <i class="bi bi-clock me-1"></i>Pending
+                                </span>
                                 {% endif %}
                             </td>
                             <td>{{ company.created_at|date:"M d, Y" }}</td>
                             <td>
                                 {% if company.is_approved %}
-                                <a href="{% url 'admin_company_disapprove' company.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Disapprove this company?')">
-                                    <i class="bi bi-x-circle"></i> Disapprove
+                                <a href="{% url 'admin_company_disapprove' company.id %}" class="btn btn-sm btn-admin-outline" onclick="return confirm('Disapprove this company? Users from this company will no longer be able to access their dashboard.')">
+                                    <i class="bi bi-x-circle me-1"></i> Disapprove
                                 </a>
                                 {% else %}
-                                <a href="{% url 'admin_company_approve' company.id %}" class="btn btn-sm btn-admin-primary">
-                                    <i class="bi bi-check-circle"></i> Approve
+                                <a href="{% url 'admin_company_approve' company.id %}" class="btn btn-sm btn-admin btn-admin-primary">
+                                    <i class="bi bi-check-circle me-1"></i> Approve
                                 </a>
                                 {% endif %}
                             </td>
@@ -57,7 +90,7 @@
                         <tr>
                             <td colspan="8" class="text-center py-4">
                                 <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: #64748b;"></i>
-                                No companies found
+                                <span class="text-muted">No companies found</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -67,4 +100,24 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('companySearch').addEventListener('keyup', function() {
+    const searchValue = this.value.toLowerCase();
+    const table = document.getElementById('companiesTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const companyName = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+        const owner = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+        
+        if (companyName.includes(searchValue) || owner.includes(searchValue)) {
+            rows[i].style.display = '';
+        } else {
+            rows[i].style.display = 'none';
+        }
+    }
+});
+</script>
 {% endblock %}
+

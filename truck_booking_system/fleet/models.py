@@ -81,6 +81,7 @@ class Truck(models.Model):
     - Type and capacity
     - Availability status
     - Pricing
+    - GPS tracking for real-time location
     
     Common Queries (optimized with indexes):
         - Find available trucks
@@ -118,6 +119,12 @@ class Truck(models.Model):
     
     image = models.ImageField(upload_to='truck_images/', blank=True, null=True)
     price_per_km = models.DecimalField(max_digits=8, decimal_places=2)
+    
+    # Real-time GPS tracking fields
+    current_latitude = models.FloatField(null=True, blank=True, db_index=True)
+    current_longitude = models.FloatField(null=True, blank=True)
+    last_location_update = models.DateTimeField(null=True, blank=True)
+    is_online = models.BooleanField(default=False, db_index=True)  # GPS device online status
     
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -196,9 +203,13 @@ class Driver(models.Model):
         related_name="assigned_drivers"
     )
     
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    
     class Meta:
         """Meta options for Driver model."""
-        ordering = ['-created_at'] if hasattr(models.Model, 'created_at') else ['user__username']
+        ordering = ['-created_at']
     
     def __str__(self):
         username = self.user.username if self.user else "No User"
@@ -220,4 +231,161 @@ class Driver(models.Model):
         if self.license_expiry and self.license_expiry < models.DateField().default:
             return False
         return True
+
+
+class Wallet(models.Model):
+    """
+    Wallet Model - Represents a company's wallet for earnings and payouts.
+    
+    Stores company's accumulated earnings from bookings.
+    Payments are held in escrow until delivery is completed.
+    """
+    
+    company = models.OneToOneField(
+        Company,
+        on_delete=models.CASCADE,
+        related_name='wallet'
+    )
+    
+    # Balance fields
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    escrow_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)  # Held in escrow
+    total_earned = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_paid_out = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    # Bank details for payouts
+    bank_name = models.CharField(max_length=100, blank=True)
+    account_number = models.CharField(max_length=50, blank=True)
+    account_holder = models.CharField(max_length=100, blank=True)
+    ifsc_code = models.CharField(max_length=20, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Wallet - {self.company.company_name}"
+    
+    @property
+    def available_balance(self):
+        """Balance available for payout (total - escrow)"""
+        return self.balance - self.escrow_balance
+    
+    def add_earning(self, amount, booking=None, description=""):
+        """Add earnings to wallet (from completed booking)"""
+        from decimal import Decimal
+        self.balance += Decimal(str(amount))
+        self.total_earned += Decimal(str(amount))
+        self.save()
+        
+        # Create transaction record
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type='EARNING',
+            amount=amount,
+            booking=booking,
+            description=description,
+            status='COMPLETED'
+        )
+    
+    def hold_in_escrow(self, amount, booking=None, description=""):
+        """Hold amount in escrow (when payment is received)"""
+        from decimal import Decimal
+        self.escrow_balance += Decimal(str(amount))
+        self.save()
+        
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type='ESCROW_HOLD',
+            amount=amount,
+            booking=booking,
+            description=description,
+            status='PENDING'
+        )
+    
+    def release_from_escrow(self, amount, booking=None, description=""):
+        """Release amount from escrow after delivery"""
+        from decimal import Decimal
+        self.escrow_balance -= Decimal(str(amount))
+        self.balance -= Decimal(str(amount))
+        self.save()
+        
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type='ESCROW_RELEASE',
+            amount=amount,
+            booking=booking,
+            description=description,
+            status='COMPLETED'
+        )
+    
+    def process_payout(self, amount, description=""):
+        """Process payout to company's bank account"""
+        from decimal import Decimal
+        if self.available_balance < Decimal(str(amount)):
+            return False
+        
+        self.balance -= Decimal(str(amount))
+        self.total_paid_out += Decimal(str(amount))
+        self.save()
+        
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type='PAYOUT',
+            amount=amount,
+            description=description,
+            status='PROCESSING'
+        )
+        return True
+
+
+class Transaction(models.Model):
+    """
+    Transaction Model - Ledger of all wallet transactions.
+    
+    Tracks all earnings, escrow holds, releases, and payouts.
+    """
+    
+    TRANSACTION_TYPES = [
+        ('ESCROW_HOLD', 'Escrow Hold'),
+        ('ESCROW_RELEASE', 'Escrow Release'),
+        ('EARNING', 'Earning'),
+        ('PAYOUT', 'Payout'),
+        ('REFUND', 'Refund'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('COMPLETED', 'Completed'),
+        ('FAILED', 'Failed'),
+    ]
+    
+    wallet = models.ForeignKey(
+        Wallet,
+        on_delete=models.CASCADE,
+        related_name='transactions'
+    )
+    
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    booking = models.ForeignKey(
+        'bookings.Booking',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='wallet_transactions'
+    )
+    
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    reference_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.transaction_type} - ${self.amount} - {self.status}"
 

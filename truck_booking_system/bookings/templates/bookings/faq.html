@@ -1,77 +1,140 @@
 {% extends "bookings/base.html" %}
 {% load static %}
 
-{% block title %}FAQ - Transova{% endblock %}
+{% block title %}FAQ - TRANSOVA{% endblock %}
 
 {% block extra_css %}
 <style>
     .faq-section {
-        padding: 40px 0;
+        padding: 100px 0;
+        min-height: 100vh;
     }
     
+    /* Header */
     .faq-header {
         text-align: center;
         margin-bottom: 50px;
     }
     
-    .faq-header h1 {
+    .faq-title {
         font-size: 2.5rem;
-        background: linear-gradient(135deg, #06b6d4, #4f46e5);
+        font-weight: 700;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #00f5ff, #8b5cf6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 15px;
     }
     
-    .faq-header p {
+    .faq-subtitle {
         color: #94a3b8;
         font-size: 1.1rem;
     }
     
+    /* Search Box */
+    .search-box {
+        max-width: 500px;
+        margin: 0 auto 40px;
+        position: relative;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: 16px 50px 16px 24px;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 245, 255, 0.2);
+        background: rgba(15, 20, 35, 0.8);
+        color: #fff;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-box input:focus {
+        outline: none;
+        border-color: #00f5ff;
+        box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
+    }
+    
+    .search-box input::placeholder {
+        color: #64748b;
+    }
+    
+    .search-box button {
+        position: absolute;
+        right: 8px;
+        top: 8px;
+        bottom: 8px;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #00f5ff, #8b5cf6);
+        border: none;
+        color: #050508;
+        padding: 0 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .search-box button:hover {
+        box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+    }
+    
+    /* FAQ Category */
     .faq-category {
         margin-bottom: 40px;
     }
     
-    .faq-category h3 {
-        color: #06b6d4;
+    .faq-category-title {
+        color: #00f5ff;
         font-size: 1.3rem;
+        font-weight: 600;
         margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid rgba(6, 182, 212, 0.2);
+        padding-bottom: 12px;
+        border-bottom: 2px solid rgba(0, 245, 255, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
     
+    /* FAQ Item */
     .faq-item {
-        background: rgba(30, 41, 59, 0.5);
-        border: 1px solid rgba(6, 182, 212, 0.1);
+        background: rgba(15, 20, 35, 0.7);
+        border: 1px solid rgba(0, 245, 255, 0.1);
         border-radius: 12px;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         overflow: hidden;
         transition: all 0.3s ease;
     }
     
     .faq-item:hover {
-        border-color: rgba(6, 182, 212, 0.3);
-        box-shadow: 0 5px 20px rgba(6, 182, 212, 0.1);
+        border-color: rgba(0, 245, 255, 0.3);
+    }
+    
+    .faq-item.active {
+        border-color: rgba(0, 245, 255, 0.4);
     }
     
     .faq-question {
-        padding: 20px;
+        padding: 20px 24px;
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: #fff;
         font-weight: 600;
+        transition: all 0.3s ease;
     }
     
     .faq-question:hover {
-        color: #06b6d4;
+        color: #00f5ff;
+    }
+    
+    .faq-item.active .faq-question {
+        color: #00f5ff;
     }
     
     .faq-icon {
-        transition: transform 0.3s ease;
         font-size: 1.2rem;
-        color: #06b6d4;
+        color: #00f5ff;
+        transition: transform 0.3s ease;
     }
     
     .faq-item.active .faq-icon {
@@ -83,72 +146,53 @@
         overflow: hidden;
         transition: max-height 0.3s ease, padding 0.3s ease;
         color: #94a3b8;
-        line-height: 1.7;
+        line-height: 1.8;
+        padding: 0 24px;
     }
     
     .faq-item.active .faq-answer {
         max-height: 300px;
-        padding: 0 20px 20px;
+        padding: 0 24px 20px;
     }
     
+    /* Contact Card */
     .contact-card {
-        background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
-        border: 1px solid rgba(6, 182, 212, 0.3);
-        border-radius: 16px;
-        padding: 30px;
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(139, 92, 246, 0.1));
+        border: 1px solid rgba(0, 245, 255, 0.2);
+        border-radius: 20px;
+        padding: 40px;
         text-align: center;
         margin-top: 50px;
     }
     
-    .contact-card h4 {
+    .contact-title {
         color: #fff;
+        font-size: 1.5rem;
         margin-bottom: 15px;
+        font-weight: 700;
     }
     
-    .contact-card p {
+    .contact-text {
         color: #94a3b8;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
     
-    .search-box {
-        max-width: 500px;
-        margin: 0 auto 40px;
-        position: relative;
-    }
-    
-    .search-box input {
-        width: 100%;
-        padding: 15px 50px 15px 20px;
-        border-radius: 30px;
-        border: 1px solid rgba(6, 182, 212, 0.3);
-        background: rgba(30, 41, 59, 0.8);
-        color: #fff;
-        font-size: 1rem;
-    }
-    
-    .search-box input:focus {
-        outline: none;
-        border-color: #06b6d4;
-        box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
-    }
-    
-    .search-box button {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-        bottom: 5px;
-        border-radius: 25px;
-        background: linear-gradient(135deg, #4f46e5, #06b6d4);
-        border: none;
-        color: white;
-        padding: 0 20px;
-        cursor: pointer;
-    }
-    
+    /* No results */
     .no-results {
         text-align: center;
         color: #64748b;
         padding: 40px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .faq-title {
+            font-size: 2rem;
+        }
+        
+        .faq-question {
+            font-size: 0.95rem;
+        }
     }
 </style>
 {% endblock %}
@@ -156,13 +200,13 @@
 {% block content %}
 <div class="faq-section">
     <div class="container">
-        <div class="faq-header animate-1">
-            <h1>Frequently Asked Questions</h1>
-            <p>Find answers to common questions about our truck booking services</p>
+        <div class="faq-header">
+            <h1 class="faq-title">Frequently Asked Questions</h1>
+            <p class="faq-subtitle">Find answers to common questions about our truck booking services</p>
         </div>
         
         <!-- Search Box -->
-        <div class="search-box animate-2">
+        <div class="search-box">
             <input type="text" id="faqSearch" placeholder="Search for answers...">
             <button type="button"><i class="bi bi-search"></i></button>
         </div>
@@ -172,8 +216,10 @@
             <div class="col-lg-8 mx-auto">
                 
                 <!-- Booking FAQ -->
-                <div class="faq-category animate-3">
-                    <h3><i class="bi bi-calendar-check me-2"></i>Booking</h3>
+                <div class="faq-category">
+                    <h3 class="faq-category-title">
+                        <i class="bi bi-calendar-check"></i>Booking
+                    </h3>
                     
                     <div class="faq-item">
                         <div class="faq-question">
@@ -220,8 +266,10 @@
                 </div>
                 
                 <!-- Payment FAQ -->
-                <div class="faq-category animate-4">
-                    <h3><i class="bi bi-credit-card me-2"></i>Payment</h3>
+                <div class="faq-category">
+                    <h3 class="faq-category-title">
+                        <i class="bi bi-credit-card"></i>Payment
+                    </h3>
                     
                     <div class="faq-item">
                         <div class="faq-question">
@@ -259,8 +307,10 @@
                 </div>
                 
                 <!-- Delivery FAQ -->
-                <div class="faq-category animate-5">
-                    <h3><i class="bi bi-truck me-2"></i>Delivery</h3>
+                <div class="faq-category">
+                    <h3 class="faq-category-title">
+                        <i class="bi bi-truck"></i>Delivery
+                    </h3>
                     
                     <div class="faq-item">
                         <div class="faq-question">
@@ -300,7 +350,9 @@
                 
                 <!-- Account FAQ -->
                 <div class="faq-category">
-                    <h3><i class="bi bi-person-gear me-2"></i>Account</h3>
+                    <h3 class="faq-category-title">
+                        <i class="bi bi-person-gear"></i>Account
+                    </h3>
                     
                     <div class="faq-item">
                         <div class="faq-question">
@@ -329,10 +381,13 @@
         </div>
         
         <!-- Contact Card -->
-        <div class="contact-card animate-5">
-            <h4><i class="bi bi-headset me-2"></i>Still have questions?</h4>
-            <p>Our support team is available 24/7 to help you with any queries.</p>
-            <a href="mailto:support@transova.com" class="btn kontrek-btn">
+        <div class="contact-card">
+            <h4 class="contact-title">
+                <i class="bi bi-headset me-2"></i>Still have questions?
+            </h4>
+            <p class="contact-text">Our support team is available 24/7 to help you with any queries.</p>
+            <a href="mailto:support@transova.com" class="btn" 
+               style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); border: none; color: #050508; font-weight: 600; padding: 14px 32px; border-radius: 30px;">
                 <i class="bi bi-envelope me-2"></i>Contact Support
             </a>
         </div>

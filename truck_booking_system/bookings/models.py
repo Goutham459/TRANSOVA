@@ -143,6 +143,9 @@ class Booking(models.Model):
         db_index=True  # Index for driver-specific bookings
     )
     
+    # Track if job was assigned by company (driver cannot reject/cancel)
+    assigned_by_company = models.BooleanField(default=False)
+    
     load_type = models.ForeignKey(
         LoadType,
         on_delete=models.SET_NULL,
@@ -205,6 +208,111 @@ class Booking(models.Model):
     def is_paid(self):
         """Check if booking is paid."""
         return self.payment_status == 'PAID'
+
+
+class Bid(models.Model):
+    """
+    Bid Model - Represents a company's bid on a booking/job.
+    
+    Allows companies to bid on available jobs posted by shippers.
+    Shippers can then accept one of the bids.
+    """
+    
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('ACCEPTED', 'Accepted'),
+        ('REJECTED', 'Rejected'),
+        ('EXPIRED', 'Expired'),
+    ]
+    
+    booking = models.ForeignKey(
+        'Booking',
+        on_delete=models.CASCADE,
+        related_name='bids'
+    )
+    
+    company = models.ForeignKey(
+        'fleet.Company',
+        on_delete=models.CASCADE,
+        related_name='bids'
+    )
+    
+    truck = models.ForeignKey(
+        'fleet.Truck',
+        on_delete=models.CASCADE,
+        related_name='bids'
+    )
+    
+    driver = models.ForeignKey(
+        'fleet.Driver',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='bids'
+    )
+    
+    bid_amount = models.FloatField()
+    estimated_pickup_time = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        # A company can only bid once per booking
+        unique_together = [['booking', 'company']]
+    
+    def __str__(self):
+        return f"Bid #{self.id} - {self.company.company_name} - {self.booking.id}"
+
+
+class ProofOfDelivery(models.Model):
+    """
+    ProofOfDelivery Model - Stores proof of delivery for completed bookings.
+    
+    Drivers upload photos and signatures as proof of delivery.
+    """
+    
+    booking = models.OneToOneField(
+        'Booking',
+        on_delete=models.CASCADE,
+        related_name='proof_of_delivery'
+    )
+    
+    # Photo proof
+    delivery_photo = models.ImageField(
+        upload_to='delivery_photos/',
+        blank=True,
+        null=True
+    )
+    
+    # Signature
+    signature_image = models.ImageField(
+        upload_to='delivery_signatures/',
+        blank=True,
+        null=True
+    )
+    
+    # Recipient name who received the delivery
+    received_by = models.CharField(max_length=100, blank=True)
+    
+    # Delivery notes
+    notes = models.TextField(blank=True)
+    
+    # Timestamp
+    delivered_at = models.DateTimeField(auto_now_add=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Proof of Delivery - Booking #{self.booking.id}"
 
 
 class Payment(models.Model):

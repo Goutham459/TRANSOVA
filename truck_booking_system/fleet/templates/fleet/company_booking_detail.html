@@ -368,6 +368,60 @@
                             </form>
                             {% endif %}
                         </div>
+                        
+                        <!-- Delivery Proof Section -->
+                        {% if booking.status == 'COMPLETED' %}
+                        <div class="info-section">
+                            <h6 class="section-title"><i class="bi bi-camera me-2"></i>Delivery Proof</h6>
+                            
+                            {% if proof %}
+                            <div class="info-grid">
+                                {% if proof.delivery_photo %}
+                                <div class="info-item">
+                                    <div class="info-label">Delivery Photo</div>
+                                    <div class="info-value">
+                                        <img src="{{ proof.delivery_photo.url }}" alt="Delivery Photo" style="max-width: 200px; border-radius: 8px; margin-top: 10px;">
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if proof.signature_image %}
+                                <div class="info-item">
+                                    <div class="info-label">Signature</div>
+                                    <div class="info-value">
+                                        <img src="{{ proof.signature_image.url }}" alt="Signature" style="max-width: 200px; border-radius: 8px; margin-top: 10px;">
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if proof.received_by %}
+                                <div class="info-item">
+                                    <div class="info-label">Received By</div>
+                                    <div class="info-value">{{ proof.received_by }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if proof.notes %}
+                                <div class="info-item">
+                                    <div class="info-label">Delivery Notes</div>
+                                    <div class="info-value">{{ proof.notes }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if proof.delivered_at %}
+                                <div class="info-item">
+                                    <div class="info-label">Delivered At</div>
+                                    <div class="info-value">{{ proof.delivered_at }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="info-item">
+                                <div class="info-value text-muted">No delivery proof available</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
