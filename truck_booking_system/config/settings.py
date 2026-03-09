@@ -70,7 +70,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'truck_booking_system.config.urls'
 
 # Templates
 TEMPLATES = [
@@ -95,7 +95,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = 'truck_booking_system.config.wsgi.application'
 
 # Database
 # For production (Render): Use dj-database-url with PostgreSQL

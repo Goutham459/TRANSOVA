@@ -12,7 +12,7 @@ from bookings.views import (
     admin_dashboard
 )
 from accounts.views import register, verify_otp, company_register
-from config import settings
+from truck_booking_system.config import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
