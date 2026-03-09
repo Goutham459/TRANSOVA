@@ -124,6 +124,10 @@ USE_TZ = True
 # Static files (CSS, JS, default images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+# WhiteNoise storage for compressed static files in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Directory where collectstatic will gather static files for deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (uploaded images)
 MEDIA_URL = '/media/'
