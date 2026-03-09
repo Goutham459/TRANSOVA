@@ -127,7 +127,6 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # WhiteNoise storage for compressed static files in production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Directory where collectstatic will gather static files for deployment
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (uploaded images)
 MEDIA_URL = '/media/'
@@ -205,7 +204,7 @@ SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filter
 # CSRF Trusted Origins - Required for ngrok and external access
 # Add your ngrok URLs here or use environment variable
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', 
-    default='https://*.ngrok.io,https://*.ngrok-free.app,https://*.ngrok-free.dev,https://*.tunnel.pyjam.as,http://localhost:8000,http://127.0.0.1:8000').split(',')
+    default='https://transova.onrender.com,http://localhost:8000,http://127.0.0.1:8000').split(',')
 
 # Use X-Forwarded-Host for proper host detection behind proxies/ngrok
 USE_X_FORWARDED_HOST = True
