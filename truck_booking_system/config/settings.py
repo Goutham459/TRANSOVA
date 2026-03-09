@@ -9,6 +9,7 @@ For production, ensure to set environment variables or a .env file.
 import os
 from pathlib import Path
 from decouple import config  # pip install python-decouple for environment variables
+import dj_database_url  # pip install dj-database-url for production database
 
 # ============================================================================
 # BASE CONFIGURATION
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-i+ip@qxf13u3l*-j79y7e!rg2$4q0)_+#bda$+ixlrk7hy52j-')
 
 # Debug mode - Set to False in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Allowed hosts - Comma-separated list of domain names
 # In production: ALLOWED_HOSTS = ['transova.com', 'www.transova.com']
@@ -97,14 +98,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
+# For production (Render): Use dj-database-url with PostgreSQL
+# In production, set DATABASE_URL environment variable
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'init_command': "PRAGMA foreign_keys=ON;",
-        },
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
+    )
 }
 
 # Password validation
