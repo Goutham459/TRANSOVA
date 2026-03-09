@@ -1,6 +1,6 @@
 from django.urls import path, include, reverse_lazy
 from django.views.generic import RedirectView
-from bookings.views import (
+from truck_booking_system.bookings.views import (
     forgot_password,
     home,
     logout_view,
@@ -11,7 +11,7 @@ from bookings.views import (
     payment,
     admin_dashboard
 )
-from accounts.views import register, verify_otp, company_register
+from truck_booking_system.accounts.views import register, verify_otp, company_register
 from truck_booking_system.config import settings
 from django.conf.urls.static import static
 
@@ -26,10 +26,10 @@ urlpatterns = [
     path("admin/", admin_dashboard, name="custom_admin"),
     path("bookings/admin-dashboard/", admin_dashboard, name="admin_dashboard"),
     
-    path("bookings/", include("bookings.urls")),
-    path("accounts/", include("accounts.urls")),
-    path("fleet/", include("fleet.urls")),
-    path("pricing/", include("pricing.urls")),
+    path("bookings/", include("truck_booking_system.bookings.urls")),
+    path("accounts/", include("truck_booking_system.accounts.urls")),
+    path("fleet/", include("truck_booking_system.fleet.urls")),
+    path("pricing/", include("truck_booking_system.pricing.urls")),
 
     # Auth - Custom login
     path("login/", RoleBasedLoginView.as_view(), name="login"),

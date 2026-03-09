@@ -36,21 +36,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Custom apps (USER APP MUST COME FIRST)
-    'accounts',
-    'bookings',
-    'fleet',
-    'pricing',
+    # Custom apps (full path required for nested project structure)
+    'truck_booking_system.accounts',
+    'truck_booking_system.bookings',
+    'truck_booking_system.fleet',
+    'truck_booking_system.pricing',
 ]
 
 # Authentication backends - Custom username backend
 AUTHENTICATION_BACKENDS = [
-    "accounts.backends.UsernameBackend",  # Custom username backend
+    "truck_booking_system.accounts.backends.UsernameBackend",  # Custom username backend
     "django.contrib.auth.backends.ModelBackend",  # default
 ]
 
 # Custom User Model
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'truck_booking_system.accounts.User'
 
 # URLs
 LOGIN_URL = "/login/"
@@ -89,7 +89,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'bookings.context_processors.pending_companies_count',
+                'truck_booking_system.bookings.context_processors.pending_companies_count',
             ],
         },
     },
