@@ -57,13 +57,12 @@ import io
 # ============================================================================
 # APPLICATION IMPORTS
 # ============================================================================
-from .models import Booking, Payment
-from fleet.models import Truck, Company, Driver
+from .models import Booking, Payment, Bid, ProofOfDelivery
+from fleet.models import Truck, Company, Driver, Wallet, Transaction
 from pricing.models import LoadType
 from accounts.models import User
 
 # Import utility functions from utils module
-# These handle price calculation, distance calculation, validation, etc.
 from .utils import (
     get_distance_haversine,
     calculate_booking_price,
@@ -78,16 +77,6 @@ from .utils import (
     validate_session_otp,
     format_price,
 )
-
-# Import settings constants for use in views
-from django.conf import settings
-
-# Get the custom user model
-User = get_user_model()
-
-# Import new models
-from .models import Bid, ProofOfDelivery
-from fleet.models import Wallet, Transaction
 
 # ============================================================================
 # LOGGER CONFIGURATION

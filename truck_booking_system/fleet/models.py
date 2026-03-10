@@ -59,6 +59,7 @@ class Company(models.Model):
     
     class Meta:
         """Meta options for Company model."""
+        app_label = 'fleet'
         ordering = ['-created_at']
         verbose_name_plural = "Companies"
     

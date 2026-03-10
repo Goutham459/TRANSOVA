@@ -36,21 +36,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Custom apps (full path required for nested project structure)
-    'truck_booking_system.accounts',
-    'truck_booking_system.bookings',
-    'truck_booking_system.fleet',
-    'truck_booking_system.pricing',
+    # Custom apps
+    'accounts',
+    'bookings',
+    'fleet',
+    'pricing',
 ]
 
 # Authentication backends - Custom username backend
 AUTHENTICATION_BACKENDS = [
-    "truck_booking_system.accounts.backends.UsernameBackend",  # Custom username backend
+    "accounts.backends.UsernameBackend",  # Custom username backend
     "django.contrib.auth.backends.ModelBackend",  # default
 ]
 
 # Custom User Model
-AUTH_USER_MODEL = 'truck_booking_system.accounts.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 # URLs
 LOGIN_URL = "/login/"
@@ -70,7 +70,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'truck_booking_system.config.urls'
+ROOT_URLCONF = 'config.urls'
 
 # Templates
 TEMPLATES = [
@@ -89,13 +89,13 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'truck_booking_system.bookings.context_processors.pending_companies_count',
+                'bookings.context_processors.pending_companies_count',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'truck_booking_system.config.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # For production (Render): Use dj-database-url with PostgreSQL
@@ -124,8 +124,13 @@ USE_TZ = True
 # Static files (CSS, JS, default images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-# WhiteNoise storage for compressed static files in production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # For collectstatic in production
+
+# WhiteNoise storage for compressed static files in production (only when DEBUG=False)
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 # Directory where collectstatic will gather static files for deployment
 
 # Media files (uploaded images)

@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class FleetConfig(AppConfig):
-    name = 'truck_booking_system.fleet'
+    name = 'fleet'
+    default_auto_field = 'django.db.models.BigAutoField'

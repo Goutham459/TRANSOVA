@@ -18,8 +18,6 @@ Database Indexes:
 """
 
 from django.db import models
-from fleet.models import Truck
-from pricing.models import LoadType
 from django.conf import settings
 import uuid
 
@@ -125,7 +123,7 @@ class Booking(models.Model):
     # RELATIONSHIPS
     # --------------------------------------------------------------------------
     truck = models.ForeignKey(
-        Truck,
+        'fleet.Truck',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -147,7 +145,7 @@ class Booking(models.Model):
     assigned_by_company = models.BooleanField(default=False)
     
     load_type = models.ForeignKey(
-        LoadType,
+        'pricing.LoadType',
         on_delete=models.SET_NULL,
         null=True,
         blank=True

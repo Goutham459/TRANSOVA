@@ -1,6 +1,6 @@
-from django.urls import path, include, reverse_lazy
+from django.urls import path, include, re_path
 from django.views.generic import RedirectView
-from truck_booking_system.bookings.views import (
+from bookings.views import (
     forgot_password,
     home,
     logout_view,
@@ -11,8 +11,8 @@ from truck_booking_system.bookings.views import (
     payment,
     admin_dashboard
 )
-from truck_booking_system.accounts.views import register, verify_otp, company_register
-from truck_booking_system.config import settings
+from accounts.views import register, verify_otp, company_register
+from config import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -26,10 +26,10 @@ urlpatterns = [
     path("admin/", admin_dashboard, name="custom_admin"),
     path("bookings/admin-dashboard/", admin_dashboard, name="admin_dashboard"),
     
-    path("bookings/", include("truck_booking_system.bookings.urls")),
-    path("accounts/", include("truck_booking_system.accounts.urls")),
-    path("fleet/", include("truck_booking_system.fleet.urls")),
-    path("pricing/", include("truck_booking_system.pricing.urls")),
+    path("bookings/", include("bookings.urls")),
+    path("accounts/", include("accounts.urls")),
+    path("fleet/", include("fleet.urls")),
+    path("pricing/", include("pricing.urls")),
 
     # Auth - Custom login
     path("login/", RoleBasedLoginView.as_view(), name="login"),
@@ -42,4 +42,13 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Serve static files from STATICFILES_DIRS for development
+    from django.contrib.staticfiles import views
+    urlpatterns += [
+        re_path(r'^static/(?P<path>.*)$', views.serve),
+    ]
+else:
+    # In production, WhiteNoise serves static files automatically
+    # No additional URL patterns needed - WhiteNoise handles /static/
+    pass
 

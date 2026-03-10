@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class PricingConfig(AppConfig):
-    name = 'truck_booking_system.pricing'
+    name = 'pricing'
+    default_auto_field = 'django.db.models.BigAutoField'
