@@ -19,8 +19,10 @@ from .views import (
     company_status_check,
     # User management
     admin_user_toggle_status, admin_user_change_role, admin_reset_password,
+    # FAQ views
+    faq, faq_submit, faq_reply, admin_faq,
     # New customer features
-    faq, price_calculator, profile, booking_receipt, customer_booking_list,
+    price_calculator, profile, booking_receipt, customer_booking_list,
     # Payment
     process_payment,
     download_receipt_pdf
@@ -67,6 +69,7 @@ urlpatterns = [
     path("admin/subscriptions/", admin_subscriptions, name="admin_subscriptions"),
     path("admin/subscriptions/<int:subscription_id>/toggle/", admin_subscription_toggle, name="admin_subscription_toggle"),
     path("admin/stats/", admin_stats, name="admin_stats"),
+    path("admin/faq/", admin_faq, name="admin_faq"),
     
     # User management URLs
     path("admin/users/<int:user_id>/toggle-status/", admin_user_toggle_status, name="admin_user_toggle_status"),
@@ -76,8 +79,12 @@ urlpatterns = [
     # Company status check API
     path("api/company/status/", company_status_check, name="company_status_check"),
     
-    # New Customer Feature URLs
+    # FAQ URLs
     path("faq/", faq, name="faq"),
+    path("faq/submit/", faq_submit, name="faq_submit"),
+    path("faq/<int:question_id>/reply/", faq_reply, name="faq_reply"),
+    
+    # New Customer Feature URLs
     path("price-calculator/", price_calculator, name="price_calculator"),
     path("profile/", profile, name="profile"),
     path("bookings/receipt/<int:booking_id>/", booking_receipt, name="booking_receipt"),
@@ -90,3 +97,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

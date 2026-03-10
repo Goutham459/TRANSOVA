@@ -376,3 +376,69 @@ class Payment(models.Model):
         """Check if payment was successful."""
         return self.status == 'SUCCESS'
 
+
+class FAQQuestion(models.Model):
+    """
+    FAQQuestion Model - Stores user-submitted questions and admin replies.
+    
+    Allows users to submit questions through the FAQ page.
+    Admins can view and reply to these questions.
+    Users can view all answered questions publicly.
+    """
+    
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('ANSWERED', 'Answered'),
+    ]
+    
+    # User who submitted the question (optional - guests can also ask)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='faq_questions'
+    )
+    
+    # Contact email for guest users
+    email = models.EmailField(blank=True)
+    
+    # The question subject
+    subject = models.CharField(max_length=200)
+    
+    # The question details
+    question = models.TextField()
+    
+    # Admin's reply
+    answer = models.TextField(blank=True)
+    
+    # Who replied (admin user)
+    replied_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='faq_replies'
+    )
+    
+    # Status
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
+    
+    # Whether to show on FAQ page publicly
+    is_public = models.BooleanField(default=False)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    answered_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        """Meta options for FAQQuestion model."""
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"FAQ #{self.id} - {self.subject}"
+

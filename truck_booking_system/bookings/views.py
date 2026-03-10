@@ -57,7 +57,7 @@ import io
 # ============================================================================
 # APPLICATION IMPORTS
 # ============================================================================
-from .models import Booking, Payment, Bid, ProofOfDelivery
+from .models import Booking, Payment, Bid, ProofOfDelivery, FAQQuestion
 from fleet.models import Truck, Company, Driver, Wallet, Transaction
 from pricing.models import LoadType
 from accounts.models import User
@@ -1809,8 +1809,161 @@ def faq(request):
     
     URL: /faq/
     Template: bookings/faq.html
+    
+    Displays:
+        - Static FAQ questions and answers
+        - Form to submit new questions
+        - List of publicly answered questions
     """
-    return render(request, "bookings/faq.html")
+    # Get public answered FAQs
+    public_faqs = FAQQuestion.objects.filter(
+        status='ANSWERED',
+        is_public=True
+    ).order_by('-answered_at')
+    
+    # Get user's submitted questions (if logged in)
+    user_questions = []
+    if request.user.is_authenticated:
+        user_questions = FAQQuestion.objects.filter(
+            user=request.user
+    ).order_by('-created_at')
+    
+    context = {
+        'public_faqs': public_faqs,
+        'user_questions': user_questions,
+    }
+    return render(request, "bookings/faq.html", context)
+
+
+@csrf_exempt
+def faq_submit(request):
+    """
+    Submit a new FAQ question.
+    
+    URL: /faq/submit/
+    Method: POST
+    
+    Request Body:
+        - subject: Question subject
+        - question: Question details
+        - email: Contact email (for guests)
+    """
+    if request.method == 'POST':
+        subject = request.POST.get('subject')
+        question_text = request.POST.get('question')
+        email = request.POST.get('email', '')
+        
+        if not subject or not question_text:
+            messages.error(request, "Subject and question are required.")
+            return redirect('faq')
+        
+        # If user is logged in, associate with user
+        user = None
+        if request.user.is_authenticated:
+            user = request.user
+            email = user.email
+        elif not email:
+            messages.error(request, "Email is required for guest submissions.")
+            return redirect('faq')
+        
+        # Create the question
+        faq_question = FAQQuestion.objects.create(
+            user=user,
+            email=email,
+            subject=subject,
+            question=question_text,
+            status='PENDING'
+        )
+        
+        messages.success(request, "Your question has been submitted! We'll get back to you soon.")
+        return redirect('faq')
+    
+    return redirect('faq')
+
+
+@login_required(login_url='/login/')
+def faq_reply(request, question_id):
+    """
+    Admin view to reply to a FAQ question.
+    
+    URL: /faq/<question_id>/reply/
+    Method: POST
+    
+    Access: Admin users only
+    """
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    faq_question = get_object_or_404(FAQQuestion, id=question_id)
+    
+    if request.method == 'POST':
+        answer = request.POST.get('answer')
+        is_public = 'is_public' in request.POST
+        
+        if not answer:
+            messages.error(request, "Answer is required.")
+            return redirect('admin_faq')
+        
+        faq_question.answer = answer
+        faq_question.replied_by = request.user
+        faq_question.status = 'ANSWERED'
+        faq_question.is_public = is_public
+        faq_question.answered_at = timezone.now()
+        faq_question.save()
+        
+        # Send email notification to user
+        try:
+            from django.core.mail import send_mail
+            send_mail(
+                f"Transova FAQ - Your question has been answered",
+                f"Dear User,\n\n"
+                f"Your question has been answered!\n\n"
+                f"Question: {faq_question.subject}\n"
+                f"Answer: {answer}\n\n"
+                f"You can view this and more FAQs on our website.\n\n"
+                f"Best regards,\nTransova Team",
+                "noreply@transova.com",
+                [faq_question.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.error(f"FAQ reply email failed: {e}")
+        
+        messages.success(request, "Reply sent successfully!")
+        return redirect('admin_faq')
+    
+    return redirect('admin_faq')
+
+
+@login_required(login_url='/login/')
+def admin_faq(request):
+    """
+    Admin view to manage FAQ questions.
+    
+    URL: /admin/faq/
+    Template: bookings/admin_faq.html
+    
+    Access: Admin users only
+    """
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    # Filter by status
+    status_filter = request.GET.get('status', '')
+    questions = FAQQuestion.objects.all().order_by('-created_at')
+    
+    if status_filter == 'pending':
+        questions = questions.filter(status='PENDING')
+    elif status_filter == 'answered':
+        questions = questions.filter(status='ANSWERED')
+    
+    context = {
+        'questions': questions,
+        'status_filter': status_filter,
+    }
+    return render(request, "bookings/admin_faq.html", context)
 
 
 def price_calculator(request):
