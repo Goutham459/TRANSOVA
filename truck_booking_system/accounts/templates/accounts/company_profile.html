@@ -62,6 +62,16 @@
     
     .info-section {
         margin-bottom: 30px;
+        background: rgba(10, 15, 25, 0.5);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(79, 70, 229, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .info-section:hover {
+        border-color: rgba(79, 70, 229, 0.25);
+        box-shadow: 0 5px 20px rgba(79, 70, 229, 0.1);
     }
     
     .info-section h4 {
@@ -70,6 +80,9 @@
         margin-bottom: 20px;
         border-bottom: 1px solid rgba(79, 70, 229, 0.2);
         padding-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
     
     .form-label {
@@ -84,6 +97,8 @@
         color: #fff;
         border-radius: 10px;
         padding: 12px 15px;
+        width: 100%;
+        transition: all 0.3s ease;
     }
     
     .form-control:focus, .form-select:focus {
@@ -91,6 +106,10 @@
         border-color: #818cf8;
         color: #fff;
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .form-control::placeholder {
+        color: #64748b;
     }
     
     .form-select option {
@@ -104,12 +123,17 @@
         padding: 12px 30px;
         border-radius: 25px;
         font-weight: 600;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
     }
     
     .btn-save:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 20px rgba(79, 70, 229, 0.4);
+    }
+    
+    .btn-save:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
     
     .current-logo {
@@ -138,6 +162,53 @@
         background: rgba(251, 191, 36, 0.2);
         color: #fbbf24;
     }
+    
+    .section-message {
+        margin-top: 15px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        display: none;
+    }
+    
+    .section-message.success {
+        display: block;
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+    }
+    
+    .section-message.error {
+        display: block;
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+    
+    .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .profile-body {
+            padding: 20px;
+        }
+        
+        .info-section {
+            padding: 20px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -151,9 +222,9 @@
                 <div class="profile-card">
                     <!-- Header with Logo -->
                     <div class="profile-header">
-                        <div class="profile-logo">
+                        <div class="profile-logo" id="headerLogo">
                             {% if company.logo %}
-                                <img src="{{ company.logo.url }}" alt="{{ company.company_name }}">
+                                <img src="{{ company.logo.url }}" alt="{{ company.company_name }}" id="headerLogoImg">
                             {% else %}
                                 <i class="bi bi-building"></i>
                             {% endif %}
@@ -175,12 +246,43 @@
                     
                     <!-- Body -->
                     <div class="profile-body">
-                        <form method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
+                        
+                        <!-- Company Logo Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-image"></i>Company Logo</h4>
                             
-                            <!-- Company Information -->
-                            <div class="info-section">
-                                <h4><i class="bi bi-building me-2"></i>Company Information</h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="logo">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="logo">
+                                
+                                <div class="mb-3">
+                                    {% if company.logo %}
+                                        <div class="mb-3">
+                                            <img src="{{ company.logo.url }}" alt="Current Logo" class="current-logo" id="logoPreview">
+                                            <span class="ms-2 text-muted">Current logo</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <label class="form-label">Upload New Logo</label>
+                                    <input type="file" class="form-control" name="logo" accept="image/*" id="logoInput">
+                                    <small class="text-muted">Supported formats: JPG, PNG, GIF</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Logo</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Company Information Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-building"></i>Company Information</h4>
+                            
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="company_info">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="company_info">
                                 
                                 <div class="mb-3">
                                     <label class="form-label">Company Name</label>
@@ -218,11 +320,22 @@
                                     <label class="form-label">Company Description</label>
                                     <textarea class="form-control" name="description" rows="3">{{ company.description|default:'' }}</textarea>
                                 </div>
-                            </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Company</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Admin Contact Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-person"></i>Admin Contact</h4>
                             
-                            <!-- Admin Contact -->
-                            <div class="info-section">
-                                <h4><i class="bi bi-person me-2"></i>Admin Contact</h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="admin_contact">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="admin_contact">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -239,32 +352,15 @@
                                     <label class="form-label">Admin Phone</label>
                                     <input type="text" class="form-control" name="user_phone" value="{{ user.phone|default:'' }}">
                                 </div>
-                            </div>
-                            
-                            <!-- Company Logo -->
-                            <div class="info-section">
-                                <h4><i class="bi bi-image me-2"></i>Company Logo</h4>
                                 
-                                <div class="mb-3">
-                                    {% if company.logo %}
-                                        <div class="mb-3">
-                                            <img src="{{ company.logo.url }}" alt="Current Logo" class="current-logo">
-                                            <span class="ms-2 text-muted">Current logo</span>
-                                        </div>
-                                    {% endif %}
-                                    
-                                    <label class="form-label">Upload New Logo</label>
-                                    <input type="file" class="form-control" name="logo" accept="image/*">
-                                    <small class="text-muted">Supported formats: JPG, PNG, GIF</small>
-                                </div>
-                            </div>
-                            
-                            <div class="text-center">
                                 <button type="submit" class="btn btn-save">
-                                    <i class="bi bi-check-circle me-2"></i>Save Changes
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Admin</span>
                                 </button>
-                            </div>
-                        </form>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
                     </div>
                 </div>
                 
@@ -272,5 +368,101 @@
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle logo preview
+    const logoInput = document.getElementById('logoInput');
+    if (logoInput) {
+        logoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('logoPreview');
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                    const headerLogo = document.getElementById('headerLogo');
+                    if (headerLogo) {
+                        headerLogo.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Handle all form submissions
+    const forms = document.querySelectorAll('.profile-update-form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const section = this.dataset.section;
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const messageDiv = this.querySelector('.section-message');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>Saving...';
+            messageDiv.className = 'section-message';
+            messageDiv.style.display = 'none';
+            
+            // Create FormData
+            const formData = new FormData(this);
+            
+            // Submit via fetch
+            fetch('{% url "company_profile_update" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.textContent = data.message || 'Updated successfully!';
+                    messageDiv.className = 'section-message success';
+                    
+                    // Special handling for logo upload
+                    if (section === 'logo' && data.new_logo_url) {
+                        const headerLogo = document.getElementById('headerLogo');
+                        if (headerLogo) {
+                            headerLogo.innerHTML = '<img src="' + data.new_logo_url + '" alt="{{ company.company_name }}" id="headerLogoImg">';
+                        }
+                    }
+                } else {
+                    messageDiv.textContent = data.message || 'Update failed. Please try again.';
+                    messageDiv.className = 'section-message error';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.className = 'section-message error';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                btnText.innerHTML = getButtonText(section);
+            });
+        });
+    });
+    
+    function getButtonText(section) {
+        const texts = {
+            'logo': '<i class="bi bi-check-circle me-2"></i>Update Logo',
+            'company_info': '<i class="bi bi-check-circle me-2"></i>Update Company',
+            'admin_contact': '<i class="bi bi-check-circle me-2"></i>Update Admin'
+        };
+        return texts[section] || '<i class="bi bi-check-circle me-2"></i>Save Changes';
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}
 

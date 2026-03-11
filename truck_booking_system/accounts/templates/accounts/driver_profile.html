@@ -62,6 +62,16 @@
     
     .info-section {
         margin-bottom: 30px;
+        background: rgba(10, 15, 25, 0.5);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(34, 197, 94, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .info-section:hover {
+        border-color: rgba(34, 197, 94, 0.25);
+        box-shadow: 0 5px 20px rgba(34, 197, 94, 0.1);
     }
     
     .info-section h4 {
@@ -70,6 +80,9 @@
         margin-bottom: 20px;
         border-bottom: 1px solid rgba(34, 197, 94, 0.2);
         padding-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
     
     .form-label {
@@ -84,6 +97,8 @@
         color: #fff;
         border-radius: 10px;
         padding: 12px 15px;
+        width: 100%;
+        transition: all 0.3s ease;
     }
     
     .form-control:focus, .form-select:focus {
@@ -91,6 +106,10 @@
         border-color: #22c55e;
         color: #fff;
         box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    
+    .form-control::placeholder {
+        color: #64748b;
     }
     
     .form-select option {
@@ -104,12 +123,17 @@
         padding: 12px 30px;
         border-radius: 25px;
         font-weight: 600;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
     }
     
     .btn-save:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 20px rgba(34, 197, 94, 0.4);
+    }
+    
+    .btn-save:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
     
     .current-photo {
@@ -118,6 +142,53 @@
         border-radius: 50%;
         object-fit: cover;
         border: 3px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    .section-message {
+        margin-top: 15px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        display: none;
+    }
+    
+    .section-message.success {
+        display: block;
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+    }
+    
+    .section-message.error {
+        display: block;
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+    
+    .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .profile-body {
+            padding: 20px;
+        }
+        
+        .info-section {
+            padding: 20px;
+        }
     }
 </style>
 {% endblock %}
@@ -132,9 +203,9 @@
                 <div class="profile-card">
                     <!-- Header with Avatar -->
                     <div class="profile-header">
-                        <div class="profile-avatar">
+                        <div class="profile-avatar" id="headerAvatar">
                             {% if driver.profile_picture %}
-                                <img src="{{ driver.profile_picture.url }}" alt="{{ user.username }}">
+                                <img src="{{ driver.profile_picture.url }}" alt="{{ user.username }}" id="headerAvatarImg">
                             {% elif user.profile_picture %}
                                 <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
                             {% else %}
@@ -152,12 +223,72 @@
                     
                     <!-- Body -->
                     <div class="profile-body">
-                        <form method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
+                        
+                        <!-- Driver Photo Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-camera"></i>Driver Photo</h4>
                             
-                            <!-- Personal Information -->
-                            <div class="info-section">
-                                <h4><i class="bi bi-person-vcard me-2"></i>Personal Information</h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="driver_photo">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="driver_photo">
+                                
+                                <div class="mb-3">
+                                    {% if driver.profile_picture %}
+                                        <div class="mb-3">
+                                            <img src="{{ driver.profile_picture.url }}" alt="Current Driver Photo" class="current-photo" id="driverPhotoPreview">
+                                            <span class="ms-2 text-muted">Current photo</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <label class="form-label">Upload New Driver Photo</label>
+                                    <input type="file" class="form-control" name="driver_photo" accept="image/*" id="driverPhotoInput">
+                                    <small class="text-muted">This photo will be visible to customers</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Photo</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- User Account Photo Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-person-circle"></i>Account Photo</h4>
+                            
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="user_photo">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="user_photo">
+                                
+                                <div class="mb-3">
+                                    {% if user.profile_picture %}
+                                        <div class="mb-3">
+                                            <img src="{{ user.profile_picture.url }}" alt="Current User Photo" class="current-photo" id="userPhotoPreview">
+                                            <span class="ms-2 text-muted">Current photo</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <label class="form-label">Upload Account Photo</label>
+                                    <input type="file" class="form-control" name="profile_picture" accept="image/*" id="userPhotoInput">
+                                    <small class="text-muted">Your personal account photo</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Photo</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Personal Information Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-person-vcard"></i>Personal Information</h4>
+                            
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="personal">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="personal">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -184,11 +315,22 @@
                                     <label class="form-label">Address</label>
                                     <textarea class="form-control" name="address" rows="2" placeholder="Enter address">{{ user.address|default:'' }}</textarea>
                                 </div>
-                            </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Personal</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Driver Details Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-person-badge"></i>Driver Details</h4>
                             
-                            <!-- Driver Details -->
-                            <div class="info-section">
-                                <h4><i class="bi bi-person-badge me-2"></i>Driver Details</h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="driver_details">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="driver_details">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -216,11 +358,22 @@
                                     <label class="form-label">Driver Address</label>
                                     <textarea class="form-control" name="driver_address" rows="2" placeholder="Driver address">{{ driver.address|default:'' }}</textarea>
                                 </div>
-                            </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Details</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Additional Details Section -->
+                        <div class="info-section">
+                            <h4><i class="bi bi-info-circle"></i>Additional Details</h4>
                             
-                            <!-- Additional Details -->
-                            <div class="info-section">
-                                <h4><i class="bi bi-info-circle me-2"></i>Additional Details</h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="additional">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="additional">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -237,44 +390,15 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Profile Pictures -->
-                            <div class="info-section">
-                                <h4><i class="bi bi-camera me-2"></i>Profile Pictures</h4>
                                 
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">User Profile Photo</label>
-                                        {% if user.profile_picture %}
-                                            <div class="mb-2">
-                                                <img src="{{ user.profile_picture.url }}" alt="Current User Photo" class="current-photo">
-                                                <span class="ms-2 text-muted">Current</span>
-                                            </div>
-                                        {% endif %}
-                                        <input type="file" class="form-control" name="profile_picture" accept="image/*">
-                                        <small class="text-muted">For your account</small>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Driver Photo</label>
-                                        {% if driver.profile_picture %}
-                                            <div class="mb-2">
-                                                <img src="{{ driver.profile_picture.url }}" alt="Current Driver Photo" class="current-photo">
-                                                <span class="ms-2 text-muted">Current</span>
-                                            </div>
-                                        {% endif %}
-                                        <input type="file" class="form-control" name="driver_photo" accept="image/*">
-                                        <small class="text-muted">Public driver photo</small>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="text-center">
                                 <button type="submit" class="btn btn-save">
-                                    <i class="bi bi-check-circle me-2"></i>Save Changes
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Details</span>
                                 </button>
-                            </div>
-                        </form>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
                     </div>
                 </div>
                 
@@ -282,5 +406,121 @@
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle driver photo preview
+    const driverPhotoInput = document.getElementById('driverPhotoInput');
+    if (driverPhotoInput) {
+        driverPhotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('driverPhotoPreview');
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    if (headerAvatar) {
+                        headerAvatar.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Handle user photo preview
+    const userPhotoInput = document.getElementById('userPhotoInput');
+    if (userPhotoInput) {
+        userPhotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('userPhotoPreview');
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Handle all form submissions
+    const forms = document.querySelectorAll('.profile-update-form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const section = this.dataset.section;
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const messageDiv = this.querySelector('.section-message');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>Saving...';
+            messageDiv.className = 'section-message';
+            messageDiv.style.display = 'none';
+            
+            // Create FormData
+            const formData = new FormData(this);
+            
+            // Submit via fetch
+            fetch('{% url "driver_profile_update" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.textContent = data.message || 'Updated successfully!';
+                    messageDiv.className = 'section-message success';
+                    
+                    // Special handling for photo uploads
+                    if ((section === 'driver_photo' || section === 'user_photo') && data.new_photo_url) {
+                        const headerAvatar = document.getElementById('headerAvatar');
+                        if (headerAvatar) {
+                            headerAvatar.innerHTML = '<img src="' + data.new_photo_url + '" alt="{{ user.username }}" id="headerAvatarImg">';
+                        }
+                    }
+                } else {
+                    messageDiv.textContent = data.message || 'Update failed. Please try again.';
+                    messageDiv.className = 'section-message error';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.className = 'section-message error';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                btnText.innerHTML = getButtonText(section);
+            });
+        });
+    });
+    
+    function getButtonText(section) {
+        const texts = {
+            'driver_photo': '<i class="bi bi-check-circle me-2"></i>Update Photo',
+            'user_photo': '<i class="bi bi-check-circle me-2"></i>Update Photo',
+            'personal': '<i class="bi bi-check-circle me-2"></i>Update Personal',
+            'driver_details': '<i class="bi bi-check-circle me-2"></i>Update Details',
+            'additional': '<i class="bi bi-check-circle me-2"></i>Update Details'
+        };
+        return texts[section] || '<i class="bi bi-check-circle me-2"></i>Save Changes';
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}
 

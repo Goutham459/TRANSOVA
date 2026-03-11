@@ -290,20 +290,113 @@ def customer_profile(request):
     URL: /customer-profile/ (or /profile/)
     Template: accounts/customer_profile.html
     
-    Allows customer to update:
-        - Personal info (first name, last name)
-        - Contact info (email, phone)
-        - Address
-        - Profile picture
-        - Date of birth
-        - Gender
-        - Password
+    Supports both regular form submission and AJAX requests for:
+        - Photo update (profile_picture)
+        - Personal info (first_name, last_name)
+        - Contact info (email, phone, address)
+        - Additional details (date_of_birth, gender)
+        - Password change
     
     Access: Authenticated customers only
     """
+    from django.http import JsonResponse
+    from django.views.decorators.http import require_http_methods
+    
     if not request.user.is_authenticated:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'Please login to continue'}, status=401)
         return redirect('login')
     
+    # Handle AJAX requests for individual field updates
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
+        update_type = request.POST.get('update_type', '')
+        
+        # Handle photo update
+        if update_type == 'photo':
+            if 'profile_picture' in request.FILES:
+                request.user.profile_picture = request.FILES['profile_picture']
+                try:
+                    request.user.save()
+                    return JsonResponse({
+                        'success': True, 
+                        'message': 'Photo updated successfully!',
+                        'new_photo_url': request.user.profile_picture.url if request.user.profile_picture else None
+                    })
+                except Exception as e:
+                    logger.error(f"Error updating photo: {e}")
+                    return JsonResponse({'success': False, 'message': 'Error updating photo'}, status=500)
+            return JsonResponse({'success': False, 'message': 'No photo selected'})
+        
+        # Handle personal info update (name)
+        elif update_type == 'personal':
+            request.user.first_name = request.POST.get('first_name', '')
+            request.user.last_name = request.POST.get('last_name', '')
+            try:
+                request.user.save()
+                return JsonResponse({'success': True, 'message': 'Name updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating name: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating name'}, status=500)
+        
+        # Handle contact info update
+        elif update_type == 'contact':
+            request.user.email = request.POST.get('email', request.user.email)
+            request.user.phone = request.POST.get('phone', '')
+            request.user.address = request.POST.get('address', '')
+            try:
+                request.user.save()
+                return JsonResponse({'success': True, 'message': 'Contact information updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating contact: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating contact info'}, status=500)
+        
+        # Handle additional details update
+        elif update_type == 'additional':
+            dob = request.POST.get('date_of_birth')
+            if dob:
+                request.user.date_of_birth = dob
+            else:
+                request.user.date_of_birth = None
+            request.user.gender = request.POST.get('gender', '')
+            try:
+                request.user.save()
+                return JsonResponse({'success': True, 'message': 'Additional details updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating additional details: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating details'}, status=500)
+        
+        # Handle password change
+        elif update_type == 'password':
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            # Validate current password
+            if not request.user.check_password(current_password):
+                return JsonResponse({'success': False, 'message': 'Current password is incorrect'})
+            
+            # Validate new password length
+            if len(new_password) < 8:
+                return JsonResponse({'success': False, 'message': 'New password must be at least 8 characters long'})
+            
+            # Check password confirmation
+            if new_password != confirm_password:
+                return JsonResponse({'success': False, 'message': 'New passwords do not match'})
+            
+            try:
+                request.user.set_password(new_password)
+                request.user.save()
+                # Re-authenticate the user after password change
+                from django.contrib.auth import login
+                login(request, request.user)
+                return JsonResponse({'success': True, 'message': 'Password updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating password: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating password'}, status=500)
+        
+        return JsonResponse({'success': False, 'message': 'Invalid update type'})
+    
+    # Handle regular form submission (fallback)
     if request.method == 'POST':
         # Check if this is a password change request
         if 'current_password' in request.POST:
@@ -381,24 +474,123 @@ def driver_profile_update(request):
     URL: /driver-profile-update/
     Template: accounts/driver_profile.html
     
-    Allows driver to update:
-        - User fields (name, email, phone)
-        - Driver-specific fields (license number, address)
-        - License expiry date
-        - Experience years
-        - Profile pictures (user and driver)
+    Supports both regular form submission and AJAX requests for:
+        - Driver photo update
+        - User account photo update
+        - Personal info (name, email, phone, address)
+        - Driver details (license, experience)
+        - Additional details (dob, gender)
     
     Access: Authenticated drivers only
     """
+    from django.http import JsonResponse
+    
     if not request.user.is_authenticated:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'Please login to continue'}, status=401)
         return redirect('login')
     
     try:
         driver = Driver.objects.get(user=request.user)
     except Driver.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'Driver profile not found'}, status=404)
         messages.error(request, "Driver profile not found.")
         return redirect('login')
     
+    # Handle AJAX requests for individual field updates
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
+        update_type = request.POST.get('update_type', '')
+        
+        # Handle driver photo update
+        if update_type == 'driver_photo':
+            if 'driver_photo' in request.FILES:
+                driver.profile_picture = request.FILES['driver_photo']
+                try:
+                    driver.save()
+                    return JsonResponse({
+                        'success': True, 
+                        'message': 'Driver photo updated successfully!',
+                        'new_photo_url': driver.profile_picture.url if driver.profile_picture else None
+                    })
+                except Exception as e:
+                    logger.error(f"Error updating driver photo: {e}")
+                    return JsonResponse({'success': False, 'message': 'Error updating photo'}, status=500)
+            return JsonResponse({'success': False, 'message': 'No photo selected'})
+        
+        # Handle user account photo update
+        elif update_type == 'user_photo':
+            if 'profile_picture' in request.FILES:
+                request.user.profile_picture = request.FILES['profile_picture']
+                try:
+                    request.user.save()
+                    return JsonResponse({
+                        'success': True, 
+                        'message': 'Account photo updated successfully!',
+                        'new_photo_url': request.user.profile_picture.url if request.user.profile_picture else None
+                    })
+                except Exception as e:
+                    logger.error(f"Error updating user photo: {e}")
+                    return JsonResponse({'success': False, 'message': 'Error updating photo'}, status=500)
+            return JsonResponse({'success': False, 'message': 'No photo selected'})
+        
+        # Handle personal info update
+        elif update_type == 'personal':
+            request.user.first_name = request.POST.get('first_name', '')
+            request.user.last_name = request.POST.get('last_name', '')
+            request.user.email = request.POST.get('email', request.user.email)
+            request.user.phone = request.POST.get('phone', '')
+            request.user.address = request.POST.get('address', '')
+            try:
+                request.user.save()
+                return JsonResponse({'success': True, 'message': 'Personal information updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating personal info: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating info'}, status=500)
+        
+        # Handle driver details update
+        elif update_type == 'driver_details':
+            driver.license_number = request.POST.get('license_number', '')
+            driver.phone = request.POST.get('driver_phone', '')
+            driver.address = request.POST.get('driver_address', '')
+            
+            license_expiry = request.POST.get('license_expiry')
+            if license_expiry:
+                driver.license_expiry = license_expiry
+            else:
+                driver.license_expiry = None
+            
+            experience = request.POST.get('experience_years')
+            if experience:
+                driver.experience_years = experience
+            else:
+                driver.experience_years = None
+            
+            try:
+                driver.save()
+                return JsonResponse({'success': True, 'message': 'Driver details updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating driver details: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating details'}, status=500)
+        
+        # Handle additional details update
+        elif update_type == 'additional':
+            dob = request.POST.get('date_of_birth')
+            if dob:
+                request.user.date_of_birth = dob
+            else:
+                request.user.date_of_birth = None
+            request.user.gender = request.POST.get('gender', '')
+            try:
+                request.user.save()
+                return JsonResponse({'success': True, 'message': 'Additional details updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating additional details: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating details'}, status=500)
+        
+        return JsonResponse({'success': False, 'message': 'Invalid update type'})
+    
+    # Handle regular form submission (fallback)
     if request.method == 'POST':
         # Update user fields
         user = request.user
@@ -459,24 +651,81 @@ def company_profile_update(request):
     URL: /company-profile-update/
     Template: accounts/company_profile.html
     
-    Allows company to update:
-        - Company fields (name, phone, address, description)
-        - Trade license info
-        - Website
-        - Contact person
-        - Company logo
+    Supports both regular form submission and AJAX requests for:
+        - Company logo update
+        - Company information (name, phone, address, etc.)
+        - Admin contact (name, phone)
     
     Access: Authenticated companies only
     """
+    from django.http import JsonResponse
+    
     if not request.user.is_authenticated:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'Please login to continue'}, status=401)
         return redirect('login')
     
     try:
         company = Company.objects.get(user=request.user)
     except Company.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'Company profile not found'}, status=404)
         messages.error(request, "Company profile not found.")
         return redirect('login')
     
+    # Handle AJAX requests for individual field updates
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
+        update_type = request.POST.get('update_type', '')
+        
+        # Handle logo update
+        if update_type == 'logo':
+            if 'logo' in request.FILES:
+                company.logo = request.FILES['logo']
+                try:
+                    company.save()
+                    return JsonResponse({
+                        'success': True, 
+                        'message': 'Logo updated successfully!',
+                        'new_logo_url': company.logo.url if company.logo else None
+                    })
+                except Exception as e:
+                    logger.error(f"Error updating logo: {e}")
+                    return JsonResponse({'success': False, 'message': 'Error updating logo'}, status=500)
+            return JsonResponse({'success': False, 'message': 'No logo selected'})
+        
+        # Handle company info update
+        elif update_type == 'company_info':
+            company.company_name = request.POST.get('company_name', company.company_name)
+            company.phone = request.POST.get('phone', company.phone)
+            company.address = request.POST.get('address', company.address)
+            company.trade_license = request.POST.get('trade_license', company.trade_license)
+            company.description = request.POST.get('description', company.description)
+            company.website = request.POST.get('website', company.website)
+            company.contact_person = request.POST.get('contact_person', company.contact_person)
+            
+            try:
+                company.save()
+                return JsonResponse({'success': True, 'message': 'Company information updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating company info: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating info'}, status=500)
+        
+        # Handle admin contact update
+        elif update_type == 'admin_contact':
+            request.user.first_name = request.POST.get('first_name', '')
+            request.user.last_name = request.POST.get('last_name', '')
+            request.user.phone = request.POST.get('user_phone', '')
+            
+            try:
+                request.user.save()
+                return JsonResponse({'success': True, 'message': 'Admin contact updated successfully!'})
+            except Exception as e:
+                logger.error(f"Error updating admin contact: {e}")
+                return JsonResponse({'success': False, 'message': 'Error updating contact'}, status=500)
+        
+        return JsonResponse({'success': False, 'message': 'Invalid update type'})
+    
+    # Handle regular form submission (fallback)
     if request.method == 'POST':
         # Update company fields
         company.company_name = request.POST.get('company_name', company.company_name)

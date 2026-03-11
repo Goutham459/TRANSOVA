@@ -89,6 +89,16 @@
     
     .info-section {
         margin-bottom: 30px;
+        background: rgba(10, 10, 20, 0.5);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(0, 245, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .info-section:hover {
+        border-color: rgba(0, 245, 255, 0.25);
+        box-shadow: 0 5px 20px rgba(0, 245, 255, 0.1);
     }
     
     .info-title {
@@ -158,10 +168,10 @@
         background: linear-gradient(135deg, #00f5ff, #8b5cf6);
         border: none;
         color: #050508;
-        padding: 14px 36px;
+        padding: 12px 30px;
         border-radius: 50px;
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
@@ -187,6 +197,12 @@
         box-shadow: 0 10px 30px rgba(0, 245, 255, 0.4);
     }
     
+    .btn-save:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
     .current-photo {
         width: 100px;
         height: 100px;
@@ -194,6 +210,43 @@
         object-fit: cover;
         border: 3px solid rgba(0, 245, 255, 0.3);
         box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+    }
+    
+    .section-message {
+        margin-top: 15px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        display: none;
+    }
+    
+    .section-message.success {
+        display: block;
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+    }
+    
+    .section-message.error {
+        display: block;
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+    
+    .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(5, 5, 8, 0.3);
+        border-radius: 50%;
+        border-top-color: #050508;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
     
     /* Responsive */
@@ -207,6 +260,10 @@
         }
         
         .profile-body {
+            padding: 20px;
+        }
+        
+        .info-section {
             padding: 20px;
         }
     }
@@ -223,9 +280,9 @@
                 <div class="profile-card">
                     <!-- Header with Avatar -->
                     <div class="profile-header">
-                        <div class="profile-avatar">
+                        <div class="profile-avatar" id="headerAvatar">
                             {% if user.profile_picture %}
-                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" id="headerAvatarImg">
                             {% else %}
                                 {{ user.username|upper|slice:":1" }}
                             {% endif %}
@@ -239,14 +296,47 @@
                     
                     <!-- Body -->
                     <div class="profile-body">
-                        <form method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
+                        
+                        <!-- Profile Photo Section -->
+                        <div class="info-section">
+                            <h4 class="info-title">
+                                <i class="bi bi-camera"></i>Profile Photo
+                            </h4>
                             
-                            <!-- Personal Information -->
-                            <div class="info-section">
-                                <h4 class="info-title">
-                                    <i class="bi bi-person-vcard"></i>Personal Information
-                                </h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="photo">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="photo">
+                                
+                                <div class="mb-3">
+                                    {% if user.profile_picture %}
+                                        <div class="mb-3">
+                                            <img src="{{ user.profile_picture.url }}" alt="Current Photo" class="current-photo" id="currentPhotoPreview">
+                                            <span class="ms-3" style="color: #94a3b8;">Current photo</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <label class="form-label">Upload New Photo</label>
+                                    <input type="file" class="form-control-futuristic" name="profile_picture" accept="image/*" id="photoInput">
+                                    <small style="color: #64748b; display: block; margin-top: 8px;">Supported formats: JPG, PNG, GIF</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Photo</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Personal Information Section -->
+                        <div class="info-section">
+                            <h4 class="info-title">
+                                <i class="bi bi-person-vcard"></i>Personal Information
+                            </h4>
+                            
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="personal">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="personal">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -259,6 +349,24 @@
                                     </div>
                                 </div>
                                 
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Name</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Contact Information Section -->
+                        <div class="info-section">
+                            <h4 class="info-title">
+                                <i class="bi bi-telephone"></i>Contact Information
+                            </h4>
+                            
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="contact">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="contact">
+                                
                                 <div class="mb-3">
                                     <label class="form-label">Email Address</label>
                                     <input type="email" class="form-control-futuristic" name="email" value="{{ user.email|default:'' }}">
@@ -268,13 +376,29 @@
                                     <label class="form-label">Phone Number</label>
                                     <input type="text" class="form-control-futuristic" name="phone" value="{{ user.phone|default:'' }}" placeholder="Enter phone number">
                                 </div>
-                            </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Address</label>
+                                    <textarea class="form-control-futuristic" name="address" rows="2" placeholder="Enter your address">{{ user.address|default:'' }}</textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Contact</span>
+                                </button>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Additional Details Section -->
+                        <div class="info-section">
+                            <h4 class="info-title">
+                                <i class="bi bi-info-circle"></i>Additional Details
+                            </h4>
                             
-                            <!-- Additional Details -->
-                            <div class="info-section">
-                                <h4 class="info-title">
-                                    <i class="bi bi-info-circle"></i>Additional Details
-                                </h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="additional">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="additional">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -292,37 +416,23 @@
                                     </div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <label class="form-label">Address</label>
-                                    <textarea class="form-control-futuristic" name="address" rows="3" placeholder="Enter your address">{{ user.address|default:'' }}</textarea>
-                                </div>
-                            </div>
-                            
-                            <!-- Profile Picture -->
-                            <div class="info-section">
-                                <h4 class="info-title">
-                                    <i class="bi bi-camera"></i>Profile Picture
-                                </h4>
+                                <button type="submit" class="btn btn-save">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Details</span>
+                                </button>
                                 
-                                <div class="mb-3">
-                                    {% if user.profile_picture %}
-                                        <div class="mb-3">
-                                            <img src="{{ user.profile_picture.url }}" alt="Current Photo" class="current-photo">
-                                            <span class="ms-3" style="color: #94a3b8;">Current photo</span>
-                                        </div>
-                                    {% endif %}
-                                    
-                                    <label class="form-label">Upload New Photo</label>
-                                    <input type="file" class="form-control-futuristic" name="profile_picture" accept="image/*">
-                                    <small style="color: #64748b; display: block; margin-top: 8px;">Supported formats: JPG, PNG, GIF</small>
-                                </div>
-                            </div>
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Change Password Section -->
+                        <div class="info-section">
+                            <h4 class="info-title">
+                                <i class="bi bi-key"></i>Change Password
+                            </h4>
                             
-                            <!-- Change Password -->
-                            <div class="info-section">
-                                <h4 class="info-title">
-                                    <i class="bi bi-key"></i>Change Password
-                                </h4>
+                            <form method="POST" enctype="multipart/form-data" class="profile-update-form" data-section="password">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_type" value="password">
                                 
                                 <div class="mb-3">
                                     <label class="form-label">Current Password</label>
@@ -341,14 +451,15 @@
                                 </div>
                                 
                                 <small style="color: #64748b; display: block;">Password must be at least 8 characters long.</small>
-                            </div>
-                            
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-save">
-                                    <i class="bi bi-check-circle me-2"></i>Save Changes
+                                
+                                <button type="submit" class="btn btn-save mt-3">
+                                    <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Update Password</span>
                                 </button>
-                            </div>
-                        </form>
+                                
+                                <div class="section-message"></div>
+                            </form>
+                        </div>
+                        
                     </div>
                 </div>
                 
@@ -356,5 +467,115 @@
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle profile photo preview
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerAvatarImg = document.getElementById('headerAvatarImg');
+                    if (headerAvatarImg) {
+                        headerAvatarImg.src = e.target.result;
+                    } else {
+                        headerAvatar.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Handle all form submissions
+    const forms = document.querySelectorAll('.profile-update-form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const section = this.dataset.section;
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const messageDiv = this.querySelector('.section-message');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>Saving...';
+            messageDiv.className = 'section-message';
+            messageDiv.style.display = 'none';
+            
+            // Create FormData
+            const formData = new FormData(this);
+            
+            // Submit via fetch
+            fetch('{% url "customer_profile" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.textContent = data.message || 'Updated successfully!';
+                    messageDiv.className = 'section-message success';
+                    
+                    // Special handling for photo upload
+                    if (section === 'photo' && data.new_photo_url) {
+                        const headerAvatar = document.getElementById('headerAvatar');
+                        const currentPreview = document.getElementById('currentPhotoPreview');
+                        
+                        if (currentPreview) {
+                            currentPreview.src = data.new_photo_url;
+                        }
+                        
+                        // Update header avatar
+                        if (headerAvatar) {
+                            const firstLetter = '{{ user.username|upper|slice:":1" }}';
+                            headerAvatar.innerHTML = '<img src="' + data.new_photo_url + '" alt="{{ user.username }}" id="headerAvatarImg">';
+                        }
+                    }
+                    
+                    // Special handling for password change
+                    if (section === 'password') {
+                        form.reset();
+                    }
+                } else {
+                    messageDiv.textContent = data.message || 'Update failed. Please try again.';
+                    messageDiv.className = 'section-message error';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.className = 'section-message error';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                btnText.innerHTML = getButtonText(section);
+            });
+        });
+    });
+    
+    function getButtonText(section) {
+        const texts = {
+            'photo': '<i class="bi bi-check-circle me-2"></i>Update Photo',
+            'personal': '<i class="bi bi-check-circle me-2"></i>Update Name',
+            'contact': '<i class="bi bi-check-circle me-2"></i>Update Contact',
+            'additional': '<i class="bi bi-check-circle me-2"></i>Update Details',
+            'password': '<i class="bi bi-check-circle me-2"></i>Update Password'
+        };
+        return texts[section] || '<i class="bi bi-check-circle me-2"></i>Save Changes';
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}
 
