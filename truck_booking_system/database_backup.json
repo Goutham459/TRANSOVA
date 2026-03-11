@@ -1,0 +1,233 @@
+[
+{
+  "model": "sessions.session",
+  "pk": "35qstch8z7ips34h9mqe8gg0seoiodcg",
+  "fields": {
+    "session_data": ".eJxVi70OwiAQgN_lZtNA4RA6-g7O5ODugjHWpJTJ-O7GpIOu388LMo295dFlyzeGBTycflmhepf1K6jW51j3Ph2oT9cu20oPuRzN39ioN1ggRato6xznWsgpsjrjrBJhROPQ-ujVM2MxNmEJxgREPosyhpJQArw__xs0sg:1vyrDB:uD5O3v6msvx4LIf3xNuqf7fRunWFKIDhxq5lGedzU_I",
+    "expire_date": "2026-03-21T12:56:53.133Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "3cbdyp2jd6pb2jpsd18tnsksib0qsmb5",
+  "fields": {
+    "session_data": ".eJw1yjsKgDAQBcCryKuD4CeCqXIHDyCLLiqYD7uKhXh3sbAd5kY6MlxvbWcrA-FlnOkguBunskQKDIch8kqFwoADbTsc9BOVKE3vl8_KKQUYZFK9ksx_8VXd4nleuqUhug:1vyuK3:9WnKnMK_b31JnG8H1Q6EMMTSWyArEEicycWm_OvZZic",
+    "expire_date": "2026-03-21T16:16:11.951Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "blp1lqbrscc7e86q3hd0p7dyhhp62w12",
+  "fields": {
+    "session_data": ".eJyNjrGOgzAQRP9l20MI29hgV1G-IVejZb0EBNgIG6WI8u8nJJp01868p5k3xLyBU9I2UhWw87PzmBHcG47Ee8CVwcGDU15wgwJ4xWkBBzku8zztaeRAL2Gtan9WWnAKt-dJlBRXKGDDlF5x9_8UPgV0eOSxO6e76dQEfGU90szhLJAoHiGn8opS-Xv9vV_MlzhiGsGBMUZYPfTWiqHyolESK6ZeUlsp1KaVgrXW2NpBqaYm433Nig1Z1XhpNMLnD93EZMo:1vyuE3:Xdue_nlopfASr7WqPZXujMlP7Jquc2F8xlNEcPRgB5Q",
+    "expire_date": "2026-03-21T16:09:59.095Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "lfe27s5tqittlip10r60p2hj6734phfc",
+  "fields": {
+    "session_data": ".eJw1yjEKgDAMBdCryJ-LVOvSTt7BA0jQoIJtJVEcpHcXB9fHe5DPA8F5axtvILyMM52E8OBSlkSRETAkXqlSGHCkbUeAfqKSxPl--ayecoTBQap3lvkvfdN2KOUFt0UhsQ:1vyuK2:-2AgF7m67vmsbMLB3U7vFw0gXhPUJtxuhBi1j6oRhxg",
+    "expire_date": "2026-03-21T16:16:10.324Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "r3qy6t3fc7iivpjqqw5l826dcqvshvzh",
+  "fields": {
+    "session_data": ".eJw1yjEKgDAMBdCryJ-LUJWinbyDB5CgQQXbSqI4SO8uDq6P9yCdB7yzVetqA-FlnOkk-AeXskQKDI8h8kqFwoADbTs89BOVKHXXL5-VUwowOEj1TjL_pbdVg5xfuLshtQ:1vyuK6:JwUfE0FK6PrwHn5PlVw8s7COHfR2dGKF_TUs2aLUOs0",
+    "expire_date": "2026-03-21T16:16:14.314Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "v4sxs1wqm68y5stv17myxhq804nomywg",
+  "fields": {
+    "session_data": ".eJw1yjsKgDAQBcCryKuD-ImIqbyDB5BFlyiYRHYVC_HuYmE7zI107HBN19i2MBD240wHwd04lSVSYDgMkRfKFAYcaN3goJ-oRKm73n-WTynAYCfVK8n8l76sLJ7nBbpEIbk:1vyuK5:nh8tyvBnwHaoQpNyATD1LEW7YTlYzoUbKdo5KN4NkB4",
+    "expire_date": "2026-03-21T16:16:13.071Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "vxjp709ln8lf1w5t35wcj0a15khe5poq",
+  "fields": {
+    "session_data": ".eJxVi80KwjAMgN8lZxlt02V2R9_Bc0nSjIpYYd1O4ruLsINev58XZN63mvdua74VmIHg9MuE9W7tK1j1ubetDwfqw7Xb2vhhl6P5Gyv3CjMER3FUdT5EDobIyaEkEfHoyjTiUrSUWDxNhOIWZaUgpEJ2TuZR4f0BB7Y1gA:1vyuOH:dNMoiuaMu0ODB3xzFxA6GjxrI55MvLm7-YovcFJi_0k",
+    "expire_date": "2026-03-21T16:20:33.159Z"
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$fRsEWnuDnLtk0eZHz16nT7$ALNuuI5DM+y9cPkEudFigOMV6BluCUWxVtFnmOgTI0I=",
+    "last_login": "2026-03-07T16:50:11.627Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "gouthamkrishna106@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-03-05T15:39:02.030Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "address": "",
+    "profile_picture": "",
+    "date_of_birth": null,
+    "gender": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$a8JnGSOVcPmGiPPzUUSK8y$R0EV7iWhYKITNIuQwaiXgnSLEO3l0hsRxVWe3ALvorI=",
+    "last_login": "2026-03-07T13:56:16.909Z",
+    "is_superuser": false,
+    "username": "d.i.shd.eif.yb.k.a.o.up@gmail.com",
+    "first_name": "",
+    "last_name": "",
+    "email": "d.i.shd.eif.yb.k.a.o.up@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-05T15:40:08.493Z",
+    "role": "COMPANY",
+    "phone": "",
+    "address": "",
+    "profile_picture": "",
+    "date_of_birth": null,
+    "gender": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$NXx4V1AvZg0hkkOBnEEuZ8$nSffzyxWuwHqXwxqbZtloNkOxb77Ki6t+SeYcGhdCsA=",
+    "last_login": "2026-03-07T13:56:27.809Z",
+    "is_superuser": false,
+    "username": "Driver",
+    "first_name": "Goutham",
+    "last_name": "krishna",
+    "email": "h.er.b.s.o.b.eri.n.g4.30@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-05T15:42:01.572Z",
+    "role": "DRIVER",
+    "phone": "",
+    "address": "",
+    "profile_picture": "",
+    "date_of_birth": null,
+    "gender": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Xhz2Inw8keS95C7mJtsY7T$jjIgFFUvBbkl3V7BJ1bfhwFB1IUyMmq+GPIPzbpjLoo=",
+    "last_login": "2026-03-07T17:10:43.820Z",
+    "is_superuser": false,
+    "username": "customer1",
+    "first_name": "",
+    "last_name": "",
+    "email": "s.l.inav.elhage.pto.6.g@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-05T15:44:41.883Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "address": "",
+    "profile_picture": "",
+    "date_of_birth": null,
+    "gender": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$5iPwvOMZm4AW6G3ABe4TjC$HVchaKIwTwOLVzXZVy8XzmoVsyypLMzAA4OuCpd4HGU=",
+    "last_login": "2026-03-07T16:20:33.152Z",
+    "is_superuser": false,
+    "username": "Sneha s",
+    "first_name": "",
+    "last_name": "",
+    "email": "snehasrnr39@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-07T16:20:09.944Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "address": "",
+    "profile_picture": "",
+    "date_of_birth": null,
+    "gender": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "fleet.company",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "d.i.shd.eif.yb.k.a.o.up@gmail.com"
+    ],
+    "company_name": "Pathma logistics",
+    "trade_license": "DMKL-40N-2633",
+    "phone": "0544621200",
+    "address": "",
+    "logo": "",
+    "description": "",
+    "website": "",
+    "contact_person": "",
+    "is_approved": true,
+    "created_at": "2026-03-05T15:40:10.278Z",
+    "updated_at": "2026-03-05T15:40:39.039Z"
+  }
+},
+{
+  "model": "fleet.truck",
+  "pk": 2,
+  "fields": {
+    "company": 1,
+    "truck_number": "12345",
+    "truck_type": "flatbed",
+    "capacity": 12.0,
+    "is_available": true,
+    "image": "truck_images/VOLVO_FH_500_save_hgiDrDI.jpg",
+    "price_per_km": "22.00",
+    "current_latitude": null,
+    "current_longitude": null,
+    "last_location_update": null,
+    "is_online": false,
+    "created_at": "2026-03-07T12:56:26.701Z",
+    "updated_at": "2026-03-07T16:02:58.925Z"
+  }
+},
+{
+  "model": "fleet.driver",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "Driver"
+    ],
+    "company": 1,
+    "license_number": "",
+    "license_expiry": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "experience_years": 0,
+    "is_available": true,
+    "assigned_truck": null,
+    "created_at": "2026-03-05T15:42:03.264Z",
+    "updated_at": "2026-03-05T15:42:03.264Z"
+  }
+}
+]
