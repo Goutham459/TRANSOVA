@@ -72,8 +72,12 @@ def register(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
+        if not username or not email or not password:
+            messages.error(request, "All fields are required")
+            return redirect ("register")
+
         # Gmail-only check - enforce company policy
-        if not email.endswith("@gmail.com"):
+        if not email or not email.endswith("@gmail.com"):
             messages.error(request, "Only Gmail IDs are allowed")
             return redirect("register")
 
