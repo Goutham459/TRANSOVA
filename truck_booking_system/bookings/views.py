@@ -1966,6 +1966,31 @@ def admin_faq(request):
     return render(request, "bookings/admin_faq.html", context)
 
 
+@login_required(login_url='/login/')
+def admin_faq_toggle_public(request, question_id):
+    """
+    Admin view to toggle FAQ question public/private status.
+    
+    URL: /admin/faq/<question_id>/toggle-public/
+    Method: POST
+    
+    Access: Admin users only
+    """
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('login')
+    
+    faq_question = get_object_or_404(FAQQuestion, id=question_id)
+    
+    # Toggle public status
+    faq_question.is_public = not faq_question.is_public
+    faq_question.save()
+    
+    status = "public" if faq_question.is_public else "private"
+    messages.success(request, f"FAQ question is now {status}.")
+    return redirect('admin_faq')
+
+
 def price_calculator(request):
     """
     Price calculator tool.

@@ -140,16 +140,20 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Email setup
 # For development: Use console backend to see emails in terminal
 # For production: Use smtp.EmailBackend with proper credentials
-# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Gmail SMTP settings (configured for OTP sending)
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "gouthamkrishna106@gmail.com"
-EMAIL_HOST_PASSWORD = "iyhj vtcg vmye qktp"
-DEFAULT_FROM_EMAIL = "noreply@transova.com"
+# Use console backend for development, SMTP for production
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+# Gmail SMTP settings - Use environment variables for security
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='gouthamkrishna106@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='iyhj vtcg vmye qktp')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@transova.com')
 # ============================================================================
 # PRICING CONFIGURATION
 # ============================================================================
@@ -195,6 +199,11 @@ SESSION_OTP_KEY = 'otp'  # Key for storing OTP in session
 SESSION_REG_DATA_KEY = 'reg_data'  # Key for storing registration data
 SESSION_RESET_OTP_KEY = 'reset_otp'  # Key for password reset OTP
 SESSION_RESET_EMAIL_KEY = 'reset_email'  # Key for password reset email
+
+# Session engine - Use database-backed sessions for production (Render)
+# File-based sessions won't work on Render's ephemeral filesystem
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 3600  # 1 hour session timeout
 
 # ============================================================================
 # SECURITY SETTINGS

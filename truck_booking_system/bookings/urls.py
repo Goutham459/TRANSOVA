@@ -20,7 +20,7 @@ from .views import (
     # User management
     admin_user_toggle_status, admin_user_change_role, admin_reset_password,
     # FAQ views
-    faq, faq_submit, faq_reply, admin_faq,
+    faq, faq_submit, faq_reply, admin_faq, admin_faq_toggle_public,
     # New customer features
     price_calculator, profile, booking_receipt, customer_booking_list,
     # Payment
@@ -83,6 +83,7 @@ urlpatterns = [
     path("faq/", faq, name="faq"),
     path("faq/submit/", faq_submit, name="faq_submit"),
     path("faq/<int:question_id>/reply/", faq_reply, name="faq_reply"),
+    path("admin/faq/<int:question_id>/toggle-public/", admin_faq_toggle_public, name="admin_faq_toggle_public"),
     
     # New Customer Feature URLs
     path("price-calculator/", price_calculator, name="price_calculator"),

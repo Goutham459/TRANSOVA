@@ -184,6 +184,111 @@
         padding: 40px;
     }
     
+    /* Ask Question Form */
+    .ask-question-card {
+        background: linear-gradient(135deg, rgba(0, 245, 255, 0.05), rgba(139, 92, 246, 0.05));
+        border: 1px solid rgba(0, 245, 255, 0.15);
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+    
+    .ask-question-title {
+        color: #fff;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 14px 18px;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 245, 255, 0.2);
+        background: rgba(15, 20, 35, 0.8);
+        color: #fff;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #00f5ff;
+        box-shadow: 0 0 20px rgba(0, 245, 255, 0.15);
+    }
+    
+    .form-control::placeholder {
+        color: #64748b;
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #00f5ff, #8b5cf6);
+        border: none;
+        color: #050508;
+        font-weight: 600;
+        padding: 14px 32px;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        box-shadow: 0 0 25px rgba(0, 245, 255, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    /* User Questions Section */
+    .user-questions {
+        margin-top: 40px;
+    }
+    
+    .user-question-item {
+        background: rgba(15, 20, 35, 0.7);
+        border: 1px solid rgba(0, 245, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .user-question-subject {
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .user-question-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+    
+    .status-answered {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+    }
+    
+    .user-question-answer {
+        color: #94a3b8;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(0, 245, 255, 0.1);
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .faq-title {
@@ -211,9 +316,74 @@
             <button type="button"><i class="bi bi-search"></i></button>
         </div>
         
+        <!-- Ask Question Form -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="ask-question-card">
+                    <h3 class="ask-question-title">
+                        <i class="bi bi-chat-dots me-2"></i>Have a Question? Ask Us!
+                    </h3>
+                    <form method="POST" action="{% url 'faq_submit' %}">
+                        {% csrf_token %}
+                        <input type="text" name="subject" class="form-control" placeholder="Question Subject" required>
+                        <textarea name="question" class="form-control" placeholder="Describe your question in detail..." required></textarea>
+                        {% if not user.is_authenticated %}
+                        <input type="email" name="email" class="form-control" placeholder="Your Email Address" required>
+                        {% endif %}
+                        <button type="submit" class="btn-submit">
+                            <i class="bi bi-send me-2"></i>Submit Question
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- User's Submitted Questions (if logged in) -->
+                {% if user.is_authenticated and user_questions %}
+                <div class="user-questions">
+                    <h4 class="faq-category-title">
+                        <i class="bi bi-inbox"></i>Your Submitted Questions
+                    </h4>
+                    {% for q in user_questions %}
+                    <div class="user-question-item">
+                        <div class="user-question-subject">{{ q.subject }}</div>
+                        <span class="user-question-status {% if q.status == 'PENDING' %}status-pending{% else %}status-answered{% endif %}">
+                            {{ q.get_status_display }}
+                        </span>
+                        {% if q.answer %}
+                        <div class="user-question-answer">
+                            <strong>Answer:</strong> {{ q.answer }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
         <!-- FAQ Categories -->
         <div class="row">
             <div class="col-lg-8 mx-auto">
+                
+                <!-- Public Answered FAQs -->
+                {% if public_faqs %}
+                <div class="faq-category">
+                    <h3 class="faq-category-title">
+                        <i class="bi bi-question-circle"></i>Common Questions
+                    </h3>
+                    
+                    {% for faq in public_faqs %}
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>{{ faq.subject }}</span>
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            {{ faq.answer }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 
                 <!-- Booking FAQ -->
                 <div class="faq-category">

@@ -28,6 +28,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.conf import settings
+
+# Get DEBUG setting for conditional error messages
+DEBUG = getattr(settings, 'DEBUG', False)
 
 # ============================================================================
 # APPLICATION IMPORTS
@@ -106,9 +110,14 @@ def register(request):
                 "noreply@transova.com",
                 [email],
             )
+            logger.info(f"OTP sent successfully to {email}")
         except Exception as e:
             logger.error(f"Failed to send OTP email: {e}")
-            messages.error(request, "Failed to send verification email. Please try again.")
+            # For debugging - show the actual error in development
+            if DEBUG:
+                messages.error(request, f"Failed to send verification email: {str(e)}")
+            else:
+                messages.error(request, "Failed to send verification email. Please try again.")
             return redirect("register")
 
         return redirect("verify_otp")
