@@ -10,8 +10,7 @@ from bookings.views import (
     add_booking,
     payment,
     admin_dashboard,
-    faq,
-    price_calculator
+    faq
 )
 from accounts.views import register, verify_otp, company_register
 from config import settings
@@ -21,8 +20,6 @@ urlpatterns = [
     path("", home, name="home"),
     path("trucks/", trucks_list, name="trucks_list"),
     path("faq/", faq, name="faq"),
-    path("price-calculator/", price_calculator, name="price_calculator"),
-    
     # Redirect root-level profile to accounts customer profile (with edit capabilities)
     path("profile/", RedirectView.as_view(url="/accounts/customer-profile/", permanent=False), name="root_profile"),
     

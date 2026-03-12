@@ -1,185 +1,288 @@
 {% extends 'bookings/base.html' %}
 {% load static %}
 
-{% block title %}TRANSOVA - Smart Truck Booking{% endblock %}
+{% block title %}TRANSOVA - Smart Truck Booking Platform{% endblock %}
 
 {% block extra_css %}
 <style>
-/* Page-specific styles only - if any needed */
-/* Home page specific improvements */
+/* Home page hero background */
 .hero-section {
-    min-height: auto;
-    padding: 110px 0 60px;
+    background: linear-gradient(rgba(9, 9, 11, 0.8), rgba(9, 9, 11, 0.8)), url('{% static "images/hero-bg.jpg" %}') center/cover no-repeat;
+    min-height: 100vh;
+    position: relative;
 }
 
-@media (max-width: 991px) {
-    .hero-section {
-        padding: 100px 0 50px;
-    }
+/* Search form */
+.booking-search-form {
+    background: rgba(24, 24, 31, 0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-@media (max-width: 576px) {
-    .hero-section {
-        padding: 90px 0 40px;
-    }
-    
-    .hero-buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .hero-buttons .kontrek-btn,
-    .hero-buttons .kontrek-btn-outline {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-/* Stats section improvements */
-.stats-section {
-    padding: 40px 0;
-}
-
-.stat-item {
-    padding: 15px 10px;
-}
-
-.stat-number {
-    font-size: 2rem;
-}
-
-.stat-label {
-    font-size: 0.85rem;
-}
-
-@media (max-width: 576px) {
-    .stat-number {
-        font-size: 1.75rem;
-    }
-}
-
-/* Features section */
-.features-section {
-    padding: 60px 0;
-}
-
-.feature-card {
-    padding: 28px 24px;
+.search-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
 @media (max-width: 768px) {
-    .features-section {
-        padding: 50px 0;
+    .search-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
-    
-    .section-title {
-        font-size: 1.75rem;
+    .booking-search-form {
+        padding: 24px;
+        margin: 0 12px;
     }
-    
-    .section-subtitle {
-        font-size: 1rem;
-        margin-bottom: 40px;
-    }
+}
+
+/* Featured trucks */
+.featured-trucks {
+    padding: 80px 0;
+    background: var(--bg-secondary);
+}
+
+.trucks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+/* Testimonials */
+.testimonials-section {
+    padding: 80px 0;
+    background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+}
+
+.testimonial-card {
+    background: rgba(24,24,31,0.6);
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+}
+
+.testimonial-author {
+    font-weight: 600;
+    color: var(--accent-secondary);
+}
+
+/* CTA */
+.cta-section {
+    padding: 80px 0;
+    background: var(--bg-primary);
+    text-align: center;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="hero-section">
+<!-- Hero with Search Form -->
+<section class="hero-section d-flex align-items-center">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-7">
-                <h1 class="hero-title animate-on-scroll">Smart Truck Booking <br><span class="highlight">Made Simple</span></h1>
-                <p class="hero-text animate-on-scroll delay-100">Book verified trucks instantly with real-time tracking, transparent pricing and professional drivers.</p>
-                <div class="hero-buttons animate-on-scroll delay-200">
-                    <a href="/trucks/" class="kontrek-btn"><i class="bi bi-truck me-2"></i>Book a Truck</a>
-                    <a href="{% url 'register' %}" class="kontrek-btn-outline">Register Now</a>
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="hero-trigger animate-on-scroll">
+                    <h1 class="hero-title mb-4">
+                        Book Trucks <span class="text-gradient">Instantly</span>
+                    </h1>
+                    <p class="hero-text mb-5 lead">Find available trucks near you. Fast booking, live tracking, verified drivers.</p>
                 </div>
+                
+                <!-- Booking Search Form -->
+                <form method="GET" action="{% url 'trucks_list' %}" class="booking-search-form animate-on-scroll delay-200">
+                    <h3 class="mb-4 text-white">Find Your Perfect Truck</h3>
+                    <div class="search-row">
+                        <div>
+                            <label class="form-label fw-semibold mb-2 d-block">Pickup Location</label>
+                            <input type="text" name="pickup_location" class="form-control" placeholder="Enter pickup city/area" required>
+                        </div>
+                        <div>
+                            <label class="form-label fw-semibold mb-2 d-block">Drop Location</label>
+                            <input type="text" name="drop_location" class="form-control" placeholder="Enter drop city/area" required>
+                        </div>
+                        <div>
+                            <label class="form-label fw-semibold mb-2 d-block">Date</label>
+                            <input type="date" name="booking_date" class="form-control" required>
+                        </div>
+                        <div class="d-flex align-items-end">
+                            <select name="load_type" class="form-select">
+                                <option value="">Load Type</option>
+                                {% for lt in load_types %}
+                                    <option value="{{ lt.id }}">{{ lt.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="kontrek-btn w-100">
+                        <i class="bi bi-search me-2"></i> Search Available Trucks
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Dynamic Stats -->
 <section class="stats-section">
     <div class="container">
-        <div class="row">
-            <div class="col-6 col-md-3">
-                <div class="stat-item animate-on-scroll">
-                    <div class="stat-number">500+</div>
-                    <div class="stat-label">Trucks Available</div>
+        <div class="row g-4">
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="stat-card animate-on-scroll" data-aos="fade-up">
+                    <div class="stat-icon"><i class="bi bi-truck"></i></div>
+                    <div class="stat-number">{{ stats.available_trucks|default:"500" }}+</div>
+                    <div class="stat-label">Available Trucks</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item animate-on-scroll delay-100">
-                    <div class="stat-number">10K+</div>
-                    <div class="stat-label">Successful Deliveries</div>
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="stat-card animate-on-scroll delay-100" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+                    <div class="stat-number">{{ stats.total_bookings|default:"10K" }}+</div>
+                    <div class="stat-label">Successful Bookings</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item animate-on-scroll delay-200">
-                    <div class="stat-number">200+</div>
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="stat-card animate-on-scroll delay-200" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon"><i class="bi bi-person-check"></i></div>
+                    <div class="stat-number">{{ stats.total_drivers|default:"200" }}+</div>
                     <div class="stat-label">Verified Drivers</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item animate-on-scroll delay-300">
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">Customer Support</div>
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="stat-card animate-on-scroll delay-300" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon"><i class="bi bi-building-check"></i></div>
+                    <div class="stat-number">{{ stats.total_companies|default:"50" }}+</div>
+                    <div class="stat-label">Trusted Companies</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
+<!-- CTA section now directly after stats -->
+
+<!-- Features -->
 <section class="features-section">
     <div class="container">
-        <h2 class="section-title animate-on-scroll">Why Choose TRANSOVA</h2>
-        <p class="section-subtitle animate-on-scroll delay-100">Professional truck booking with reliable service</p>
+        <h2 class="section-title animate-on-scroll">Why Choose TRANSOVA?</h2>
+        <p class="section-subtitle animate-on-scroll delay-100">Everything you need for seamless truck booking</p>
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
-                    <h3 class="feature-title">Live Tracking</h3>
-                    <p class="feature-text">Track your truck in real-time from pickup to delivery.</p>
+                    <h3 class="feature-title">Live GPS Tracking</h3>
+                    <p class="feature-text">Real-time location tracking from pickup to delivery with ETA updates.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="feature-card animate-on-scroll delay-100">
                     <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
                     <h3 class="feature-title">Verified Drivers</h3>
-                    <p class="feature-text">Professional drivers with verified documents.</p>
+                    <p class="feature-text">All drivers background checked with valid licenses and insurance.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="feature-card animate-on-scroll delay-200">
                     <div class="feature-icon"><i class="bi bi-currency-dollar"></i></div>
-                    <h3 class="feature-title">Best Pricing</h3>
-                    <p class="feature-text">No hidden charges. Transparent pricing always.</p>
+                    <h3 class="feature-title">Transparent Pricing</h3>
+                    <p class="feature-text">No hidden fees. See exact costs before confirming your booking.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="feature-card animate-on-scroll delay-300">
                     <div class="feature-icon"><i class="bi bi-lightning-charge"></i></div>
                     <h3 class="feature-title">Instant Booking</h3>
-                    <p class="feature-text">Book your truck in seconds.</p>
+                    <p class="feature-text">Search and book trucks in under 2 minutes. 24/7 availability.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="feature-card animate-on-scroll delay-400">
-                    <div class="feature-icon"><i class="bi bi-clock-history"></i></div>
+                    <div class="feature-icon"><i class="bi bi-headset"></i></div>
                     <h3 class="feature-title">24/7 Support</h3>
-                    <p class="feature-text">Dedicated support team available round the clock.</p>
+                    <p class="feature-text">Round the clock customer support with quick response times.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="feature-card animate-on-scroll delay-500">
-                    <div class="feature-icon"><i class="bi bi-graph-up"></i></div>
-                    <h3 class="feature-title">Real-time Updates</h3>
-                    <p class="feature-text">Get instant notifications about booking status.</p>
+                    <div class="feature-icon"><i class="bi bi-bell"></i></div>
+                    <h3 class="feature-title">Instant Notifications</h3>
+                    <p class="feature-text">Real-time SMS and app notifications for all booking updates.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Testimonials -->
+<section class="testimonials-section">
+    <div class="container">
+        <h2 class="section-title animate-on-scroll mb-5">What Our Customers Say</h2>
+        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="testimonial-card animate-on-scroll">
+                                <p class="lead mb-4">"TRANSOVA made our logistics so much easier. Found the perfect truck within minutes and delivery was on time!"</p>
+                                <div class="testimonial-author">Sarah Johnson - Logistics Manager, ABC Corp</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="testimonial-card animate-on-scroll">
+                                <p class="lead mb-4">"Excellent service! Drivers are professional and the live tracking gave us complete peace of mind."</p>
+                                <div class="testimonial-author">Mike Chen - Supply Chain Director</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="testimonial-card animate-on-scroll">
+                                <p class="lead mb-4">"Transparent pricing and reliable trucks. We've reduced our empty miles by 40% using TRANSOVA."</p>
+                                <div class="testimonial-author">Raj Patel - Operations Manager</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
 {% endblock %}
 
+{% block extra_js %}
+<script>
+// Auto-submit search form on load if params present (deep link)
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.querySelector('.booking-search-form');
+    if (searchForm) {
+        // Pre-fill from URL params if any
+        const urlParams = new URLSearchParams(window.location.search);
+        const fields = ['pickup_location', 'drop_location', 'booking_date', 'load_type'];
+        fields.forEach(field => {
+            if (urlParams.has(field)) {
+                const input = searchForm.querySelector(`[name="${field}"]`);
+                if (input) input.value = urlParams.get(field);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

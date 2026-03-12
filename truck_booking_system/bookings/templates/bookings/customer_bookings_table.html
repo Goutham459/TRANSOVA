@@ -1,0 +1,105 @@
+<div class="bookings-section">
+    <div class="section-card">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <h3 class="section-title mb-0"><i class="bi bi-journal-check me-2"></i>My Bookings</h3>
+            <a href="{% url 'customer_booking_list' %}" class="btn btn-sm" 
+               style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); border: none; color: #050508; font-weight: 600; white-space: nowrap;">
+                View All
+            </a>
+        </div>
+        
+        {% if bookings %}
+        <div class="table-responsive">
+            <table class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Route</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings|slice:":10" %}
+                    <tr>
+                        <td><span style="color: #00f5ff; font-weight: 600;">#{{ booking.id }}</span></td>
+                        <td>
+                            <div class="route-info">
+                                <span>{{ booking.pickup_location|truncatechars:15 }}</span>
+                                <i class="bi bi-arrow-right route-arrow"></i>
+                                <span>{{ booking.drop_location|truncatechars:15 }}</span>
+                            </div>
+                        </td>
+                        <td>{{ booking.booking_date }}</td>
+                        <td>
+                            {% if booking.status == 'COMPLETED' %}
+                            <span class="status-badge completed">
+                                <i class="bi bi-check-circle me-1"></i>Completed
+                            </span>
+                            {% elif booking.status == 'IN_PROGRESS' %}
+                            <span class="status-badge in_progress">
+                                <i class="bi bi-truck me-1"></i>In Progress
+                            </span>
+                            {% elif booking.truck %}
+                            <span class="status-badge confirmed">
+                                <i class="bi bi-check-circle me-1"></i>Confirmed
+                            </span>
+                            {% else %}
+                            <span class="status-badge pending">
+                                <i class="bi bi-clock me-1"></i>Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if booking.payment_status == 'PAID' %}
+                            <span class="status-badge paid">
+                                <i class="bi bi-check-circle me-1"></i>Paid
+                            </span>
+                            {% elif booking.payment_status == 'FAILED' %}
+                            <span class="status-badge payment-failed">
+                                <i class="bi bi-x-circle me-1"></i>Failed
+                            </span>
+                            {% elif booking.payment_status == 'REFUNDED' %}
+                            <span class="status-badge refunded">
+                                <i class="bi bi-arrow-return-left me-1"></i>Refunded
+                            </span>
+                            {% else %}
+                            <span class="status-badge payment-pending">
+                                <i class="bi bi-clock me-1"></i>Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td><span class="price-amount">{{ booking.currency }} {{ booking.price }}</span></td>
+                        <td>
+                            <a href="{% url 'booking_receipt' booking.id %}" class="btn-view" title="View Receipt">
+                                <i class="bi bi-receipt me-1"></i>View
+                            </a>
+                            {% if booking.payment_status == 'PAID' %}
+                            <a href="{% url 'download_receipt_pdf' booking.id %}" class="btn-view" style="margin-left: 5px;" title="Download PDF">
+                                <i class="bi bi-download me-1"></i>PDF
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <h3 class="empty-title">No bookings yet</h3>
+            <p class="empty-text">Your bookings will appear here</p>
+            <a href="{% url 'trucks_list' %}" class="btn" 
+               style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); border: none; color: #050508; font-weight: 600; padding: 12px 30px; border-radius: 30px;">
+                <i class="bi bi-truck me-2"></i>Browse Trucks
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>

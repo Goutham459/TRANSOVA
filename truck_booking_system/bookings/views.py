@@ -111,9 +111,24 @@ def home(request):
     # Get all load types for the booking form
     load_types = LoadType.objects.all()
     
+    # Dynamic stats for home page
+    from fleet.models import Driver, Company
+    total_bookings = Booking.objects.count()
+    available_trucks_count = trucks.count()
+    total_load_types = load_types.count()
+    total_drivers = Driver.objects.count()
+    total_companies = Company.objects.filter(is_approved=True).count()
+    
     context = {
         'trucks': trucks,
-        'load_types': load_types
+        'load_types': load_types,
+        'stats': {
+            'total_bookings': total_bookings,
+            'available_trucks': available_trucks_count,
+            'total_drivers': total_drivers,
+            'total_companies': total_companies,
+            'load_types_count': total_load_types,
+        }
     }
     
     return render(request, "bookings/home.html", context)
@@ -211,38 +226,80 @@ def add_booking(request):
     })
 
 
+
+@login_required(login_url='/login/')
 def edit_booking(request, booking_id):
     """
-    Edit existing booking (admin/internal use).
+    Customer: Edit booking_date ONLY for PENDING bookings (before company approval).
+    Admin/Staff: Full edit access (all fields).
     
     URL: /edit/<booking_id>/
     Template: bookings/edit_booking.html
-    
-    Note:
-        - Allows changing truck, load type, distance
-        - Recalculates price if any pricing-related field changes
     """
     booking = get_object_or_404(Booking, id=booking_id)
     
+    # CUSTOMER MODE: Date-only for PENDING bookings
+    if request.user.role == 'CUSTOMER':
+        # Verify ownership (matches customer_booking_list logic)
+        if not (booking.customer_name == request.user.get_full_name() or 
+                booking.customer_name == request.user.username or 
+                booking.user == request.user):
+            messages.error(request, "You can only edit your own bookings.")
+            return redirect('customer_booking_list')
+        
+        # PENDING only (truck__isnull=True = before company approval)
+        if booking.truck:
+            messages.error(request, "Cannot edit confirmed bookings (truck assigned by company).")
+            return redirect('customer_booking_list')
+        
+        # DATE ONLY updates for customers
+        if request.method == "POST":
+            new_date = request.POST.get("booking_date")
+            if new_date:
+                booking.booking_date = new_date
+                booking.save()
+                messages.success(request, "Booking date updated successfully!")
+            else:
+                messages.error(request, "Please select a new date.")
+            return redirect('customer_booking_list')
+        
+        # Render customer template (date picker only)
+        return render(request, "bookings/edit_booking.html", {
+            "booking": booking,
+            "customer_mode": True  # Template flag for simplified form
+        })
+    
+    # ADMIN/STAFF MODE: Full edit access (existing logic preserved)
+    # Admin check
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "Admin access required for full edits.")
+        return redirect('booking_list')
+    
     # Get available trucks + current booking's truck
-    trucks = Truck.objects.filter(is_available=True) | Truck.objects.filter(id=booking.truck.id)
+    trucks = Truck.objects.filter(is_available=True) | Truck.objects.filter(id=booking.truck.id) if booking.truck else Truck.objects.filter(is_available=True)
     load_types = LoadType.objects.all()
 
     if request.method == "POST":
-        booking.customer_name = request.POST.get("customer_name")
-        booking.pickup_location = request.POST.get("pickup_location")
-        booking.drop_location = request.POST.get("drop_location")
-        booking.booking_date = request.POST.get("booking_date")
-        booking.distance_km = float(request.POST.get("distance_km"))
+        booking.customer_name = request.POST.get("customer_name", booking.customer_name)
+        booking.pickup_location = request.POST.get("pickup_location", booking.pickup_location)
+        booking.drop_location = request.POST.get("drop_location", booking.drop_location)
+        booking.booking_date = request.POST.get("booking_date", booking.booking_date)
+        booking.distance_km = float(request.POST.get("distance_km", booking.distance_km))
 
-        booking.truck = Truck.objects.get(id=request.POST.get("truck"))
-        booking.load_type = LoadType.objects.get(id=request.POST.get("load_type"))
+        truck_id = request.POST.get("truck")
+        if truck_id:
+            booking.truck = Truck.objects.get(id=truck_id)
+        
+        load_type_id = request.POST.get("load_type")
+        if load_type_id:
+            booking.load_type = LoadType.objects.get(id=load_type_id)
 
-        # Recalculate price using centralized function
-        booking.price = calculate_admin_booking_price(
-            distance_km=booking.distance_km,
-            load_multiplier=booking.load_type.price_multiplier
-        )
+        # Recalculate price using centralized function (admin only)
+        if booking.load_type:
+            booking.price = calculate_admin_booking_price(
+                distance_km=booking.distance_km,
+                load_multiplier=booking.load_type.price_multiplier
+            )
 
         booking.save()
         messages.success(request, "Booking updated successfully!")
@@ -251,8 +308,10 @@ def edit_booking(request, booking_id):
     return render(request, "bookings/edit_booking.html", {
         "booking": booking,
         "trucks": trucks,
-        "load_types": load_types
+        "load_types": load_types,
+        "customer_mode": False  # Full admin form
     })
+
 
 
 def delete_booking(request, booking_id):
@@ -361,11 +420,11 @@ def customer_dashboard(request):
     pending_bookings = user_bookings.filter(truck__isnull=True).count()
     total_spent = user_bookings.aggregate(Sum("price"))["price__sum"] or 0
     
-    # Get recent bookings for display (slice after all filters)
-    recent_bookings = user_bookings[:10]
+    # Pass ALL filtered bookings with status info for dashboard table
+    all_customer_bookings = user_bookings.select_related('truck', 'load_type')
     
     context = {
-        'bookings': recent_bookings,
+        'bookings': all_customer_bookings,
         'total_bookings': user_bookings.count(),
         'confirmed_bookings': confirmed_bookings,
         'pending_bookings': pending_bookings,
@@ -1989,18 +2048,6 @@ def admin_faq_toggle_public(request, question_id):
     status = "public" if faq_question.is_public else "private"
     messages.success(request, f"FAQ question is now {status}.")
     return redirect('admin_faq')
-
-
-def price_calculator(request):
-    """
-    Price calculator tool.
-    
-    URL: /price-calculator/
-    Template: bookings/price_calculator.html
-    
-    Allows users to estimate booking costs.
-    """
-    return render(request, "bookings/price_calculator.html")
 
 
 # =============================================================================

@@ -485,7 +485,14 @@
                         </div>
                     </div>
                     
+
                     <div class="booking-actions">
+                        {% if not booking.truck %}
+                        <a href="{% url 'edit_booking' booking.id %}" class="btn-action" 
+                           style="background: linear-gradient(135deg, #f59e0b, #eab308); color: white; border: none;">
+                            <i class="bi bi-calendar3 me-1"></i>Change Date
+                        </a>
+                        {% endif %}
                         <a href="{% url 'booking_receipt' booking.id %}" class="btn-action btn-view">
                             <i class="bi bi-receipt"></i>View Receipt
                         </a>
@@ -495,6 +502,7 @@
                         </a>
                         {% endif %}
                     </div>
+
                 </div>
             </div>
             {% empty %}

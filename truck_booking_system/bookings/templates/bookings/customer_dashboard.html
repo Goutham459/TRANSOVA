@@ -139,9 +139,8 @@
         transform: translateX(-20px);
     }
     
-    .action-card:nth-child(1) { animation: slideInLeft 0.5s ease forwards 0.2s; }
-    .action-card:nth-child(2) { animation: slideInLeft 0.5s ease forwards 0.3s; }
-    .action-card:nth-child(3) { animation: slideInLeft 0.5s ease forwards 0.4s; }
+    .action-card:nth-child(1) { animation: slideInLeft 0.5s ease forwards 0.1s; }
+    .action-card:nth-child(2) { animation: slideInLeft 0.5s ease forwards 0.2s; }
     
     @keyframes slideInLeft {
         to { opacity: 1; transform: translateX(0); }
@@ -185,168 +184,9 @@
         margin-bottom: 0;
     }
     
-    /* Recent Bookings */
-    .bookings-section {
-        opacity: 0;
-        animation: fadeUp 0.5s ease forwards 0.5s;
-    }
-    
-    .section-card {
-        background: rgba(15, 20, 35, 0.7);
-        border: 1px solid rgba(0, 245, 255, 0.15);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-    
-    .section-header {
-        background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(139, 92, 246, 0.1));
-        padding: 20px 24px;
-        border-bottom: 1px solid rgba(0, 245, 255, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .section-title {
-        color: #fff;
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    /* Table Styles */
-    .bookings-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .bookings-table th {
-        background: rgba(10, 10, 20, 0.8);
-        color: #00f5ff;
-        font-weight: 600;
-        padding: 16px;
-        text-align: left;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid rgba(0, 245, 255, 0.1);
-    }
-    
-    .bookings-table td {
-        padding: 16px;
-        color: #fff;
-        border-bottom: 1px solid rgba(0, 245, 255, 0.05);
-        vertical-align: middle;
-    }
-    
-    .bookings-table tbody tr {
-        transition: all 0.2s ease;
-    }
-    
-    .bookings-table tbody tr:hover {
-        background: linear-gradient(90deg, rgba(0, 245, 255, 0.05), transparent);
-    }
-    
-    .route-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .route-arrow {
-        color: #8b5cf6;
-    }
-    
-    .status-badge {
-        padding: 6px 14px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-    
-    .status-badge.confirmed, .status-badge.completed {
-        background: rgba(16, 185, 129, 0.2);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    
-    .status-badge.pending {
-        background: rgba(245, 158, 11, 0.2);
-        color: #f59e0b;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    
-    .status-badge.in_progress {
-        background: rgba(59, 130, 246, 0.2);
-        color: #3b82f6;
-        border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-    
-    .status-badge.paid {
-        background: rgba(16, 185, 129, 0.2);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    
-    .status-badge.payment-pending {
-        background: rgba(245, 158, 11, 0.2);
-        color: #f59e0b;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    
-    .status-badge.payment-failed {
-        background: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-    
-    .status-badge.refunded {
-        background: rgba(139, 92, 246, 0.2);
-        color: #8b5cf6;
-        border: 1px solid rgba(139, 92, 246, 0.3);
-    }
-    
-    .price-amount {
-        font-weight: 700;
-        color: #00f5ff;
-    }
-    
-    .btn-view {
-        background: transparent;
-        border: 1px solid rgba(0, 245, 255, 0.3);
-        color: #00f5ff;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-view:hover {
-        background: rgba(0, 245, 255, 0.1);
-        border-color: #00f5ff;
-    }
-    
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-    }
-    
-    .empty-icon {
-        font-size: 4rem;
-        color: #64748b;
-        margin-bottom: 20px;
-    }
-    
-    .empty-title {
-        color: #fff;
-        font-size: 1.3rem;
-        margin-bottom: 10px;
-    }
-    
-    .empty-text {
-        color: #94a3b8;
-        margin-bottom: 20px;
+    /* Action Card Animation Adjustment (now only 1 card) */
+    .action-card {
+        animation: slideInLeft 0.5s ease forwards 0.2s;
     }
     
     /* Responsive */
@@ -389,52 +229,68 @@
         </div>
         
         <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
+        <!-- Enhanced Stats Dashboard -->
+        <div class="row mb-5">
+            <div class="col-md-8">
+                <canvas id="statsChart" height="200"></canvas>
+            </div>
+            <div class="col-md-4">
+                <canvas id="timelineChart" height="200"></canvas>
+            </div>
+        </div>
+        
+        <!-- Quick Stats Cards -->
+        <div class="stats-grid mb-5">
+            <div class="stat-card" data-aos="fade-up">
                 <div class="stat-icon">
-                    <i class="bi bi-journal-text"></i>
+                    <i class="bi bi-calendar-check"></i>
                 </div>
-                <div class="stat-number">{{ total_bookings|default:0 }}</div>
+                <div class="stat-number" data-target="{{ total_bookings|default:0 }}">0</div>
                 <div class="stat-label">Total Bookings</div>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon" style="color: #10b981;">
-                    <i class="bi bi-check-circle"></i>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-icon text-success">
+                    <i class="bi bi-check-circle-fill"></i>
                 </div>
-                <div class="stat-number">{{ confirmed_bookings|default:0 }}</div>
+                <div class="stat-number" data-target="{{ confirmed_bookings|default:0 }}">0</div>
                 <div class="stat-label">Completed</div>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon" style="color: #f59e0b;">
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-icon text-warning">
                     <i class="bi bi-clock-history"></i>
                 </div>
-                <div class="stat-number">{{ pending_bookings|default:0 }}</div>
+                <div class="stat-number" data-target="{{ pending_bookings|default:0 }}">0</div>
                 <div class="stat-label">Pending</div>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon" style="color: #8b5cf6;">
-                    <i class="bi bi-wallet2"></i>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-icon text-primary">
+                    <i class="bi bi-currency-dollar"></i>
                 </div>
-                <div class="stat-number">AED {{ total_spent|default:0 }}</div>
-                <div class="stat-label">Total Spent</div>
+                <div class="stat-number" data-target="{{ total_spent|default:0 }}">0</div>
+                <div class="stat-label">AED Spent</div>
+            </div>
+        </div>
+        
+        <!-- Live Tracking Map -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card-futuristic p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Your Active Bookings Map</h4>
+                        <button class="btn btn-sm kontrek-btn-outline">
+                            <i class="bi bi-fullscreen"></i> Full Map
+                        </button>
+                    </div>
+                    <div id="dashboardMap" style="height: 400px;"></div>
+                </div>
             </div>
         </div>
         
         <!-- Quick Actions -->
         <div class="actions-grid">
-            <a href="{% url 'customer_booking' %}" class="action-card">
-                <div class="action-icon">
-                    <i class="bi bi-plus-circle"></i>
-                </div>
-                <div class="action-content">
-                    <h5>New Booking</h5>
-                    <p>Book a new truck for your delivery</p>
-                </div>
-            </a>
-            
             <a href="{% url 'trucks_list' %}" class="action-card">
                 <div class="action-icon">
                     <i class="bi bi-truck"></i>
@@ -444,125 +300,19 @@
                     <p>Browse available trucks</p>
                 </div>
             </a>
-            
-            <a href="{% url 'price_calculator' %}" class="action-card">
+            <a href="{% url 'customer_booking_list' %}" class="action-card">
                 <div class="action-icon">
-                    <i class="bi bi-calculator"></i>
+                    <i class="bi bi-list-ul"></i>
                 </div>
                 <div class="action-content">
-                    <h5>Price Calculator</h5>
-                    <p>Estimate your delivery cost</p>
+                    <h5>All Bookings</h5>
+                    <p>View complete booking history</p>
                 </div>
             </a>
         </div>
-        
-        <!-- Recent Bookings -->
-        <div class="bookings-section">
-            <div class="section-card">
-                <div class="section-header">
-                    <h3 class="section-title"><i class="bi bi-journal-check me-2"></i>Recent Bookings</h3>
-                    <a href="{% url 'customer_booking_list' %}" class="btn btn-sm" 
-                       style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); border: none; color: #050508; font-weight: 600;">
-                        View All
-                    </a>
-                </div>
-                
-                {% if bookings %}
-                <div class="table-responsive">
-                    <table class="bookings-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Route</th>
-                                <th>Date</th>
-                                <th>Booking Status</th>
-                                <th>Payment</th>
-                                <th>Amount</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for booking in bookings|slice:":5" %}
-                            <tr>
-                                <td><span style="color: #00f5ff; font-weight: 600;">#{{ booking.id }}</span></td>
-                                <td>
-                                    <div class="route-info">
-                                        <span>{{ booking.pickup_location|truncatechars:15 }}</span>
-                                        <i class="bi bi-arrow-right route-arrow"></i>
-                                        <span>{{ booking.drop_location|truncatechars:15 }}</span>
-                                    </div>
-                                </td>
-                                <td>{{ booking.booking_date }}</td>
-                                <td>
-                                    {% if booking.status == 'COMPLETED' %}
-                                    <span class="status-badge completed">
-                                        <i class="bi bi-check-circle me-1"></i>Completed
-                                    </span>
-                                    {% elif booking.status == 'IN_PROGRESS' %}
-                                    <span class="status-badge in_progress">
-                                        <i class="bi bi-truck me-1"></i>In Progress
-                                    </span>
-                                    {% elif booking.truck %}
-                                    <span class="status-badge confirmed">
-                                        <i class="bi bi-check-circle me-1"></i>Confirmed
-                                    </span>
-                                    {% else %}
-                                    <span class="status-badge pending">
-                                        <i class="bi bi-clock me-1"></i>Pending
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if booking.payment_status == 'PAID' %}
-                                    <span class="status-badge paid">
-                                        <i class="bi bi-check-circle me-1"></i>Paid
-                                    </span>
-                                    {% elif booking.payment_status == 'FAILED' %}
-                                    <span class="status-badge payment-failed">
-                                        <i class="bi bi-x-circle me-1"></i>Failed
-                                    </span>
-                                    {% elif booking.payment_status == 'REFUNDED' %}
-                                    <span class="status-badge refunded">
-                                        <i class="bi bi-arrow-return-left me-1"></i>Refunded
-                                    </span>
-                                    {% else %}
-                                    <span class="status-badge payment-pending">
-                                        <i class="bi bi-clock me-1"></i>Pending
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td><span class="price-amount">{{ booking.currency }} {{ booking.price }}</span></td>
-                                <td>
-                                    <a href="{% url 'booking_receipt' booking.id %}" class="btn-view" title="View Receipt">
-                                        <i class="bi bi-receipt me-1"></i>View
-                                    </a>
-                                    {% if booking.payment_status == 'PAID' %}
-                                    <a href="{% url 'download_receipt_pdf' booking.id %}" class="btn-view" style="margin-left: 5px;" title="Download PDF">
-                                        <i class="bi bi-download me-1"></i>PDF
-                                    </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="bi bi-inbox"></i>
-                    </div>
-                    <h3 class="empty-title">No bookings yet</h3>
-                    <p class="empty-text">Start by booking your first truck</p>
-                    <a href="{% url 'customer_booking' %}" class="btn" 
-                       style="background: linear-gradient(135deg, #00f5ff, #8b5cf6); border: none; color: #050508; font-weight: 600; padding: 12px 30px; border-radius: 30px;">
-                        <i class="bi bi-plus-circle me-2"></i>Book Your First Truck
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        
+
+        {% include "bookings/customer_bookings_table.html" %}
+
     </div>
 </div>
 {% endblock %}
