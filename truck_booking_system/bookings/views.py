@@ -92,26 +92,11 @@ logger = logging.getLogger(__name__)
 
 def home(request):
     """
-    Home page view - displays available trucks and load types.
-    
-    This is the landing page showing available trucks for booking.
-    Only shows trucks that are currently available for booking.
-    
-    URL: /
-    Template: bookings/home.html
-    
-    Query Optimization:
-        - Uses filter(is_available=True) to only show available trucks
-        - LoadTypes are lightweight, fetched with all()
+    Home page view - displays available trucks, load types and stats.
     """
-    # Get all available trucks for booking
-    # Only show trucks where is_available=True
     trucks = Truck.objects.filter(is_available=True)
-    
-    # Get all load types for the booking form
     load_types = LoadType.objects.all()
     
-    # Dynamic stats for home page
     from fleet.models import Driver, Company
     total_bookings = Booking.objects.count()
     available_trucks_count = trucks.count()
@@ -488,22 +473,7 @@ def customer_booking(request):
         # Calculate distance using Haversine formula
         distance_km = get_distance_haversine(pickup_lat, pickup_lng, drop_lat, drop_lng)
 
-        # Get load type multiplier
-        load_type_id = request.POST.get("load_type")
-        load_multiplier = 1.0
-        if load_type_id:
-            try:
-                load_type = LoadType.objects.get(id=load_type_id)
-                load_multiplier = load_type.price_multiplier
-            except LoadType.DoesNotExist:
-                pass
-
-        # Calculate price with commission using centralized function
-        price = calculate_booking_price(
-            distance_km=distance_km,
-            load_multiplier=load_multiplier,
-            include_commission=True
-        )
+# Get load type multiplier\n        load_type_id = request.POST.get("load_type")\n        load_multiplier = 1.0\n        if load_type_id:\n            try:\n                load_type = LoadType.objects.get(id=load_type_id)\n                load_multiplier = load_type.price_multiplier\n            except LoadType.DoesNotExist:\n                pass\n\n        price = calculate_booking_price(\n            distance_km=distance_km,\n            load_multiplier=load_multiplier,\n            include_commission=True\n        )
 
         # Detect user's currency based on IP
         currency = detect_user_currency()
@@ -519,27 +489,7 @@ def customer_booking(request):
         if load_type_id:
             load_type = LoadType.objects.filter(id=load_type_id).first()
 
-        # Create booking
-        booking = Booking.objects.create(
-            customer_name=customer_name,
-            contact_number=contact_number,
-            pickup_location=pickup_location,
-            drop_location=drop_location,
-            booking_date=booking_date,
-            distance_km=distance_km,
-            price=price,
-            currency=currency,
-            truck=truck,
-            load_type=load_type,
-            user=request.user  # Associate with logged-in user
-        )
-
-        return JsonResponse({
-            "success": True,
-            "amount": price,
-            "currency": currency,
-            "booking_id": booking.id
-        })
+        # Create booking\n        booking = Booking.objects.create(\n            customer_name=customer_name,\n            contact_number=contact_number,\n            pickup_location=pickup_location,\n            drop_location=drop_location,\n            pickup_lat=pickup_lat,\n            pickup_lng=pickup_lng,\n            drop_lat=drop_lat,\n            drop_lng=drop_lng,\n            booking_date=booking_date,\n            distance_km=distance_km,\n            price=price,\n            currency=currency,\n            truck=truck,\n            load_type=load_type,\n            user=request.user\n        )\n\n        return JsonResponse({\n            "success": True,\n            "amount": price,\n            "currency": currency,\n            "booking_id": booking.id\n        })
 
     # GET request - show the booking form
     # Check if a truck is selected via query parameter

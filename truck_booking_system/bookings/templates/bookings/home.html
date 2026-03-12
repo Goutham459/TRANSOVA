@@ -128,6 +128,52 @@
     </div>
 </section>
 
+<!-- Promo Banner Ad -->
+<section class="promo-banner-section py-4 bg-gradient-primary animate-on-scroll">
+    <div class="container">
+        <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for promo in promos %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="promo-card text-center p-4 rounded-3 shadow-lg">
+                        <div class="row align-items-center g-4">
+                            <div class="col-md-8">
+                                <h3 class="promo-title mb-2 text-white">🎉 {{ promo.code }}</h3>
+                                <h2 class="promo-discount mb-3 fw-bold text-warning">{{ promo.discount_percent }}% OFF</h2>
+                                <p class="promo-description text-white-50 mb-3 lh-lg">{{ promo.notes|default:"Limited time offer!" }}</p>
+                                <div class="promo-terms small text-white-50">
+                                    Valid {{ promo.valid_from }} to {{ promo.valid_until }}
+                                    {% if promo.first_booking_only %}- First booking only{% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <a href="{% url 'customer_booking' %}?promo={{ promo.code }}" class="btn btn-warning btn-lg px-4">
+                                    Apply Now <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="carousel-item active">
+                    <div class="promo-card text-center p-4 rounded-3">
+                        <h3 class="text-white-50">No active promotions</h3>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if promos %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
+                <i class="bi bi-chevron-left text-white"></i>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
+                <i class="bi bi-chevron-right text-white"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
 <!-- Dynamic Stats -->
 <section class="stats-section">
     <div class="container">

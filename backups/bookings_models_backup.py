@@ -1,5 +1,11 @@
+"""
+BACKUP of truck_booking_system/bookings/models.py BEFORE PROMO REMOVAL
+Date: $(date)
+========================================
+"""
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 
 
@@ -45,6 +51,7 @@ class Booking(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     driver_status = models.CharField(max_length=20, choices=DRIVER_STATUS_CHOICES, default='', blank=True)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='PENDING')
+    promo_code = models.CharField(max_length=20, blank=True)
     assigned_by_company = models.BooleanField(default=False)
     assigned_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -59,6 +66,69 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking #{self.id} - {self.customer_name} ({self.status})"
+
+
+class PromoCode(models.Model):
+    """
+    PromoCode Model - Company-created promotional discount codes.
+    
+    Companies create promo codes with conditions like:
+    - Percentage discount (5-50%)
+    - Validity dates
+    - First booking only
+    - Max uses per customer (default 1)
+    """
+    code = models.CharField(max_length=20, unique=True, db_index=True)
+    company = models.ForeignKey('fleet.Company', on_delete=models.CASCADE, related_name='promos')
+    discount_percent = models.DecimalField(
+        max_digits=5, decimal_places=2, 
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
+    max_uses = models.PositiveIntegerField(default=1)  # Per customer
+    used_count = models.PositiveIntegerField(default=0)
+    valid_from = models.DateField()
+    valid_until = models.DateField()
+    first_booking_only = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        indexes = [models.Index(fields=['is_active', 'valid_from', 'valid_until'])]
+    
+    def __str__(self):
+        return f"{self.code} - {self.discount_percent}% ({self.company.company_name})"
+    
+    def can_use(self, user, booking_date):
+        \"\"\"Check if customer can use this promo\"\"\"
+        if not self.is_active:
+            return False, "Promo inactive"
+        if booking_date < self.valid_from or booking_date > self.valid_until:
+            return False, "Promo expired"
+        if self.first_booking_only and Booking.objects.filter(user=user).exists():
+            return False, "Only for first booking"
+        if PromoUsage.objects.filter(promo=self, user=user).exists():
+            return False, "Already used by you"
+        return True, ""
+
+
+class PromoUsage(models.Model):
+    """
+    PromoUsage Model - Tracks individual promo code redemptions.
+    
+    Ensures one-time use per customer per promo code.
+    """
+    promo = models.ForeignKey(PromoCode, on_delete=models.CASCADE, related_name='usages')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='promo_usages')
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='promo_usage')
+    used_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = [('promo', 'user')]
+        indexes = [models.Index(fields=['used_at'])]
+    
+    def __str__(self):
+        return f"{self.user.username} used {self.promo.code}"
 
 
 class Payment(models.Model):
@@ -160,3 +230,4 @@ class FAQQuestion(models.Model):
     
     def __str__(self):
         return f"Q: {self.subject} ({self.status})"
+

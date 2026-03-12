@@ -39,7 +39,7 @@ from datetime import datetime, timedelta
 # APPLICATION IMPORTS
 # ============================================================================
 from .models import Company, Truck, Driver
-from bookings.models import Booking
+from bookings.models import Booking, PromoCode, PromoUsage
 from django import forms
 
 # Get the custom user model
@@ -69,8 +69,8 @@ def company_dashboard(request):
         - Drivers with statistics
         - Recent bookings
         - Revenue statistics (total and this month)
+        - Promo codes section
     """
-
     if request.user.role != 'COMPANY':
         messages.error(request, "You are not authorized to view this page.")
         return redirect('login')
@@ -109,6 +109,9 @@ def company_dashboard(request):
     completed_bookings = company_bookings.filter(truck__isnull=False).count()
     recent_bookings = company_bookings[:10]
 
+    active_promos = PromoCode.objects.filter(company=company, is_active=True).count()
+    total_promos = PromoCode.objects.filter(company=company).count()
+
     context = {
         'company': company,
         'trucks': trucks,
@@ -119,10 +122,113 @@ def company_dashboard(request):
         'this_month_revenue': this_month_revenue,
         'total_bookings': total_bookings,
         'completed_bookings': completed_bookings,
+        'active_promos': active_promos,
+        'total_promos': total_promos,
     }
     return render(request, 'fleet/company_dashboard.html', context)
 
+# =============================================================================
+# SECTION 1B: COMPANY PROMO MANAGEMENT
+# =============================================================================
 
+@login_required
+def company_promo_list(request):
+    """
+    Company promo codes list view.
+    
+    URL: /fleet/promos/
+    Template: fleet/company_promos_list.html
+    """
+    if request.user.role != 'COMPANY':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    company = get_object_or_404(Company, user=request.user, is_approved=True)
+    promos = PromoCode.objects.filter(company=company).order_by('-created_at')
+    context = {'promos': promos, 'company': company}
+    return render(request, 'fleet/company_promos_list.html', context)
+
+
+class PromoCodeForm(forms.ModelForm):
+    class Meta:
+        model = PromoCode
+        fields = ['code', 'discount_percent', 'max_uses', 'valid_from', 'valid_until', 'first_booking_only', 'notes']
+        widgets = {
+            'valid_from': forms.DateInput(attrs={'type': 'date'}),
+            'valid_until': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
+        }
+
+
+@login_required
+def company_promo_create(request):
+    """
+    Create new promo code.
+    
+    URL: /fleet/promo/add/
+    """
+    if request.user.role != 'COMPANY':
+        return redirect('login')
+
+    company = get_object_or_404(Company, user=request.user, is_approved=True)
+    if request.method == 'POST':
+        form = PromoCodeForm(request.POST)
+        if form.is_valid():
+            promo = form.save(commit=False)
+            promo.company = company
+            promo.is_active = True
+            promo.save()
+            messages.success(request, f'Promo "{promo.code}" created!')
+            return redirect('company_promos')
+    else:
+        form = PromoCodeForm()
+    return render(request, 'fleet/company_promo_form.html', {'form': form, 'company': company, 'action': 'Create'})
+
+
+@login_required
+def company_promo_update(request, promo_id):
+    """
+    Edit existing promo code.
+    
+    URL: /fleet/promo/<id>/edit/
+    """
+    if request.user.role != 'COMPANY':
+        return redirect('login')
+
+    company = get_object_or_404(Company, user=request.user, is_approved=True)
+    promo = get_object_or_404(PromoCode, id=promo_id, company=company)
+    
+    if request.method == 'POST':
+        form = PromoCodeForm(request.POST, instance=promo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Promo "{promo.code}" updated!')
+            return redirect('company_promos')
+    else:
+        form = PromoCodeForm(instance=promo)
+    return render(request, 'fleet/company_promo_form.html', {'form': form, 'company': company, 'promo': promo, 'action': 'Update'})
+
+
+@login_required
+def company_promo_delete(request, promo_id):
+    """
+    Delete promo code.
+    
+    URL: /fleet/promo/<id>/delete/
+    """
+    if request.user.role != 'COMPANY':
+        return redirect('login')
+
+    company = get_object_or_404(Company, user=request.user, is_approved=True)
+    promo = get_object_or_404(PromoCode, id=promo_id, company=company)
+    
+    if request.method == 'POST':
+        promo_name = promo.code
+        promo.delete()
+        messages.success(request, f'Promo "{promo_name}" deleted!')
+        return redirect('company_promos')
+    
+    return render(request, 'fleet/company_promo_confirm_delete.html', {'promo': promo, 'company': company})
 
 
 @login_required
@@ -562,6 +668,7 @@ def company_bookings(request):
     
     Features:
         - Filter by booking status
+        
         - Shows driver assignment status
         - Quick stats display
     

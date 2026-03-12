@@ -325,6 +325,59 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /* ===============================
+   PROMO CODE FUNCTIONS
+============================== */
+async function applyPromo() {
+    const promoCode = document.getElementById('promo_code').value.trim().toUpperCase();
+    const promoMessage = document.getElementById('promoMessage');
+    const applyBtn = document.getElementById('applyPromoBtn');
+    const promoDiscount = document.getElementById('promo_discount_percent');
+    
+    if (!promoCode) {
+        promoMessage.innerHTML = '';
+        promoDiscount.value = '0';
+        return;
+    }
+    
+    // Disable button and show loading
+    applyBtn.disabled = true;
+    applyBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-1"></i>Validating...';
+    
+    try {
+        const response = await fetch('/api/validate-promo/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({promo_code: promoCode})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            promoMessage.innerHTML = `<div class="alert alert-success py-2 mb-0 small">
+                ✅ ${data.promo_code} applied! ${data.discount_percent}% OFF
+            </div>`;
+            promoDiscount.value = data.discount_percent;
+            updatePrice();  // Recalculate price with discount
+        } else {
+            promoMessage.innerHTML = `<div class="alert alert-danger py-2 mb-0 small">
+                ❌ ${data.error || 'Invalid promo code'}
+            </div>`;
+            promoDiscount.value = '0';
+        }
+    } catch (error) {
+        promoMessage.innerHTML = '<div class="alert alert-danger py-2 mb-0 small">Network error. Try again.</div>';
+        promoDiscount.value = '0';
+    } finally {
+        applyBtn.disabled = false;
+        applyBtn.innerHTML = 'Apply';
+    }
+}
+
+/* ===============================
    GLOBAL UTILITY FUNCTIONS
 ============================== */
 window.TransovaTheme = {
@@ -364,3 +417,4 @@ window.TransovaTheme = {
         }
     }
 };
+

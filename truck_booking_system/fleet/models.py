@@ -18,6 +18,8 @@ Database Indexes:
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
+from decimal import Decimal
 
 
 class Company(models.Model):
@@ -54,12 +56,11 @@ class Company(models.Model):
     # Approval status - requires admin approval before company can operate
     is_approved = models.BooleanField(default=False, db_index=True)
     
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         """Meta options for Company model."""
-        app_label = 'fleet'
         ordering = ['-created_at']
         verbose_name_plural = "Companies"
     
@@ -127,8 +128,8 @@ class Truck(models.Model):
     last_location_update = models.DateTimeField(null=True, blank=True)
     is_online = models.BooleanField(default=False, db_index=True)  # GPS device online status
     
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         """Meta options for Truck model."""
@@ -205,8 +206,8 @@ class Driver(models.Model):
     )
     
     # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         """Meta options for Driver model."""
@@ -229,7 +230,7 @@ class Driver(models.Model):
         """Check if driver has valid license."""
         if not self.license_number:
             return False
-        if self.license_expiry and self.license_expiry < models.DateField().default:
+        if self.license_expiry and self.license_expiry < timezone.now().date():
             return False
         return True
 
@@ -273,7 +274,6 @@ class Wallet(models.Model):
     
     def add_earning(self, amount, booking=None, description=""):
         """Add earnings to wallet (from completed booking)"""
-        from decimal import Decimal
         self.balance += Decimal(str(amount))
         self.total_earned += Decimal(str(amount))
         self.save()
@@ -290,7 +290,6 @@ class Wallet(models.Model):
     
     def hold_in_escrow(self, amount, booking=None, description=""):
         """Hold amount in escrow (when payment is received)"""
-        from decimal import Decimal
         self.escrow_balance += Decimal(str(amount))
         self.save()
         
@@ -305,9 +304,8 @@ class Wallet(models.Model):
     
     def release_from_escrow(self, amount, booking=None, description=""):
         """Release amount from escrow after delivery"""
-        from decimal import Decimal
         self.escrow_balance -= Decimal(str(amount))
-        self.balance -= Decimal(str(amount))
+        self.balance += Decimal(str(amount))
         self.save()
         
         Transaction.objects.create(
@@ -321,7 +319,6 @@ class Wallet(models.Model):
     
     def process_payout(self, amount, description=""):
         """Process payout to company's bank account"""
-        from decimal import Decimal
         if self.available_balance < Decimal(str(amount)):
             return False
         
