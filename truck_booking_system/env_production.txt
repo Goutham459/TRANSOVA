@@ -14,13 +14,7 @@ ALLOWED_HOSTS=transova.onrender.com
 # Format: postgres://username:password@hostname:port/database_name
 DATABASE_URL=postgres://your-postgres-url-from-render
 
-# Email Configuration (Gmail App Password)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=gouthamkrishna106@gmail.com
-EMAIL_HOST_PASSWORD=your-gmail-app-password
-DEFAULT_FROM_EMAIL=noreply@transova.com
+# ✅ FIXED: Elastic Email SMTP (FREE 100 EMAILS/DAY - WORKS ON RENDER!)\n# Signup: https://elasticemail.com → Free Account → SMTP Credentials → Copy API Key\nEMAIL_HOST=smtp.elasticemail.com\nEMAIL_PORT=2525\nEMAIL_USE_TLS=True\nEMAIL_HOST_USER=YOUR_ELASTIC_EMAIL_API_KEY_HERE  # ← Paste API Key\nEMAIL_HOST_PASSWORD=YOUR_ELASTIC_EMAIL_API_KEY_HERE  # Same API Key\nDEFAULT_FROM_EMAIL=noreply@transova.com
 
 # CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS=https://transova.onrender.com
