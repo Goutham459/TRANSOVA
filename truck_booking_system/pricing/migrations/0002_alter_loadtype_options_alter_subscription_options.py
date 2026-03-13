@@ -6,16 +6,19 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pricing', '0001_initial'),
+        ("pricing", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='loadtype',
-            options={'ordering': ['name'], 'verbose_name_plural': 'Load Types'},
+            name="loadtype",
+            options={"ordering": ["name"], "verbose_name_plural": "Load Types"},
         ),
         migrations.AlterModelOptions(
-            name='subscription',
-            options={'ordering': ['-start_date'], 'verbose_name_plural': 'Subscriptions'},
+            name="subscription",
+            options={
+                "ordering": ["-start_date"],
+                "verbose_name_plural": "Subscriptions",
+            },
         ),
     ]

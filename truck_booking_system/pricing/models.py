@@ -1,6 +1,7 @@
-from django.db import models
-from django.conf import settings
 from decimal import Decimal
+
+from django.conf import settings
+from django.db import models
 
 
 class LoadType(models.Model):
@@ -15,15 +16,13 @@ class LoadType(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
         verbose_name_plural = "Load Types"
 
 
 class Subscription(models.Model):
     company = models.ForeignKey(
-        'fleet.Company', 
-        on_delete=models.CASCADE,
-        db_index=True
+        "fleet.Company", on_delete=models.CASCADE, db_index=True
     )
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     start_date = models.DateField(auto_now_add=True)
@@ -37,6 +36,5 @@ class Subscription(models.Model):
         return f"{self.company.company_name} - ${self.amount} ({status})"
 
     class Meta:
-        ordering = ['-start_date']
+        ordering = ["-start_date"]
         verbose_name_plural = "Subscriptions"
-

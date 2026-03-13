@@ -420,6 +420,7 @@ a:hover { color: var(--accent-primary); }
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 14px 18px;
+    min-height: 52px;
     color: var(--text-primary);
     font-size: 1rem;
     transition: all var(--transition-normal);
@@ -1404,6 +1405,77 @@ a:hover { color: var(--accent-primary); }
 .leaflet-popup-tip {
     background: rgba(24,24,31,0.95);
     box-shadow: none;
+}
+
+/* ============================================
+   TESTIMONIALS SECTION
+   ============================================ */
+.testimonials-section {
+    padding: 100px 0;
+    background: var(--bg-secondary);
+}
+
+.testimonial-card {
+    background: rgba(24,24,31,0.8) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: var(--radius-xl);
+    padding: 48px 32px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.4s ease;
+}
+
+.testimonial-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.testimonial-card:hover::before {
+    transform: scaleX(1);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 60px rgba(139,92,246,0.25);
+}
+
+.testimonial-author {
+    color: var(--accent-secondary);
+    font-weight: 600;
+    margin-top: 24px;
+    font-size: 1.05rem;
+}
+
+.carousel-control-prev, .carousel-control-next {
+    width: 60px;
+    height: 60px;
+    background: rgba(139,92,246,0.4);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.carousel-control-prev:hover, .carousel-control-next:hover {
+    background: var(--accent-primary);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 10px 30px rgba(139,92,246,0.4);
+}
+
+.carousel-control-prev i, .carousel-control-next i {
+    font-size: 1.5rem;
+    color: white;
 }
 
 /* ============================================

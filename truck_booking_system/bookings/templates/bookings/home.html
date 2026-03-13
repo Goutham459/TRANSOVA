@@ -5,11 +5,20 @@
 
 {% block extra_css %}
 <style>
-/* Home page hero background */
+/* FIXED: Navbar gap issue */
+.kontrek-container {
+    padding-top: 110px !important; /* Increased from 70px to cover full navbar */
+}
+
+/* Home page hero background - full bleed */
 .hero-section {
-    background: linear-gradient(rgba(9, 9, 11, 0.8), rgba(9, 9, 11, 0.8)), url('{% static "images/hero-bg.jpg" %}') center/cover no-repeat;
+    background: linear-gradient(rgba(9, 9, 11, 0.8), rgba(9, 9, 11, 0.8)), 
+                url('{% static "images/hero-bg.jpg" %}') center/cover fixed no-repeat;
     min-height: 100vh;
     position: relative;
+    padding-top: 140px; /* Push content down to avoid navbar overlap */
+    padding-bottom: 100px;
+    margin-top: -110px; /* Negative margin to fill gap */
 }
 
 /* Search form */
@@ -31,6 +40,14 @@
 }
 
 @media (max-width: 768px) {
+    .kontrek-container {
+        padding-top: 90px !important;
+    }
+    .hero-section {
+        padding-top: 120px;
+        margin-top: -90px;
+        background-attachment: scroll; /* Better mobile perf */
+    }
     .search-row {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -41,42 +58,170 @@
     }
 }
 
-/* Featured trucks */
-.featured-trucks {
-    padding: 80px 0;
+/* NEW: Creative Sections */
+.services-section {
+    padding: 100px 0;
     background: var(--bg-secondary);
 }
 
-.trucks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-}
-
-/* Testimonials */
-.testimonials-section {
-    padding: 80px 0;
-    background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
-}
-
-.testimonial-card {
-    background: rgba(24,24,31,0.6);
+.service-card {
+    text-align: center;
+    padding: 40px 24px;
+    border-radius: var(--radius-xl);
+    background: rgba(24,24,31,0.4);
     border: 1px solid rgba(139,92,246,0.15);
-    border-radius: var(--radius-lg);
-    padding: 32px;
-    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    color: var(--text-primary);
 }
 
-.testimonial-author {
-    font-weight: 600;
-    color: var(--accent-secondary);
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
 }
 
-/* CTA */
-.cta-section {
+.service-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 50px rgba(139,92,246,0.15);
+    background: rgba(24,24,31,0.6);
+}
+
+.service-card:hover::before {
+    transform: scaleX(1);
+}
+
+.service-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 2rem;
+    color: white;
+    box-shadow: 0 10px 30px rgba(139,92,246,0.3);
+}
+
+.trust-section {
     padding: 80px 0;
+    background: linear-gradient(135deg, var(--bg-primary), rgba(139,92,246,0.05));
+}
+
+.trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 32px;
+    background: rgba(24,24,31,0.95) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(139,92,246,0.25);
+    border-radius: 50px;
+    font-weight: 600;
+    color: var(--text-primary) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.trust-badge:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    border-color: var(--accent-primary);
+}
+
+.trust-badge i {
+    color: inherit;
+}
+
+.steps-section {
+    padding: 100px 0;
     background: var(--bg-primary);
-    text-align: center;
+}
+
+.step-card {
+    position: relative;
+    padding: 40px 32px;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(145deg, rgba(24,24,31,0.8), rgba(15,15,20,0.8));
+    border: 1px solid rgba(139,92,246,0.2);
+    transition: all 0.4s ease;
+    height: 100%;
+    color: var(--text-primary);
+}
+
+.step-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 20px 60px rgba(139,92,246,0.2);
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 10px 30px rgba(139,92,246,0.4);
+    z-index: 2;
+}
+
+.urgency-badge {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+    50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+}
+
+.countdown {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.8rem;
+}
+
+@keyframes count {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .service-card, .step-card { margin-bottom: 2rem; }
+    .trust-badge { margin-bottom: 1rem; }
+    .row.g-4 { --bs-gutter-x: 1rem; }
 }
 </style>
 {% endblock %}
@@ -91,7 +236,7 @@
                     <h1 class="hero-title mb-4">
                         Book Trucks <span class="text-gradient">Instantly</span>
                     </h1>
-                    <p class="hero-text mb-5 lead">Find available trucks near you. Fast booking, live tracking, verified drivers.</p>
+                    <p class="hero-text mb-5 lead">Book verified trucks instantly. Live GPS tracking, secure payments, 24/7 support.</p>
                 </div>
                 
                 <!-- Booking Search Form -->
@@ -128,91 +273,141 @@
     </div>
 </section>
 
-<!-- Promo Banner Ad -->
-<section class="promo-banner-section py-4 bg-gradient-primary animate-on-scroll">
+<!-- NEW CREATIVE: Services Section (Replaces Stats + Promo) -->
+<section class="services-section">
     <div class="container">
-        <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                {% for promo in promos %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <div class="promo-card text-center p-4 rounded-3 shadow-lg">
-                        <div class="row align-items-center g-4">
-                            <div class="col-md-8">
-                                <h3 class="promo-title mb-2 text-white">🎉 {{ promo.code }}</h3>
-                                <h2 class="promo-discount mb-3 fw-bold text-warning">{{ promo.discount_percent }}% OFF</h2>
-                                <p class="promo-description text-white-50 mb-3 lh-lg">{{ promo.notes|default:"Limited time offer!" }}</p>
-                                <div class="promo-terms small text-white-50">
-                                    Valid {{ promo.valid_from }} to {{ promo.valid_until }}
-                                    {% if promo.first_booking_only %}- First booking only{% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-md-end">
-                                <a href="{% url 'customer_booking' %}?promo={{ promo.code }}" class="btn btn-warning btn-lg px-4">
-                                    Apply Now <i class="bi bi-arrow-right ms-1"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="carousel-item active">
-                    <div class="promo-card text-center p-4 rounded-3">
-                        <h3 class="text-white-50">No active promotions</h3>
-                    </div>
-                </div>
-                {% endfor %}
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title animate-on-scroll">Complete Trucking Solutions</h2>
+                <p class="section-subtitle lead animate-on-scroll delay-100">Choose from our specialized fleet for every logistics need</p>
             </div>
-            {% if promos %}
-            <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
-                <i class="bi bi-chevron-left text-white"></i>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
-                <i class="bi bi-chevron-right text-white"></i>
-            </button>
-            {% endif %}
         </div>
-    </div>
-</section>
-
-<!-- Dynamic Stats -->
-<section class="stats-section">
-    <div class="container">
         <div class="row g-4">
-            <div class="col-6 col-sm-6 col-md-3">
-                <div class="stat-card animate-on-scroll" data-aos="fade-up">
-                    <div class="stat-icon"><i class="bi bi-truck"></i></div>
-                    <div class="stat-number">{{ stats.available_trucks|default:"500" }}+</div>
-                    <div class="stat-label">Available Trucks</div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon"><i class="bi bi-box-seam"></i></div>
+                    <h4>Container Trucks</h4>
+                    <p>Secure 20ft & 40ft containers for international & domestic shipping</p>
                 </div>
             </div>
-            <div class="col-6 col-sm-6 col-md-3">
-                <div class="stat-card animate-on-scroll delay-100" data-aos="fade-up" data-aos-delay="100">
-                    <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
-                    <div class="stat-number">{{ stats.total_bookings|default:"10K" }}+</div>
-                    <div class="stat-label">Successful Bookings</div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card animate-on-scroll delay-100">
+                    <div class="service-icon"><i class="bi bi-square-fill"></i></div>
+                    <h4>Flatbed Trucks</h4>
+                    <p>Heavy machinery, construction materials, oversized equipment</p>
                 </div>
             </div>
-            <div class="col-6 col-sm-6 col-md-3">
-                <div class="stat-card animate-on-scroll delay-200" data-aos="fade-up" data-aos-delay="200">
-                    <div class="stat-icon"><i class="bi bi-person-check"></i></div>
-                    <div class="stat-number">{{ stats.total_drivers|default:"200" }}+</div>
-                    <div class="stat-label">Verified Drivers</div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card animate-on-scroll delay-200">
+                    <div class="service-icon"><i class="bi bi-snow"></i></div>
+                    <h4>Refrigerated</h4>
+                    <p>Frozen foods, pharmaceuticals, perishables with temp control</p>
                 </div>
             </div>
-            <div class="col-6 col-sm-6 col-md-3">
-                <div class="stat-card animate-on-scroll delay-300" data-aos="fade-up" data-aos-delay="300">
-                    <div class="stat-icon"><i class="bi bi-building-check"></i></div>
-                    <div class="stat-number">{{ stats.total_companies|default:"50" }}+</div>
-                    <div class="stat-label">Trusted Companies</div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card animate-on-scroll delay-300">
+                    <div class="service-icon"><i class="bi bi-arrow-up-right-square"></i></div>
+                    <h4>Oversized Loads</h4>
+                    <p>Special permits for extra-wide, tall, and heavy cargo</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card animate-on-scroll delay-400">
+                    <div class="service-icon"><i class="bi bi-basket3-fill"></i></div>
+                    <h4>Bulk Cargo</h4>
+                    <p>Sand, gravel, cement, grains in tipper & bulk carriers</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card animate-on-scroll delay-500">
+                    <div class="service-icon"><i class="bi bi-liquid"></i></div>
+                    <h4>Tanker Trucks</h4>
+                    <p>Fuel, chemicals, water with certified hazardous material handling</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CTA section now directly after stats -->
+<!-- NEW: Trust Signals (Fixed Colors) -->
+<section class="trust-section">
+    <div class="container">
+        <div class="row justify-content-center text-center g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="trust-badge animate-on-scroll">
+                    <i class="bi bi-shield-check display-6"></i>
+                    <span>100% Verified Drivers</span>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="trust-badge animate-on-scroll delay-100">
+                    <i class="bi bi-lock-fill display-6"></i>
+                    <span>Secure Payments</span>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="trust-badge animate-on-scroll delay-200">
+                    <i class="bi bi-geo-alt display-6"></i>
+                    <span>Live GPS Tracking</span>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="trust-badge animate-on-scroll delay-300">
+                    <i class="bi bi-headset display-6"></i>
+                    <span>24/7 Support</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<!-- Features -->
+<!-- NEW: How It Works -->
+<section class="steps-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title animate-on-scroll mb-4">How It Works</h2>
+                <p class="lead text-muted animate-on-scroll delay-100">Book trucks in 3 simple steps</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card animate-on-scroll">
+                    <div class="step-number">1</div>
+                    <i class="bi bi-search display-4 mb-4"></i>
+                    <h4>Search & Select</h4>
+                    <p>Enter locations, select truck type and book instantly</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card animate-on-scroll delay-100">
+                    <div class="step-number">2</div>
+                    <i class="bi bi-credit-card display-4 mb-4"></i>
+                    <h4>Pay Securely</h4>
+                    <p>Pay online with card/wallet. Money held in escrow</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card animate-on-scroll delay-200">
+                    <div class="step-number">3</div>
+                    <i class="bi bi-geo-alt display-4 mb-4"></i>
+                    <h4>Track Live</h4>
+                    <p>Real-time GPS tracking with live updates and ETA</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card animate-on-scroll delay-300">
+                    <div class="step-number">4</div>
+                    <i class="bi bi-check-circle-fill display-4 mb-4"></i>
+                    <h4>Delivery Complete</h4>
+                    <p>Proof of delivery + automatic fund release</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features (Enhanced) -->
 <section class="features-section">
     <div class="container">
         <h2 class="section-title animate-on-scroll">Why Choose TRANSOVA?</h2>
@@ -267,7 +462,7 @@
 <!-- Testimonials -->
 <section class="testimonials-section">
     <div class="container">
-        <h2 class="section-title animate-on-scroll mb-5">What Our Customers Say</h2>
+<h2 class="section-title animate-on-scroll mb-5">Why Our Customers Say</h2>
         <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
@@ -311,6 +506,9 @@
     </div>
 </section>
 
+<!-- Enhanced bottom spacing for testimonials -->
+<div style="padding-bottom: 100px;"></div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -329,6 +527,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Countdown animation for CTA
+    function updateCountdown() {
+        const now = new Date();
+        const nextHour = new Date(now.getTime() + 60 * 60 * 1000);
+        const diff = nextHour - now;
+        const minutes = Math.floor(diff / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        if (document.getElementById('countdown')) {
+            document.getElementById('countdown').textContent = `Only ${minutes}m ${seconds}s left!`;
+            document.getElementById('countdown').style.animation = 'count 1s ease-in-out';
+            setTimeout(() => document.getElementById('countdown').style.animation = '', 1000);
+        }
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 });
 </script>
 {% endblock %}

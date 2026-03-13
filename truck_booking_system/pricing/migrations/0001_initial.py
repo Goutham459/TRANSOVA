@@ -9,27 +9,53 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('fleet', '0001_initial'),
+        ("fleet", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LoadType',
+            name="LoadType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('price_multiplier', models.FloatField(help_text='Example: Sand=1.0, Cement=1.3, Steel=1.5')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "price_multiplier",
+                    models.FloatField(
+                        help_text="Example: Sand=1.0, Cement=1.3, Steel=1.5"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Subscription',
+            name="Subscription",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=8)),
-                ('start_date', models.DateField(auto_now_add=True)),
-                ('end_date', models.DateField()),
-                ('is_active', models.BooleanField(default=False)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='fleet.company')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=8)),
+                ("start_date", models.DateField(auto_now_add=True)),
+                ("end_date", models.DateField()),
+                ("is_active", models.BooleanField(default=False)),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="fleet.company"
+                    ),
+                ),
             ],
         ),
     ]

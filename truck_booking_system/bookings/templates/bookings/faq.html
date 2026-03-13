@@ -397,11 +397,13 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            1. Login to your TRANSOVA dashboard<br>
-                            2. Click "Book a Truck"<br>
-                            3. Enter pickup/drop locations (GPS auto-detects)<br>
-                            4. Select truck type & load weight<br>
-                            5. Review price & pay securely
+                            1. Dashboard → "New Booking"<br>
+                            2. Enter GPS pickup/drop locations<br>
+                            3. Select load type & weight<br>
+                            4. Review auto-calculated price<br>
+                            5. Pay 20% deposit → Instant SMS receipt<br><br>
+                            <strong>Dashboard: {% url 'customer_dashboard' %}</strong>
+                        
                         </div>
                     </div>
                     
@@ -411,10 +413,13 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Yes! From your dashboard:
-                            - Edit: Click booking > "Edit Details"
-                            - Cancel: Before driver assignment (24hr notice)
-                            No fee if >48hrs; 25% fee within 48hrs. Email support@transova.com
+                            <strong>PENDING bookings only (no truck assigned):</strong><br>
+                            Dashboard → My Bookings → Edit date/locations or Cancel<br>
+                            • >48h: Free<br>
+                            • 24-48h: 25% fee<br>
+                            Confirmed? Email support@transova.com w/ booking ID<br><br>
+                            <strong>{% url 'customer_booking_list' %}</strong>
+                        
                         </div>
                     </div>
                     
@@ -424,12 +429,13 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Required:
-                            - Pickup/drop addresses (or GPS pins)
-                            - Date & time window
-- Load type/weight
-                            - Your contact number
-                            Optional: Special instructions for driver
+                            <strong>Required:</strong><br>
+                            • Customer name & phone<br>
+                            • GPS pin pickup/drop ({% url 'customer_booking' %})<br>
+                            • Date/time slot<br>
+                            • Load type & weight (e.g. 10T steel)<br><br>
+                            <strong>Optional:</strong> GSTIN, special notes
+                        
                         </div>
                     </div>
                 </div>
@@ -446,8 +452,12 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Cards (Visa/Mastercard), UPI, Wallet balance, Bank transfer.
-                            Secure 256-bit encryption. See payment success/cancel pages for receipts.
+                            <strong>Secure options:</strong> Visa/MC/UPI/Netbanking/Wallet<br>
+                            • Razorpay gateway (India)<br>
+                            • Instant receipts<br>
+                            • Failed? Check limits/try alternate<br><br>
+                            <strong>{% url 'payment' %}</strong>
+                        
                         </div>
                     </div>
                     
@@ -457,8 +467,12 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Yes, 20% advance deposit. Balance paid on delivery proof upload.
-                            Driver confirms receipt with photo/signature via ProofOfDelivery.
+                            <strong>Yes, 20% upfront deposit.</strong><br>
+                            Balance auto-released on:<br>
+                            • Driver POD upload (photo + signature)<br>
+                            • Booking marked COMPLETE<br><br>
+                            Track: Dashboard → My Bookings → Status
+                        
                         </div>
                     </div>
                     
@@ -468,8 +482,11 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Distance x base rate + 5% commission + load factor.
-                            Transparent breakdown shown before booking.
+                            <strong>Formula:</strong> Distance(km) × ₹10/km base + load multiplier + 5% platform fee<br>
+                            • Transparent calculator in booking form<br>
+                            • View breakdown before payment<br>
+                            • Subscriptions save 20% commission
+                        
                         </div>
                     </div>
                 </div>
@@ -486,8 +503,13 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Yes! Live GPS tracking on dashboard > My Bookings.
-                            Driver location updates every 5min. Notifications for arrival/departure.
+                            <strong>Yes - Live GPS:</strong><br>
+                            1. Dashboard → My Bookings → Track<br>
+                            2. Real-time map + ETA<br>
+                            3. SMS alerts (arrived/pickup)<br>
+                            4. Share tracking link<br><br>
+                            <strong>{% url 'customer_booking_list' %}</strong>
+                        
                         </div>
                     </div>
                     
@@ -497,8 +519,12 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            SMS/email notifications for delays >15min. Track live on dashboard.
-                            Driver must notify before pickup. support@transova.com for disputes.
+                            <strong>Live SMS if >15min late.</strong> Track on dashboard.<br>
+                            • Driver notifies pre-pickup<br>
+                            • >1h delay? Report w/ screenshot<br>
+                            • Auto-cancel option (no fee)<br><br>
+                            Email: support@transova.com + Booking ID
+                        
                         </div>
                     </div>
                     
@@ -508,8 +534,13 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Yes: Background check, DL verification, truck inspection, 2+ yrs experience req.
-                            Company-vetted fleet only. View driver profile before booking.
+                            <strong>✅ All verified:</strong><br>
+                            • Police/DL check<br>
+                            • Truck RC/insurance<br>
+                            • 2+ years experience<br>
+                            • Company-only (no individuals)<br><br>
+                            View profile before accept bid
+                        
                         </div>
                     </div>
                 </div>
@@ -526,8 +557,12 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Click on "Forgot Password" on the login page and enter your 
-                            email. You'll receive a link to reset your password.
+                            1. Login page → "Forgot Password"<br>
+                            2. Enter email (Gmail only)<br>
+                            3. Get OTP link<br>
+                            4. Set new password (8+ chars)<br><br>
+                            <strong>{% url 'forgot_password' %}</strong>
+                        
                         </div>
                     </div>
                     
@@ -537,8 +572,13 @@
                             <i class="bi bi-chevron-down faq-icon"></i>
                         </div>
                         <div class="faq-answer">
-                            Go to your Dashboard and click on "Profile" to update your 
-                            personal information, contact details, and preferences.
+                            1. Dashboard → Profile tab<br>
+                            2. Edit name/phone/email<br>
+                            3. Upload photo/logo<br>
+                            4. Update password<br>
+                            5. Save changes → Instant update<br><br>
+                            <strong>{% url 'profile' %}</strong>
+                        
                         </div>
                     </div>
                 </div>
