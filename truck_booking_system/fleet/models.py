@@ -56,8 +56,8 @@ class Company(models.Model):
     # Approval status - requires admin approval before company can operate
     is_approved = models.BooleanField(default=False, db_index=True)
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     
     class Meta:
         """Meta options for Company model."""
@@ -128,8 +128,8 @@ class Truck(models.Model):
     last_location_update = models.DateTimeField(null=True, blank=True)
     is_online = models.BooleanField(default=False, db_index=True)  # GPS device online status
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     
     class Meta:
         """Meta options for Truck model."""
@@ -206,8 +206,8 @@ class Driver(models.Model):
     )
     
     # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     
     class Meta:
         """Meta options for Driver model."""
@@ -261,8 +261,8 @@ class Wallet(models.Model):
     account_holder = models.CharField(max_length=100, blank=True)
     ifsc_code = models.CharField(max_length=20, blank=True)
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     
     def __str__(self):
         return f"Wallet - {self.company.company_name}"

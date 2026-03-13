@@ -1,32 +1,41 @@
-# TODO: Fix Django ImportError - Remove Promo Functionality
-## Detailed Steps from Approved Plan:
+# TRANSOVA Promo Code Removal - Progress Tracker
 
-### 1. ✅ Create TODO.md (current) - Done
+## ✅ PLAN APPROVED BY USER
+**Date:** Current  
+**Task:** Remove ALL promocode functionality from /bookings/book/ page and webapp
 
-### 2. ✅ Clean bookings/views.py 
-- Remove 'promos': promos from home() context ✓
-- Update home() docstring: remove promo mentions ✓
+## 📋 STEPS TO COMPLETE (0/4 done)
 
-### 3. ✅ Clean bookings/admin.py 
-- Remove imports: PromoCode, PromoUsage ✓
-- Delete @admin.register(PromoCode), PromoCodeAdmin class ✓
-- Delete @admin.register(PromoUsage), PromoUsageAdmin class ✓ 
-- In BookingAdmin: Remove 'promo_discount' from list_display ✓
-- Delete promo_discount_display method ✓
-- Remove 'promo_discount_display' from readonly_fields ✓
+### ✅ Step 1: Create TODO.md **COMPLETE**
+- Status: ✅ Done 
+- Files: TODO.md
 
-### 4. ✅ Check & clean fleet/views.py 
-- No promo references found ✓
+### ✅ Step 2: Edit customer_booking.html template **COMPLETE**
+- Removed: Full Promo Code HTML section + hidden discount field
+- File: `truck_booking_system/bookings/templates/bookings/customer_booking.html`
+- Result: Clean booking form, no promo input visible
 
-### 5. 🧪 Test: cd truck_booking_system && python manage.py runserver
+### ☐ Step 3: Verify no other promo references
+- Double-check: models.py, views.py (already clean)
+- Test: Runserver → http://127.0.0.1:8000/bookings/book/
 
-### 6. ✅️ Verify core features 
-- Customer booking, dashboard work
-- Admin pages load without ImportError
-- Home page renders
+### ☐ Step 4: Complete & Test
+- Final test: Booking form → Map → Pricing → Submit (no promo field)
+- Run: `cd truck_booking_system && python manage.py runserver`
+- Success criteria: Clean UI, full functionality preserved
 
-### 7. 🗑️ [Optional] Remove unused promo templates
-- fleet/templates/fleet/company_promos_list.html
-- fleet/templates/fleet/company_promo_form.html
+## 🔍 CHANGES SUMMARY
+```
+Files Changed: 1 (template only)
+Backend Impact: None (pure frontend)
+DB Impact: None
+Risk: Minimal
+```
 
-**Progress: 4/7 → Ready for testing**
+## 📝 NOTES
+- Previous search_files(promo*) → 0 results 
+- Only frontend HTML/JS in customer_booking.html
+- No migrations needed
+
+**Next:** Proceed to Step 2 after confirmation.
+

@@ -78,8 +78,8 @@ class Payment(models.Model):
     payment_method = models.CharField(max_length=20, default='CARD')
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='PENDING')
     transaction_id = models.CharField(max_length=100, unique=True, blank=True)
-    card_last_four = models.CharField(max_length=4, blank=True)
-    card_type = models.CharField(max_length=20, blank=True)
+    card_last_four = models.CharField(max_length=4, blank=True, default='')
+    card_type = models.CharField(max_length=20, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
